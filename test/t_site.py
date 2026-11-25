@@ -14,7 +14,7 @@ async def main():
     await pg.fill('#pt-q','  '+REAL.upper()+' '); await pg.click('#pt-go'); await pg.wait_for_timeout(800)
     print('2', (await txt())[:260], '| url', pg.url); await pg.screenshot(path='/tmp/s_kids.png')
     await pg.click('[data-rr=install]'); await pg.wait_for_timeout(300); await pg.screenshot(path='/tmp/s_ios_help.png'); print('3 help:', (await pg.inner_text('.dialog'))[:200].replace('\n',' / '))
-    await pg.click('.dialog [data-close]')
+    await pg.click('.dialog [data-rr=helpdone]')
     await pg.reload(); await pg.wait_for_timeout(1000); print('4 after reload:', (await txt())[:80])
     if await pg.locator('[data-rr=noinstall]').count(): await pg.click('[data-rr=noinstall]'); await pg.wait_for_timeout(300)  # the home-screen ask after login
     await pg.locator('.ptkid').first.click(); await pg.wait_for_timeout(200)
