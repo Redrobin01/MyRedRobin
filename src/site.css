@@ -23,3 +23,6 @@ body.parentmode #main{padding:0;max-width:none}
 .rrn{flex:0 0 28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}
 .rrico{width:22px;height:22px;vertical-align:-5px;fill:none;stroke:var(--info);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .rrico circle{fill:var(--info);stroke:none}
+/* login screen sits nearer the middle; version clear of the "Powered by Netlify" badge (Chris, 25-Nov 09:40) */
+.ptphone .ptlogin{padding-top:max(14vh, 48px);padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+.ptphone .ptlogin.rrload{padding-top:max(14vh, 48px)}
