@@ -12,16 +12,23 @@ concurrency:
   group: pages
   cancel-in-progress: true
 jobs:
-  publish:
+  # Two jobs (GitHub's usual pattern): the deploy kept failing with "No artifacts named github-pages"
+  # when it ran straight after the upload in the same job (25-Nov-2026), so it now waits for the upload job.
+  upload:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
+  publish:
+    needs: upload
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - run: sleep 15
       - id: deploy
         uses: actions/deploy-pages@v4
