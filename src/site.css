@@ -35,3 +35,4 @@ body.parentmode #main{padding:0;max-width:none}
 .rrask p{color:var(--muted);margin:0 0 26px;max-width:300px;line-height:1.45}
 .rrask .ptbig{width:100%;max-width:340px}
 .rrask .rrnot{margin-top:14px;font-size:1rem;padding:10px 18px}
+.rrhelp .rrnot{display:block;margin:12px auto 0;font-size:1rem;padding:8px 18px}

@@ -654,6 +654,7 @@ body.parentmode #main{padding:0;max-width:none}
 .rrask p{color:var(--muted);margin:0 0 26px;max-width:300px;line-height:1.45}
 .rrask .ptbig{width:100%;max-width:340px}
 .rrask .rrnot{margin-top:14px;font-size:1rem;padding:10px 18px}
+.rrhelp .rrnot{display:block;margin:12px auto 0;font-size:1rem;padding:8px 18px}
 
 </style>
 </head>
@@ -661,7 +662,7 @@ body.parentmode #main{padding:0;max-width:none}
 <main id="main"></main>
 <div id="modal"></div>
 <script>
-const CONFIG = {"api": "https://script.google.com/macros/s/AKfycbwWruMZQLLSaN1fFWjAN5NN-YXZSFIfdl3qM4ykaevZYo2K5FrfEKEnfYzZbyKBJejx/exec", "version": "0.2.14", "demo": true};
+const CONFIG = {"api": "https://script.google.com/macros/s/AKfycbwWruMZQLLSaN1fFWjAN5NN-YXZSFIfdl3qM4ykaevZYo2K5FrfEKEnfYzZbyKBJejx/exec", "version": "0.2.15", "demo": true};
 </script>
 <script>
 
@@ -1100,7 +1101,8 @@ function installHelp(){
     ? `<p>Click the button and then <b>Install</b>. You'll get a My Red Robin icon on your computer.</p><button type="button" class="btn primary ptbig" data-rr="doinstall">Install on this computer</button>`
     : `<p>In Chrome or Edge, click the install icon at the right of the address bar. In Safari: <b>File › Add to Dock</b>. Or simply bookmark this page.</p><p class="small muted">The easiest way is on your phone: open the link from the email there.</p>`;
   ptDialog(`<div class="rrhelp"><img src="icons/icon-192.png" alt="" width="64" height="64"><h2>Add to your home screen</h2>${body}
-    <button type="button" class="btn ptbig" data-rr="helpdone">${APP.ask ? "Done – go to my classes" : "Close"}</button></div>`);
+    <button type="button" class="btn ptbig" data-rr="helpdone">${APP.ask ? "Done – go to my classes" : "Close"}</button>
+    ${APP.ask ? `<button type="button" class="ptlink rrnot" data-rr="noinstall">Not now</button>` : ""}</div>`);
 }
 
 /* login screen: the Rocker's, plus the app's own messages, a loading state and the version */
@@ -1133,7 +1135,7 @@ ptClick = function(el){
 function rrClick(el){
   const k = el.dataset.rr;
   if(k==="install") installHelp();
-  if(k==="noinstall"){ APP.ask = false; render(); window.scrollTo(0,0); }   /* this visit only – asks again next time */
+  if(k==="noinstall"){ closeAllDialogs(); APP.ask = false; render(); window.scrollTo(0,0); }   /* this visit only – asks again next time */
   if(k==="helpdone"){ try{ localStorage.setItem(DONE, new Date().toISOString()); }catch(e){} closeAllDialogs(); if(APP.ask){ APP.ask = false; render(); window.scrollTo(0,0); } }
   if(k==="doinstall" && APP.installEvt){ APP.installEvt.prompt(); APP.installEvt.userChoice.finally(()=>{ APP.installEvt = null; APP.ask = false; closeAllDialogs(); render(); }); }
   if(k==="retry"){ const c = APP.retry; APP.retry = null; APP.msg = ""; loadByCode(c); }

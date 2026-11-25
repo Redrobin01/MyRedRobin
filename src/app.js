@@ -143,7 +143,8 @@ function installHelp(){
     ? `<p>Click the button and then <b>Install</b>. You'll get a My Red Robin icon on your computer.</p><button type="button" class="btn primary ptbig" data-rr="doinstall">Install on this computer</button>`
     : `<p>In Chrome or Edge, click the install icon at the right of the address bar. In Safari: <b>File › Add to Dock</b>. Or simply bookmark this page.</p><p class="small muted">The easiest way is on your phone: open the link from the email there.</p>`;
   ptDialog(`<div class="rrhelp"><img src="icons/icon-192.png" alt="" width="64" height="64"><h2>Add to your home screen</h2>${body}
-    <button type="button" class="btn ptbig" data-rr="helpdone">${APP.ask ? "Done – go to my classes" : "Close"}</button></div>`);
+    <button type="button" class="btn ptbig" data-rr="helpdone">${APP.ask ? "Done – go to my classes" : "Close"}</button>
+    ${APP.ask ? `<button type="button" class="ptlink rrnot" data-rr="noinstall">Not now</button>` : ""}</div>`);
 }
 
 /* login screen: the Rocker's, plus the app's own messages, a loading state and the version */
@@ -176,7 +177,7 @@ ptClick = function(el){
 function rrClick(el){
   const k = el.dataset.rr;
   if(k==="install") installHelp();
-  if(k==="noinstall"){ APP.ask = false; render(); window.scrollTo(0,0); }   /* this visit only – asks again next time */
+  if(k==="noinstall"){ closeAllDialogs(); APP.ask = false; render(); window.scrollTo(0,0); }   /* this visit only – asks again next time */
   if(k==="helpdone"){ try{ localStorage.setItem(DONE, new Date().toISOString()); }catch(e){} closeAllDialogs(); if(APP.ask){ APP.ask = false; render(); window.scrollTo(0,0); } }
   if(k==="doinstall" && APP.installEvt){ APP.installEvt.prompt(); APP.installEvt.userChoice.finally(()=>{ APP.installEvt = null; APP.ask = false; closeAllDialogs(); render(); }); }
   if(k==="retry"){ const c = APP.retry; APP.retry = null; APP.msg = ""; loadByCode(c); }
