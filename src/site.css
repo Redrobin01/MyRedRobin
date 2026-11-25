@@ -28,3 +28,10 @@ body.parentmode #main{padding:0;max-width:none}
 .ptphone .ptlogin.rrload{padding-top:max(14vh, 48px)}
 /* Carla, 25-Nov 10:04: a vibrant cadmium red instead of the brownish rust */
 :root{ --accent:#d7202b; --accent-soft:#fde6e6; --s1:#d7202b; }
+/* the "Put My Red Robin on your home screen" screen after login */
+.rrask{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:max(8vh, 28px)}
+.rrask img{border-radius:22px;box-shadow:0 8px 24px rgba(0,0,0,.15);margin-bottom:18px}
+.rrask h2{font-family:inherit;font-weight:700;font-size:1.45rem;line-height:1.25;margin:0 0 10px;max-width:300px}
+.rrask p{color:var(--muted);margin:0 0 26px;max-width:300px;line-height:1.45}
+.rrask .ptbig{width:100%;max-width:340px}
+.rrask .rrnot{margin-top:14px;font-size:1rem;padding:10px 18px}

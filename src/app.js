@@ -49,7 +49,7 @@ async function api(params){
 function useData(d){
   d.family.kids.forEach(k=>{ if(!k.terms) k.terms = [d.term]; }); /* bridge v1 doesn't send the student's terms: this term only */
   APP.data = d; S.classes = d.classes; S.settings = {CurrentTerm:d.term}; S.term = d.term;
-  PT = null; ptInit(); APP.state = "in";
+  PT = null; ptInit(); APP.state = "in"; if(!APP.asked){ APP.ask = wantInstall(); APP.asked = true; } /* once per visit */
   store.set(d.code);
   const u = new URL(location.href); if(u.searchParams.get("c")!==d.code){ u.searchParams.set("c", d.code); history.replaceState(null, "", u); } /* so "Add to Home Screen" keeps them logged in */
 }
@@ -99,10 +99,18 @@ function browserKind(){ /* which browser on the phone, so the home-screen steps 
   if(/SamsungBrowser/i.test(ua)) return "samsung";
   return phoneKind()==="ios" ? "safari" : "chrome";
 }
-function installBanner(){
-  if(standalone() || (()=>{ try{ return localStorage.getItem("rrswaps-noinstall"); }catch(e){ return 1; } })()) return "";
-  return `<div class="rrinst"><img src="icons/icon-192.png" alt="" width="44" height="44"><div><b>Put My Red Robin on your home screen</b><span>Then just tap the robin next time.</span></div>
-    <div class="rrinstb"><button type="button" class="btn primary small" data-rr="install">Show me how</button><button type="button" class="ptlink" data-rr="noinstall">Not now</button></div></div>`;
+/* Straight after login, a screen of its own asking them to put the app on their home screen (Chris, 25-Nov 10:34).
+   "Not now" goes through to their children and asks again in a week; it never shows once the app is on the home screen. */
+const SNOOZE = "rrswaps-noinstall";
+function wantInstall(){ if(standalone()) return false;
+  try{ const t = Number(localStorage.getItem(SNOOZE) || 0); return !(t && Date.now() < t); }catch(e){ return false; } }
+function installScreen(){
+  return ptTop("Class swaps") + `<div class="ptbody rrask">
+    <img src="icons/icon-192.png" alt="" width="96" height="96">
+    <h2>Put My Red Robin on your home screen</h2>
+    <p>Next time, just tap the robin – no need to find this link or log in again.</p>
+    <button type="button" class="btn primary ptbig" data-rr="install">Show me how</button>
+    <button type="button" class="ptlink rrnot" data-rr="noinstall">Not now</button></div>`;
 }
 function installHelp(){
   const k = phoneKind();
@@ -134,7 +142,7 @@ function installHelp(){
     ? `<p>Click the button and then <b>Install</b>. You'll get a My Red Robin icon on your computer.</p><button type="button" class="btn primary ptbig" data-rr="doinstall">Install on this computer</button>`
     : `<p>In Chrome or Edge, click the install icon at the right of the address bar. In Safari: <b>File › Add to Dock</b>. Or simply bookmark this page.</p><p class="small muted">The easiest way is on your phone: open the link from the email there.</p>`;
   ptDialog(`<div class="rrhelp"><img src="icons/icon-192.png" alt="" width="64" height="64"><h2>Add to your home screen</h2>${body}
-    <button type="button" class="btn ptbig" data-close>Close</button></div>`);
+    <button type="button" class="btn ptbig" data-rr="helpdone">${APP.ask ? "Done – go to my classes" : "Close"}</button></div>`);
 }
 
 /* login screen: the Rocker's, plus the app's own messages, a loading state and the version */
@@ -147,9 +155,9 @@ ptLogin = function(){
 };
 function viewPortal(){
   if(APP.state==="loading" || APP.state==="start") return `<div class="ptwrap"><div class="ptphone"><div class="ptlogin rrload">${ptLogo()}<h3>Red Robin Art Academy</h3><p class="small muted">Loading your classes…</p><div class="rrspin" aria-hidden="true"></div></div></div></div>`;
-  let screen = !APP.data ? ptLogin() : !PT.sid ? ptChildren() : ptStudent();
+  let screen = !APP.data ? ptLogin() : APP.ask ? installScreen() : !PT.sid ? ptChildren() : ptStudent();
   if(APP.data){
-    const top = (CONFIG.demo ? `<div class="rrdemo">Preview – swaps made here are not saved yet</div>` : "") + installBanner();
+    const top = (CONFIG.demo ? `<div class="rrdemo">Preview – swaps made here are not saved yet</div>` : "");
     screen = screen.replace('<div class="ptbody">', '<div class="ptbody">' + top);
   }
   return `<div class="ptwrap"><div class="ptphone">${screen}</div></div>`;
@@ -167,8 +175,9 @@ ptClick = function(el){
 function rrClick(el){
   const k = el.dataset.rr;
   if(k==="install") installHelp();
-  if(k==="noinstall"){ try{ localStorage.setItem("rrswaps-noinstall", "1"); }catch(e){} render(); }
-  if(k==="doinstall" && APP.installEvt){ APP.installEvt.prompt(); APP.installEvt.userChoice.finally(()=>{ APP.installEvt = null; closeAllDialogs(); render(); }); }
+  if(k==="noinstall"){ try{ localStorage.setItem(SNOOZE, String(Date.now() + 7*864e5)); }catch(e){} APP.ask = false; render(); window.scrollTo(0,0); }
+  if(k==="helpdone"){ closeAllDialogs(); if(APP.ask){ APP.ask = false; render(); window.scrollTo(0,0); } }
+  if(k==="doinstall" && APP.installEvt){ APP.installEvt.prompt(); APP.installEvt.userChoice.finally(()=>{ APP.installEvt = null; APP.ask = false; closeAllDialogs(); render(); }); }
   if(k==="retry"){ const c = APP.retry; APP.retry = null; APP.msg = ""; loadByCode(c); }
 }
 
@@ -179,7 +188,7 @@ document.addEventListener("click", ev=>{
 });
 document.addEventListener("keydown", ev=>{ if(ev.key==="Escape") closeDialog(); });
 window.addEventListener("beforeinstallprompt", e=>{ e.preventDefault(); APP.installEvt = e; });
-window.addEventListener("appinstalled", ()=>{ APP.installEvt = null; try{ localStorage.setItem("rrswaps-noinstall", "1"); }catch(e){} render(); });
+window.addEventListener("appinstalled", ()=>{ APP.installEvt = null; APP.ask = false; closeAllDialogs(); render(); });
 /* coming back to the app after a while: fetch fresh numbers (only when nothing is open) */
 let hiddenAt = 0;
 document.addEventListener("visibilitychange", ()=>{ if(document.hidden){ hiddenAt = Date.now(); return; }
