@@ -10,6 +10,7 @@
 // Families are found by their PERSONAL LINK (a random code in the PortalLinks tab) or by typing the
 // email on their registration form. Too many wrong emails from anywhere = a short pause.
 //
+// v2 (25-Nov-2026): make-ups can be in any term within a year of the missed class (owed swaps last a year).
 // v1 (24-Nov-2026): READ ONLY. Swaps made in the app are a demo for now - nothing is written to the
 // Swaps tab. The only thing it ever writes is a new row in PortalLinks when someone logs in by email
 // for the first time (their personal code), so the app can remember them.
@@ -31,7 +32,7 @@ const DB_ID         = '1U6ra-LmwQIFJKGtI0f1nuP6sAnjama4Zq36TQalptYk'; // Red Rob
 const FORM_ID       = '1rasCtoX6Ox8ZBqulykS8HJN6GjzygfbSYYgqSmfvKzA'; // Children's registration form responses
 const ADULT_FORM_ID = '13Wk9b8XW0j5F9cLkwK7_6pi06fcCl2TOfMuYc9AVBec'; // Adults' registration form responses
 const LINKS_TAB     = 'PortalLinks';                                   // Email | Code | Created | Note
-const VERSION       = 'bridge v1 (24-Nov-2026)';
+const VERSION       = 'bridge v2 (25-Nov-2026)';
 const TEST_DOMAIN   = '@redrobin.test';                                // test1@ … test4@ - made-up families for trying things out
 
 // ---------------- web entry points ----------------
@@ -75,7 +76,16 @@ function family_(p) {
   const myCode = code || codeFor_(who);
   const used = {}; fam.kids.forEach(function (k) { k.enr.forEach(function (x) { used[x.cid] = 1; }); });
   const groups = {}; Object.keys(used).forEach(function (cid) { groups[groupOf_(d.byId[cid])] = 1; });
-  const classes = d.classes.filter(function (c) { return groups[groupOf_(c)]; });  // only the classes this family could swap into
+  const refs = {}; fam.kids.forEach(function (k) { refs[k.ref] = 1; });
+  const swaps = d.swaps.filter(function (w) { return refs[w.sid]; });
+  swaps.forEach(function (w) { used[w.from] = 1; if (w.to) used[w.to] = 1; });
+  // classes they could swap into: any term, same group, with a date between today and a year (plus a bit) ahead
+  const until = yearOn_(yearOn_(d.today));   // a missed date later this term + a year is still inside this
+  const classes = d.all.filter(function (c) {
+    if (used[c.ClassID]) return true;
+    if (!groups[groupOf_(c)]) return false;
+    return (d.sessions[c.ClassID] || []).some(function (x) { return x >= d.today && x <= until; });
+  });
   const sessions = {}, counts = {};
   classes.forEach(function (c) {
     sessions[c.ClassID] = d.sessions[c.ClassID] || [];
@@ -83,8 +93,6 @@ function family_(p) {
     sessions[c.ClassID].forEach(function (iso) { row[iso] = n + (d.swapDelta[c.ClassID + '|' + iso] || 0); });
     counts[c.ClassID] = row;
   });
-  const refs = {}; fam.kids.forEach(function (k) { refs[k.ref] = 1; });
-  const swaps = d.swaps.filter(function (w) { return refs[w.sid]; });
   return {
     ok: true, version: VERSION, code: myCode, term: d.term, termEnd: d.termEnd,
     family: { label: fam.label, adult: fam.adult, test: !!fam.test, kids: fam.kids },
@@ -127,9 +135,10 @@ function data_() {
   const db = SpreadsheetApp.openById(DB_ID);
   const tab = function (name) { const sh = db.getSheetByName(name); return sh ? objects_(sh.getDataRange().getDisplayValues()) : []; };
   const settings = {}; tab('Settings').forEach(function (r) { settings[r.Setting] = r.Value; });
-  const term = String(settings.CurrentTerm || '').trim();
-  const classes = tab('Classes').filter(function (c) { return c.ClassID && c.Term === term && !/^workshop/i.test(c.Type); });
-  const byId = {}; classes.forEach(function (c) { byId[c.ClassID] = c; });
+  const term = String(settings.CurrentTerm || '').trim(), today = today_();
+  const all = tab('Classes').filter(function (c) { return c.ClassID && !/^workshop/i.test(c.Type); });   // every term: make-ups can be in a later term
+  const byId = {}; all.forEach(function (c) { byId[c.ClassID] = c; });
+  const classes = all.filter(function (c) { return c.Term === term; });
   const td = tab('TermDates').filter(function (r) { return r.Term === term; })[0];
   const termEnd = td ? iso_(td.End) : '';
   const sessions = {};
@@ -138,28 +147,30 @@ function data_() {
     (sessions[s.ClassID] = sessions[s.ClassID] || []).push(day);
   });
   Object.keys(sessions).forEach(function (k) { sessions[k] = sessions[k].filter(function (x, i, a) { return a.indexOf(x) === i; }).sort(); });
-  const enrols = tab('Enrolments').filter(function (e) { return e.Term === term && byId[e.ClassID]; });
   const base = {}, enrolByRef = {}, enrolById = {};
-  enrols.forEach(function (e) {
+  tab('Enrolments').forEach(function (e) {
+    if (!byId[e.ClassID]) return;
     enrolById[e.EnrolmentID] = e;
-    const out = /^(left|absent)/i.test(e.Status); if (out) return;
-    base[e.ClassID] = (base[e.ClassID] || 0) + 1;
-    const ref = String(e.Ref || '').trim(); if (!ref) return;
-    (enrolByRef[ref] = enrolByRef[ref] || []).push({ eid: e.EnrolmentID, cid: e.ClassID });
+    if (/^(left|absent)/i.test(e.Status)) return;
+    base[e.ClassID] = (base[e.ClassID] || 0) + 1;                                         // places taken, any term
+    const ref = String(e.Ref || '').trim(); if (!ref || e.Term !== term) return;
+    (enrolByRef[ref] = enrolByRef[ref] || []).push({ eid: e.EnrolmentID, cid: e.ClassID }); // who's in this term's classes
   });
-  // swaps already in the Swaps tab (made by Carla from WhatsApp): they change the numbers, and the family's own are shown
+  // swaps already in the Swaps tab (made by Carla from WhatsApp): they change the numbers, and the family's own are shown.
+  // A family sees this term's swaps plus older ones still open: owed for a year, booked until the make-up has happened.
   const swaps = [], swapDelta = {};
   tab('Swaps').forEach(function (r) {
-    if (!r.SwapID || /^cancel/i.test(r.Status) || !enrolById[r.EnrolmentID] || !byId[r.FromClass]) return;
+    const e = enrolById[r.EnrolmentID];
+    if (!r.SwapID || /^cancel/i.test(r.Status) || !e || !byId[r.FromClass]) return;
     const booked = /^booked/i.test(r.Status), owed = /^owed/i.test(r.Status);
     if (!booked && !owed) return; if (booked && !byId[r.ToClass]) return;
-    const w = { id: 'R' + r.SwapID, eid: r.EnrolmentID, sid: String(enrolById[r.EnrolmentID].Ref).trim(), from: r.FromClass, fd: iso_(r.FromDate) || '',
-      to: booked ? r.ToClass : '', td: booked ? (iso_(r.ToDate) || '') : '', status: booked ? 'booked' : 'owed', real: true };
-    swaps.push(w);
+    const w = { id: 'R' + r.SwapID, eid: r.EnrolmentID, sid: String(e.Ref).trim(), from: r.FromClass, fd: iso_(r.FromDate) || '',
+      to: booked ? r.ToClass : '', td: booked ? (iso_(r.ToDate) || '') : '', status: booked ? 'booked' : 'owed', real: true, cur: e.Term === term };
     if (booked) swapDelta[w.to + '|' + w.td] = (swapDelta[w.to + '|' + w.td] || 0) + 1;
     swapDelta[w.from + '|' + w.fd] = (swapDelta[w.from + '|' + w.fd] || 0) - 1;
+    if (w.cur || (owed && w.fd && yearOn_(w.fd) >= today) || (booked && w.td >= today)) swaps.push(w);
   });
-  return { term: term, termEnd: termEnd, classes: classes, byId: byId, sessions: sessions, base: base, enrolByRef: enrolByRef, swaps: swaps, swapDelta: swapDelta, students: students_() };
+  return { term: term, termEnd: termEnd, today: today, classes: classes, all: all, byId: byId, sessions: sessions, base: base, enrolByRef: enrolByRef, swaps: swaps, swapDelta: swapDelta, students: students_() };
 }
 
 // Every student on the two registration forms, with the emails on their row. Columns are found by their heading.
@@ -209,6 +220,9 @@ function codeFor_(email) {
 }
 
 // 16 random letters and digits (no look-alikes) - far too many to guess
+function today_() { return Utilities.formatDate(new Date(), 'Europe/London', 'yyyy-MM-dd').slice(0, 10); }
+function yearOn_(iso) { const m = String(iso || '').match(/^(\d{4})(-\d{2}-\d{2})/); return m ? (Number(m[1]) + 1) + m[2] : ''; }   // the same date a year later
+
 function newCode_() {
   const abc = 'abcdefghjkmnpqrstuvwxyz23456789'; let s = '';
   const bytes = Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, '');
