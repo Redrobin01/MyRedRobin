@@ -291,7 +291,7 @@ function ptClick(el){
     closeAllDialogs(); render(); ptCelebrate(fromH, ptWhenH(cid, iso)); return; } /* Chris, 24-Nov 22:12: a fun "Swap confirmed" pop-up + ding, then back to the child's classes */
   if(k==="dolater"){ const kid = ptKid(p[1]); PT.swaps.push({id:"D"+PT.seq++, sid:kid.ref, eid:(kid.enr.find(x=>x.cid===p[2])||{}).eid, from:p[2], fd:p[3], to:"", td:"", status:"owed"});
     closeAllDialogs(); render(); toast(`Saved as an owed swap for ${ptFirst(kid.name)}.`); return; }
-  if(k==="undo"){ const w = PT.swaps.find(x=>x.id===p[1]), kid = ptKid(w.sid); ptConfirm(`Cancel this swap? <b>${esc(ptFirst(kid.name))}</b> will come to <b>${ptWhenH(w.from, w.fd)}</b> as usual, and gets the swap back.`, "Cancel swap", `doundo|${w.id}`, `manage|${w.id}`); return; }
+  if(k==="undo"){ const w = PT.swaps.find(x=>x.id===p[1]), kid = ptKid(w.sid); ptConfirm(`Cancel this swap? <b>${esc(ptFirst(kid.name))}</b> will come to <b>${ptWhenH(w.from, w.fd)}</b> as usual.`, "Cancel swap", `doundo|${w.id}`, `manage|${w.id}`); return; }
   if(k==="doundo"){ const w = PT.swaps.find(x=>x.id===p[1]); PT.swaps = PT.swaps.filter(x=>x.id!==p[1]); closeAllDialogs(); render(); if(w) ptCancelPop(w); return; }
   if(k==="toowed"){ const w = PT.swaps.find(x=>x.id===p[1]); ptConfirm(`Cancel the class on <b>${ptWhenH(w.to, w.td)}</b>? It goes back to an owed swap you can book later.`, "Cancel class", `dotoowed|${w.id}`, `manage|${w.id}`); return; }
   if(k==="dotoowed"){ const w = PT.swaps.find(x=>x.id===p[1]), was = Object.assign({}, w); Object.assign(w, {to:"", td:"", status:"owed"}); closeAllDialogs(); render(); ptToOwedPop(was); return; }
