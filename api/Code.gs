@@ -10,6 +10,11 @@
 // Families are found by their PERSONAL LINK (a random code in the PortalLinks tab) or by typing the
 // email on their registration form. Too many wrong emails from anywhere = a short pause.
 //
+// v3 (25-Nov-2026): SWAPS ARE SAVED for real families (action=change): a new swap, "book later" (owed), booking or
+//   changing the class for an owed/booked swap, cancelling a swap, or turning a booked one back into owed. Every change
+//   is checked again here (the family's own child and class, the date hasn't started, space in the class, a term the
+//   child is in, within a year) while holding a lock, so two families can't take the last place. Rows go in the Swaps
+//   tab with the note "My Red Robin app" and show in the Rocker's Swaps tab. Test families (…@redrobin.test) are never saved.
 // v2 (25-Nov-2026): make-ups can be in any term within a year of the missed class (owed swaps last a year),
 //   but only in terms the student is in a class (not Left/Absent) - "still an active Red Robin student".
 // v1 (24-Nov-2026): READ ONLY. Swaps made in the app are a demo for now - nothing is written to the
@@ -33,7 +38,7 @@ const DB_ID         = '1U6ra-LmwQIFJKGtI0f1nuP6sAnjama4Zq36TQalptYk'; // Red Rob
 const FORM_ID       = '1rasCtoX6Ox8ZBqulykS8HJN6GjzygfbSYYgqSmfvKzA'; // Children's registration form responses
 const ADULT_FORM_ID = '13Wk9b8XW0j5F9cLkwK7_6pi06fcCl2TOfMuYc9AVBec'; // Adults' registration form responses
 const LINKS_TAB     = 'PortalLinks';                                   // Email | Code | Created | Note
-const VERSION       = 'bridge v2 (25-Nov-2026)';
+const VERSION       = 'bridge v3 (25-Nov-2026)';
 const TEST_DOMAIN   = '@redrobin.test';                                // test1@ … test4@ - made-up families for trying things out
 
 // ---------------- web entry points ----------------
@@ -44,6 +49,7 @@ function doGet(e) {
   try {
     if (p.action === 'ping') out = { ok: true, version: VERSION };
     else if (p.action === 'family') out = family_(p);
+    else if (p.action === 'change') out = change_(p);
     else out = { ok: false, error: 'unknown' };
   } catch (err) {
     out = { ok: false, error: 'server', message: String(err && err.message || err) };
@@ -130,6 +136,90 @@ function testFamily_(d, email) {
   return kids.length ? { label: f[0], adult: f[1], test: true, kids: kids } : null;
 }
 
+// ---------------- saving a swap (v3) ----------------
+
+const SWAP_HEAD = ['SwapID', 'Term', 'EnrolmentID', 'Ref', 'Name', 'FromClass', 'FromDate', 'ToClass', 'ToDate', 'Status', 'Note', 'Created'];
+const MAX_ = { Children: 16, Adults: 15 };
+
+function change_(p) {
+  const code = String(p.code || '').trim();
+  const row = code && links_().filter(function (r) { return r.code === code; })[0];
+  if (!row) return { ok: false, error: 'badcode' };
+  if (row.email.slice(-TEST_DOMAIN.length) === TEST_DOMAIN) return { ok: false, error: 'test', message: 'Test families are never saved.' };
+  const lock = LockService.getScriptLock(); lock.waitLock(30000);
+  try {
+    const d = data_(), fam = realFamily_(d, row.email);
+    if (!fam) return { ok: false, error: 'badcode' };
+    const kids = {}; fam.kids.forEach(function (k) { kids[k.ref] = k; });
+    const sh = SpreadsheetApp.openById(DB_ID).getSheetByName('Swaps');
+    if (!sh) throw new Error('No Swaps tab in the database.');
+    const op = String(p.op || '');
+    const fail = function (error, message) { return { ok: false, error: error, message: message }; };
+    const started = function (cid, iso) { return startsAt_(d.byId[cid], iso) <= nowLondon_(); };
+    const isSession = function (cid, iso) { return (d.sessions[cid] || []).indexOf(iso) >= 0; };
+    const places = function (cid, iso) { return (d.base[cid] || 0) + (d.swapDelta[cid + '|' + iso] || 0); };
+    const maxOf = function (c) { return num_(c.Capacity) || MAX_[groupOf_(c)]; };
+    const checkTarget = function (kid, fromCid, fd, to, td) {   // can this child come to class `to` on `td` instead?
+      const c = d.byId[to], own = d.byId[fromCid];
+      if (!c || !own || groupOf_(c) !== groupOf_(own)) return 'That class isn\'t available.';
+      if (kid.enr.some(function (x) { return x.cid === to; })) return 'That\'s already one of their own classes.';
+      if (!isSession(to, td) || started(to, td)) return 'That class has already started or isn\'t running.';
+      if ((kid.terms || []).indexOf(c.Term) < 0 && Object.keys(d.termsByRef[kid.ref] || {}).indexOf(c.Term) < 0) return 'They aren\'t booked into that term.';
+      if (fd && td > yearOn_(fd)) return 'The new class has to be within a year of the missed class.';
+      if (places(to, td) >= maxOf(c)) return 'full';
+      return '';
+    };
+    const find = function (id) {   // a swap in the Swaps tab that belongs to this family
+      const sid = String(id || '').replace(/^R/, ''), vals = sh.getDataRange().getDisplayValues(), h = vals[0];
+      for (let i = 1; i < vals.length; i++) if (String(vals[i][0]) === sid) {
+        const o = {}; h.forEach(function (k, j) { o[k] = vals[i][j]; }); o._row = i + 1;
+        return kids[String(o.Ref).trim()] && /^(booked|owed)/i.test(o.Status) ? o : null;
+      }
+      return null;
+    };
+    const stamp = Utilities.formatDate(new Date(), 'Europe/London', 'dd-MMM-yyyy HH:mm');
+    if (op === 'swap' || op === 'later') {
+      const kid = fam.kids.filter(function (k) { return k.enr.some(function (x) { return x.eid === p.eid; }); })[0];
+      if (!kid) return fail('bad', 'That child isn\'t in this family.');
+      const enr = kid.enr.filter(function (x) { return x.eid === p.eid; })[0], from = enr.cid, fd = String(p.fd || '');
+      if (p.from && p.from !== from) return fail('bad', 'That isn\'t their class.');
+      if (!isSession(from, fd) || started(from, fd)) return fail('closed', 'That class has already started, so it can\'t be swapped.');
+      if (d.allSwaps.some(function (w) { return w.eid === p.eid && w.fd === fd; })) return fail('dup', 'That class has already been swapped.');
+      if (op === 'swap') { const why = checkTarget(kid, from, fd, p.to, p.td); if (why) return why === 'full' ? fail('full', 'Sorry – that class has just filled up.') : fail('bad', why); }
+      sh.appendRow([newSwapId_(), d.byId[from].Term, p.eid, kid.ref, kid.name, from, ukDate_(fd), op === 'swap' ? p.to : '', op === 'swap' ? ukDate_(p.td) : '',
+        op === 'swap' ? 'Booked' : 'Owed', 'My Red Robin app', stamp]);
+    } else if (op === 'book' || op === 'toowed' || op === 'cancel') {
+      const w = find(p.id); if (!w) return fail('gone', 'That swap has changed – please refresh.');
+      const kid = kids[String(w.Ref).trim()], fd = iso_(w.FromDate), td = iso_(w.ToDate);
+      if (op === 'book') {
+        if (/^booked/i.test(w.Status) && td && started(w.ToClass, td)) return fail('closed', 'That class has already started, so it can\'t be changed.');
+        const why = checkTarget(kid, w.FromClass, fd, p.to, p.td); if (why) return why === 'full' ? fail('full', 'Sorry – that class has just filled up.') : fail('bad', why);
+        sh.getRange(w._row, 8, 1, 4).setValues([[p.to, ukDate_(p.td), 'Booked', noteAdd_(w.Note, 'changed in the app ' + stamp)]]);
+      } else if (op === 'toowed') {
+        if (!/^booked/i.test(w.Status) || started(w.ToClass, td)) return fail('closed', 'That class has already started, so it can\'t be cancelled.');
+        sh.getRange(w._row, 8, 1, 4).setValues([['', '', 'Owed', noteAdd_(w.Note, 'class cancelled in the app ' + stamp)]]);
+      } else {
+        if (started(w.FromClass, fd) || (/^booked/i.test(w.Status) && td && started(w.ToClass, td))) return fail('closed', 'Too late to cancel this swap.');
+        sh.getRange(w._row, 10, 1, 2).setValues([['Cancelled', noteAdd_(w.Note, 'cancelled in the app ' + stamp)]]);
+      }
+    } else return fail('bad', 'Unknown change.');
+    SpreadsheetApp.flush();
+  } finally { lock.releaseLock(); }
+  const fresh = family_({ code: code });
+  return { ok: true, data: fresh };
+}
+
+function startsAt_(c, iso) {   // "2026-11-30 16:30" for a class on that date
+  const m = String((c || {}).Time || '').toLowerCase().match(/(\d{1,2})(?:[.:](\d{2}))?\s*(am|pm)?/);
+  let h = m ? Number(m[1]) : 0; const mi = m && m[2] ? m[2] : '00';
+  if (m && m[3] === 'pm' && h < 12) h += 12; if (m && m[3] === 'am' && h === 12) h = 0;
+  return iso + ' ' + ('0' + h).slice(-2) + ':' + mi;
+}
+function nowLondon_() { return Utilities.formatDate(new Date(), 'Europe/London', 'yyyy-MM-dd HH:mm'); }
+function ukDate_(iso) { const m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? m[3] + '-' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][Number(m[2]) - 1] + '-' + m[1] : String(iso || ''); }
+function newSwapId_() { Utilities.sleep(5); return 'W' + Date.now().toString(36).toUpperCase(); }
+function noteAdd_(note, more) { note = String(note || '').trim(); return note ? note + '; ' + more : 'My Red Robin app: ' + more; }
+
 // ---------------- reading the sheets ----------------
 
 function data_() {
@@ -161,7 +251,7 @@ function data_() {
   });
   // swaps already in the Swaps tab (made by Carla from WhatsApp): they change the numbers, and the family's own are shown.
   // A family sees this term's swaps plus older ones still open: owed for a year, booked until the make-up has happened.
-  const swaps = [], swapDelta = {};
+  const swaps = [], swapDelta = {}, allSwaps = [];
   tab('Swaps').forEach(function (r) {
     const e = enrolById[r.EnrolmentID];
     if (!r.SwapID || /^cancel/i.test(r.Status) || !e || !byId[r.FromClass]) return;
@@ -169,11 +259,12 @@ function data_() {
     if (!booked && !owed) return; if (booked && !byId[r.ToClass]) return;
     const w = { id: 'R' + r.SwapID, eid: r.EnrolmentID, sid: String(e.Ref).trim(), from: r.FromClass, fd: iso_(r.FromDate) || '',
       to: booked ? r.ToClass : '', td: booked ? (iso_(r.ToDate) || '') : '', status: booked ? 'booked' : 'owed', real: true, cur: e.Term === term };
+    allSwaps.push(w);
     if (booked) swapDelta[w.to + '|' + w.td] = (swapDelta[w.to + '|' + w.td] || 0) + 1;
     swapDelta[w.from + '|' + w.fd] = (swapDelta[w.from + '|' + w.fd] || 0) - 1;
     if (w.cur || (owed && w.fd && yearOn_(w.fd) >= today) || (booked && w.td >= today)) swaps.push(w);
   });
-  return { term: term, termEnd: termEnd, today: today, classes: classes, all: all, byId: byId, sessions: sessions, base: base, enrolByRef: enrolByRef, termsByRef: termsByRef, swaps: swaps, swapDelta: swapDelta, students: students_() };
+  return { term: term, termEnd: termEnd, today: today, classes: classes, all: all, byId: byId, sessions: sessions, base: base, enrolByRef: enrolByRef, termsByRef: termsByRef, swaps: swaps, allSwaps: allSwaps, swapDelta: swapDelta, students: students_() };
 }
 
 // Every student on the two registration forms, with the emails on their row. Columns are found by their heading.

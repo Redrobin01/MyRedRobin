@@ -663,7 +663,7 @@ body.parentmode #main{padding:0;max-width:none}
 <main id="main"></main>
 <div id="modal"></div>
 <script>
-const CONFIG = {"api": "https://script.google.com/macros/s/AKfycbwWruMZQLLSaN1fFWjAN5NN-YXZSFIfdl3qM4ykaevZYo2K5FrfEKEnfYzZbyKBJejx/exec", "version": "0.2.16", "demo": true};
+const CONFIG = {"api": "https://script.google.com/macros/s/AKfycbwWruMZQLLSaN1fFWjAN5NN-YXZSFIfdl3qM4ykaevZYo2K5FrfEKEnfYzZbyKBJejx/exec", "version": "0.3", "demo": false};
 </script>
 <script>
 
@@ -1118,7 +1118,8 @@ function viewPortal(){
   if(APP.state==="loading" || APP.state==="start") return `<div class="ptwrap"><div class="ptphone"><div class="ptlogin rrload">${ptLogo()}<h3>Red Robin Art Academy</h3><p class="small muted">Loading your classes…</p><div class="rrspin" aria-hidden="true"></div></div></div></div>`;
   let screen = !APP.data ? ptLogin() : APP.ask ? installScreen() : !PT.sid ? ptChildren() : ptStudent();
   if(APP.data){
-    const top = (CONFIG.demo ? `<div class="rrdemo">Preview – swaps made here are not saved yet</div>` : "");
+    const top = (CONFIG.demo ? `<div class="rrdemo">Preview – swaps made here are not saved yet</div>`
+      : APP.data.family.test ? `<div class="rrdemo">Test family – swaps made here are not saved</div>` : "");
     screen = screen.replace('<div class="ptbody">', '<div class="ptbody">' + top);
   }
   return `<div class="ptwrap"><div class="ptphone">${screen}</div></div>`;
@@ -1131,8 +1132,37 @@ ptClick = function(el){
   if(k==="login"){ const i = $("#pt-q"); const v = i ? i.value : ""; if(PT) PT._q = v; APP.msg = ""; if(ptEmailOk(v)) loginByEmail(v); return; }
   if(k==="logout"){ closeAllDialogs(); forget(); APP.state = "out"; APP.msg = ""; APP.retry = null; render(); return; }
   if(k==="reset"||k==="parent"||k==="exit") return;
+  if(SAVES[k] && saving()) return saveChange(el, k, el.dataset.pt.split("|"));
   return _ptClick(el);
 };
+/* ----- saving swaps for real (25-Nov-2026, Chris: "make the link live") -----
+   Every confirmed change goes to the bridge first; it checks everything again (space, dates, the family's own child)
+   and writes the Swaps tab. Only when it says OK does the family see "Swap confirmed!". Test families stay a demo. */
+const SAVES = {do:1, dolater:1, doundo:1, dotoowed:1};
+function saving(){ return !CONFIG.demo && APP.data && !APP.data.family.test; }
+async function saveChange(el, k, p){
+  let req, done;
+  if(k==="do"){ const [ , mode, sid, own, ref, cid, iso] = p, kid = ptKid(sid);
+    if(mode==="swap"){ req = {op:"swap", eid:(kid.enr.find(x=>x.cid===own)||{}).eid, from:own, fd:ref, to:cid, td:iso}; }
+    else req = {op:"book", id:ref, to:cid, td:iso};
+    const w = mode==="swap" ? null : PT.swaps.find(x=>x.id===ref), fromH = mode==="swap" ? ptWhenH(own, ref) : (w && w.fd ? ptWhenH(w.from, w.fd) : "The missed class"), toH = ptWhenH(cid, iso);
+    done = ()=>ptCelebrate(fromH, toH); }
+  if(k==="dolater"){ const kid = ptKid(p[1]); req = {op:"later", eid:(kid.enr.find(x=>x.cid===p[2])||{}).eid, from:p[2], fd:p[3]}; done = ()=>toast(`Saved as an owed swap for ${ptFirst(kid.name)}.`); }
+  if(k==="doundo"){ req = {op:"cancel", id:p[1]}; done = ()=>toast("Swap cancelled."); }
+  if(k==="dotoowed"){ req = {op:"toowed", id:p[1]}; done = ()=>toast("Class cancelled – saved as an owed swap."); }
+  const btns = [...document.querySelectorAll("#modal button")], label = el.textContent;
+  btns.forEach(b=>b.disabled = true); el.textContent = "Saving…";
+  const undoBusy = ()=>{ btns.forEach(b=>b.disabled = false); el.textContent = label; };
+  try{
+    const r = await api(Object.assign({action:"change", code:APP.data.code}, req));
+    if(r.ok){ closeAllDialogs(); refreshFrom(r.data); done(); return; }
+    if(r.error==="badcode"){ closeAllDialogs(); forget(); APP.state = "out"; APP.msg = "Please log in again."; render(); return; }
+    closeAllDialogs(); toast(r.error==="unknown" ? "Saving isn't switched on yet – nothing was saved. Please try again later." : (r.message || "Sorry – that couldn't be saved. Please try again."));
+    refreshQuietly();
+  }catch(e){ undoBusy(); toast("Couldn't connect – nothing was saved. Please check your internet and try again."); }
+}
+function refreshFrom(d){ if(!d || !d.ok) return; const sid = PT && PT.sid, all = PT && PT.all; useData(d); if(PT){ PT.sid = sid; PT.all = all || {}; } $("#main").innerHTML = viewPortal(); }
+async function refreshQuietly(){ try{ const d = await api({action:"family", code:APP.data.code}); refreshFrom(d); }catch(e){} }
 function rrClick(el){
   const k = el.dataset.rr;
   if(k==="install") installHelp();
