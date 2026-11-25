@@ -47,6 +47,7 @@ async function api(params){
   finally{ clearTimeout(t); }
 }
 function useData(d){
+  d.family.kids.forEach(k=>{ if(!k.terms) k.terms = [d.term]; }); /* bridge v1 doesn't send the student's terms: this term only */
   APP.data = d; S.classes = d.classes; S.settings = {CurrentTerm:d.term}; S.term = d.term;
   PT = null; ptInit(); APP.state = "in";
   store.set(d.code);

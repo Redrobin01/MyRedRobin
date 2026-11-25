@@ -10,7 +10,8 @@
 // Families are found by their PERSONAL LINK (a random code in the PortalLinks tab) or by typing the
 // email on their registration form. Too many wrong emails from anywhere = a short pause.
 //
-// v2 (25-Nov-2026): make-ups can be in any term within a year of the missed class (owed swaps last a year).
+// v2 (25-Nov-2026): make-ups can be in any term within a year of the missed class (owed swaps last a year),
+//   but only in terms the student is in a class (not Left/Absent) - "still an active Red Robin student".
 // v1 (24-Nov-2026): READ ONLY. Swaps made in the app are a demo for now - nothing is written to the
 // Swaps tab. The only thing it ever writes is a new row in PortalLinks when someone logs in by email
 // for the first time (their personal code), so the app can remember them.
@@ -103,7 +104,7 @@ function family_(p) {
 
 function realFamily_(d, email) {
   const kids = d.students.filter(function (s) { return s.emails.indexOf(email) >= 0 && d.enrolByRef[s.ref]; })
-    .map(function (s) { return { ref: s.ref, name: s.name, adult: s.adult, enr: d.enrolByRef[s.ref] }; })
+    .map(function (s) { return { ref: s.ref, name: s.name, adult: s.adult, enr: d.enrolByRef[s.ref], terms: Object.keys(d.termsByRef[s.ref] || {}) }; })
     .sort(function (a, b) { return a.name.localeCompare(b.name); });
   if (!kids.length) return null;
   const adult = kids.every(function (k) { return k.adult; });
@@ -124,7 +125,7 @@ function testFamily_(d, email) {
   };
   const f = fams[email.split('@')[0]]; if (!f) return null;
   const kids = f[2].filter(function (k) { return k[1]; }).map(function (k, i) {
-    return { ref: 'T' + f[3] + i, name: k[0], adult: f[1], enr: [{ eid: 'TE' + f[3] + i, cid: k[1].ClassID }] };
+    return { ref: 'T' + f[3] + i, name: k[0], adult: f[1], enr: [{ eid: 'TE' + f[3] + i, cid: k[1].ClassID }], terms: [d.term] };
   });
   return kids.length ? { label: f[0], adult: f[1], test: true, kids: kids } : null;
 }
@@ -147,13 +148,15 @@ function data_() {
     (sessions[s.ClassID] = sessions[s.ClassID] || []).push(day);
   });
   Object.keys(sessions).forEach(function (k) { sessions[k] = sessions[k].filter(function (x, i, a) { return a.indexOf(x) === i; }).sort(); });
-  const base = {}, enrolByRef = {}, enrolById = {};
+  const base = {}, enrolByRef = {}, enrolById = {}, termsByRef = {};
   tab('Enrolments').forEach(function (e) {
     if (!byId[e.ClassID]) return;
     enrolById[e.EnrolmentID] = e;
     if (/^(left|absent)/i.test(e.Status)) return;
     base[e.ClassID] = (base[e.ClassID] || 0) + 1;                                         // places taken, any term
-    const ref = String(e.Ref || '').trim(); if (!ref || e.Term !== term) return;
+    const ref = String(e.Ref || '').trim(); if (!ref) return;
+    (termsByRef[ref] = termsByRef[ref] || {})[e.Term] = 1;                                   // terms they're active in: swaps can only go there
+    if (e.Term !== term) return;
     (enrolByRef[ref] = enrolByRef[ref] || []).push({ eid: e.EnrolmentID, cid: e.ClassID }); // who's in this term's classes
   });
   // swaps already in the Swaps tab (made by Carla from WhatsApp): they change the numbers, and the family's own are shown.
@@ -170,7 +173,7 @@ function data_() {
     swapDelta[w.from + '|' + w.fd] = (swapDelta[w.from + '|' + w.fd] || 0) - 1;
     if (w.cur || (owed && w.fd && yearOn_(w.fd) >= today) || (booked && w.td >= today)) swaps.push(w);
   });
-  return { term: term, termEnd: termEnd, today: today, classes: classes, all: all, byId: byId, sessions: sessions, base: base, enrolByRef: enrolByRef, swaps: swaps, swapDelta: swapDelta, students: students_() };
+  return { term: term, termEnd: termEnd, today: today, classes: classes, all: all, byId: byId, sessions: sessions, base: base, enrolByRef: enrolByRef, termsByRef: termsByRef, swaps: swaps, swapDelta: swapDelta, students: students_() };
 }
 
 // Every student on the two registration forms, with the emails on their row. Columns are found by their heading.

@@ -39,6 +39,11 @@ function ptClasses(){ return S.classes.filter(c=>c.Term===ptTerm() && !isWorksho
 function ptAnyClasses(){ return S.classes.filter(c=>!isWorkshop(c)); } /* make-ups can be in any term (Chris, 25-Nov 09:15) */
 function ptYear(iso){ const d = isoDate(iso); if(!d) return ""; d.setFullYear(d.getFullYear()+1); return toIso(d); } /* a make-up lasts a year from the missed class */
 function ptToday(){ return toIso(new Date()); }
+function ptActiveTerms(kid){ /* terms this student is in a class (not Left/Absent): a swap can only go into one of those (Chris, 25-Nov 09:33) */
+  if(kid.terms) return new Set(kid.terms);
+  if(/^T/.test(kid.ref)) return new Set([ptTerm()]);
+  return new Set(S.enrol.filter(e=>String(e.Ref)===String(kid.ref) && !/^(left|absent)/i.test(e.Status||"") && classById(e.ClassID) && !isWorkshop(classById(e.ClassID))).map(e=>e.Term));
+}
 function ptSessions(cid){ return sessAll().filter(s=>s.ClassID===cid && s.day && !/^cancel/i.test(s.Status)).map(s=>s.day).sort(); }
 function ptBase(cid){ return classRoster(cid).filter(v=>!v.left && !v.absent).length; }
 function ptCount(cid, iso){ let n = ptBase(cid);
@@ -85,7 +90,8 @@ function ptUsedHtml(sid){ const u = ptUsed(sid); return `<span class="ptused${u>
 function ptOptions(kid, cid, skip){ /* classes this student could go to instead of a date in class cid */
   const own = classById(cid), mine = new Set(PT.swaps.filter(w=>w.sid===kid.ref && w.status==="booked").map(w=>w.to+"|"+w.td)), myCls = new Set(kid.enr.map(x=>x.cid));
   const until = ptYear(ptMissedOf(cid, skip)) || ptYear(ptToday());
-  return ptAnyClasses().filter(c=>ptGrp(c)===ptGrp(own) && !myCls.has(c.ClassID)) /* any children's class, any term; adults: adult classes */
+  const terms = ptActiveTerms(kid);
+  return ptAnyClasses().filter(c=>ptGrp(c)===ptGrp(own) && !myCls.has(c.ClassID) && terms.has(c.Term)) /* any children's class in a term they're enrolled in; adults: adult classes */
     .flatMap(c=>ptSessions(c.ClassID).map(iso=>({cid:c.ClassID, iso, dt:ptDt(c.ClassID, iso)})))
     .filter(x=>x.iso<=until && ptOpen(x.cid, x.iso) && !mine.has(x.cid+"|"+x.iso) && skip!==x.cid+"|"+x.iso)
     .map(x=>({...x, spaces: ptMax(classById(x.cid)) - ptCount(x.cid, x.iso)})).sort((a,b)=>a.dt-b.dt);
