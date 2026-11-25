@@ -178,7 +178,7 @@ function viewPortal(){
 function ptRules(){
   ptDialog(`<h2>How it works</h2><ul class="ptrl">
     <li>Up to <b>${PT_LIMIT} swaps</b> per student each term.</li>
-    <li>The new class can be <b>any time within a year</b> of the missed class, provided you are still an active Red Robin student at that time.</li>
+    <li>The new class can be <b>any time within a year</b> of the missed class, provided there is space and you are still an active Red Robin student at that time.</li>
     <li>Children can go to <b>any other children's class</b>. Adults can go to <b>any other adult class</b>.</li>
     <!-- class maximums (16 children / 15 adults) are not shown to families, only the spaces left (Chris, 25-Nov 09:25) -->
     <li>Can't come and don't know when you can swap to? Choose <b>"book the swap later"</b>. It stays as an owed swap for a year.</li></ul>
