@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>My Red Robin</title>
+<meta name="description" content="Swap your Red Robin Art Academy classes.">
+<meta name="theme-color" content="#b9481f">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="My Red Robin">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+
+/* Red Robin studio skin: warm paper, deep ink bar, robin-breast red used sparingly for the brand mark, active tab and primary actions.
+   Layout: frozen ink header + tab strip, then one working view of tables and pop-outs. */
+:root{
+  --bg:#f3f1ec; --surface:#ffffff; --ink:#2a2622; --muted:#6e675d; --line:#e3ded5;
+  --accent:#b9481f; --accent-ink:#ffffff; --accent-soft:#f8e7dd;
+  --bar:#050505; --bar-ink:#ece6dc; --bar-muted:#a19a8d; --bar-line:#2c2a27;
+  --hover:#f9f6f1; --sel:#f6ece4;
+  --s1:#b9481f; --s2:#1f6fa8;
+  --good:#2f7a4f; --good-soft:#e5f2ea; --warn:#9a5d0c; --warn-soft:#fbefda; --bad:#b0302a; --bad-soft:#fae3e0;
+  --info:#3d5b78; --info-soft:#e8eef4;
+  --display:Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  --body:"Open Sans", "Segoe UI", system-ui, sans-serif;
+  --r:12px;
+  color-scheme: light;
+}
+/* Day colours only (Chris, 21-Nov-2026): no night/dark mode, whatever the phone or computer is set to. */
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--body);}
+h1,h2,h3{font-family:var(--display);font-weight:400;text-wrap:balance;margin:0;line-height:1.15;letter-spacing:-.005em}
+h1{font-size:1.25rem}
+h2{font-size:1.45rem}
+h3{font-size:1.08rem}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.small{font-size:.88rem}
+
+header.top{background:var(--bar);color:var(--bar-ink);padding:7px 20px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+header.top .btn{background:transparent;color:var(--bar-ink);border-color:var(--bar-line)}
+header.top .btn:hover{border-color:var(--bar-muted)}
+header.top select{background:transparent;color:var(--bar-ink);border-color:var(--bar-line)}
+header.top select option{color:#27211e;background:#fff}
+header.top .termsel label{color:var(--bar-muted)}
+.brand{display:flex;align-items:center;gap:12px;flex:1 1 auto;min-width:0}
+.brand .logo{flex:none;border-radius:50%;display:block;box-shadow:0 0 0 1px var(--bar-line)}
+.brand .wm{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:14px;row-gap:2px;line-height:1.1}
+.brand .wm b{font:400 1.35rem/1 var(--display);letter-spacing:.02em}
+.brand .wm span{font:italic 400 .9rem/1.2 var(--display);letter-spacing:.01em;color:var(--bar-muted)}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--accent);flex:none}
+.testbadge{margin-left:auto;margin-right:6px;font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--bar-line);color:var(--bar-muted);padding:2px 8px;border-radius:999px;align-self:center}
+.termsel{display:flex;gap:8px;align-items:center}
+select,input[type=text],input[type=number],input[type=search],input[type=email],input[type=tel],textarea{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+/* Title bar and tabs stay put while the page scrolls */
+#tydetail{scroll-margin-top:110px}
+.stickybar{position:sticky;top:0;z-index:15;box-shadow:0 6px 18px rgba(40,28,22,.06)}
+nav.tabs{display:flex;gap:2px;padding:0 20px;background:var(--surface);border-bottom:1px solid var(--line);overflow-x:auto}
+nav.tabs a{padding:12px 14px 10px;text-decoration:none;color:var(--muted);font-weight:600;letter-spacing:.01em;border-bottom:2px solid transparent;white-space:nowrap}
+nav.tabs a:hover{color:var(--ink)}
+nav.tabs a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--accent)}
+main.wide{max-width:1480px}
+main.wide table.reg{font-size:.92rem;line-height:1.4}
+main.wide table.reg th,main.wide table.reg td{padding:9px 11px}
+main.wide table.reg th{font-size:.72rem}
+main.wide table.reg tfoot th{font-size:.92rem}
+main.wide table.reg td.clip{max-width:260px}
+main.wide table.reg td.notes{min-width:220px;max-width:340px}
+main.wide table.reg td.nm{min-width:180px}
+main{max-width:1200px;margin:0 auto;padding:24px 20px 64px;display:flex;flex-direction:column;gap:20px}
+
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;cursor:pointer;font-weight:600;transition:border-color .15s,background .15s}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.small{padding:4px 9px;font-size:.88rem}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.btn.busy{cursor:progress}
+.linkbtn{background:none;border:0;padding:0;color:var(--ink);cursor:pointer;font-weight:600;text-align:left;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.linkbtn:hover{text-decoration-color:var(--accent)}
+.nsdoneblock{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:0 0 10px} .nsdone{margin:6px 0 0;padding-left:18px} .nsdone li{margin:2px 0}
+.fullycol{width:64px;white-space:nowrap} .fullycol input{width:18px;height:18px;accent-color:var(--good);cursor:pointer} .fullycol input:disabled{cursor:default}
+.fullycol .fs{display:none} .fullyauto{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:var(--good);color:#fff;font-size:13px;font-weight:700;line-height:1;vertical-align:middle}
+@media (max-width:600px){ .fullycol{width:30px;padding-left:2px!important;padding-right:2px!important} .fullycol .fl{display:none} .fullycol .fs{display:inline} }
+.tpltokens{display:flex;gap:6px;flex-wrap:wrap} .tplbody{width:100%;font:inherit;line-height:1.45;resize:vertical} .tplprev pre{white-space:pre-wrap;font:inherit;margin:6px 0 0;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.gcline{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:0 0 6px;font-size:.88rem;line-height:1.45} .gcform{display:flex;flex-direction:column;gap:10px;margin-top:10px} .gcform input{width:100%}
+.famsel{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;color:var(--muted)} .famsel select{font:inherit;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)} .famsel.on{color:var(--accent);font-weight:600} .famsel.on select{border-color:var(--accent);color:var(--accent);font-weight:600}
+.placebtns{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.wlmv{display:flex;flex-direction:column;gap:8px;margin-top:4px}.wlmv .wlmvrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border:1px solid var(--line);border-radius:8px;padding:6px 10px}.wlmv .wlmvrow b{flex:1 1 120px}.wlmv select{flex:1 1 220px;max-width:100%}
+.placebar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between;background:var(--accent-soft,#fdf1ef);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:4px 0 12px}
+
+.banner{border-radius:var(--r);padding:12px 14px;border:1px solid var(--line);background:var(--surface)}
+.banner.err{background:var(--bad-soft);border-color:transparent;color:var(--ink)}
+.banner.warn{background:var(--warn-soft);border-color:transparent}
+.banner.info{background:var(--info-soft);border-color:transparent}
+.banner.good{background:var(--good-soft);border-color:transparent}
+
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;border-top:3px solid var(--accent)}
+.tile .k{font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.tile .v{font:400 1.7rem/1.2 var(--display);font-variant-numeric:tabular-nums lining-nums;margin-top:4px}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:8px;cursor:pointer;text-align:left}
+.card:hover{border-color:var(--muted)}
+.card .row{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.bar{height:6px;border-radius:999px;background:var(--line);overflow:hidden}
+.bar>span{display:block;height:100%;background:var(--good)}
+@media (prefers-reduced-motion: no-preference){ .btn,.linkbtn{transition:all .15s} }
+@media (max-width:520px){ .brand .wm span{display:none} header.top{padding:10px 16px} nav.tabs{padding:0 12px} main{padding:18px 16px 48px} }
+
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:.78rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.info{background:var(--info-soft);color:var(--info)}
+.pill.med{background:var(--accent-soft);color:var(--accent)}
+.pill.plain{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+
+.section{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.section{box-shadow:0 1px 2px rgba(40,28,22,.04)}
+.section>.head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.list{display:flex;flex-direction:column}
+.item{display:grid;grid-template-columns:minmax(180px,1.4fr) minmax(160px,1.2fr) minmax(170px,1fr) auto;gap:10px 16px;padding:12px 14px;border-bottom:1px solid var(--line);align-items:start}
+.item:last-child{border-bottom:0}
+.item.flag{box-shadow:inset 4px 0 0 var(--accent)}
+.item.left{opacity:.6}
+.item .name{font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.medtext{background:var(--accent-soft);border-radius:8px;padding:6px 8px;font-size:.92rem}
+.medtext b{color:var(--accent)}
+.money{text-align:right}
+.actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+@media (max-width:760px){
+  .item{grid-template-columns:1fr;}
+  .money,.actions{text-align:left;justify-content:flex-start}
+}
+table{border-collapse:collapse;width:100%}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:.74rem;color:var(--muted);font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+thead th{background:var(--surface)}
+td.r,th.r{text-align:right}
+.tablewrap{overflow-x:auto}
+/* Frozen column headings: the table scrolls with the page, so its headings stick just under the frozen top bar */
+.tablewrap.sticky{overflow:visible}
+.section.stickysec{overflow:visible}
+.section.stickysec thead tr:first-child th:first-child{border-top-left-radius:var(--r)}
+.section.stickysec thead tr:first-child th:last-child{border-top-right-radius:var(--r)}
+table.classtbl td{padding:5px 10px;vertical-align:middle}
+table.classtbl .wlgo{padding:2px 9px}
+table.week.sticky{font-size:.9rem}
+table.week.sticky th,table.week.sticky td{padding:7px 8px}
+table.week.sticky td:nth-child(4){min-width:180px}
+table.week.sticky th{white-space:nowrap}
+/* a page's own heading row can freeze too, with the table headings sitting just under it */
+.regpagehead{display:flex;flex-direction:column;gap:10px}
+.histbtn{display:inline-flex;align-items:center;justify-content:center;padding:6px 9px}
+.histlist{display:flex;flex-direction:column;max-height:60vh;overflow:auto;margin:0 -4px;padding:0 4px}
+.histrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.histrow:last-child{border-bottom:0}.histrow.undone{opacity:.6}
+.toast{display:flex;align-items:center;gap:12px;max-width:calc(100vw - 24px)}
+.wlgo{white-space:nowrap}
+@media (max-width:600px){ .pagehead.wlstick > .rowgap{flex-wrap:nowrap} .pagehead.wlstick h2 > .muted{display:none} .phx{display:none} .wltools > .rowgap{flex-wrap:nowrap;gap:8px} .wltools .wlq-in{flex:1 1 auto !important;min-width:0;max-width:none !important;width:auto} .wltools .rowgap > span[style]{display:none} .wltools .btn{flex:none} }.wlph{display:none}
+@media (max-width:600px){ .wlcol{display:none} .wlph{display:table-cell} .clstiles{display:none} table.classtbl .morebtn{min-width:28px;height:28px} table.classtbl td,table.classtbl th{padding:5px 5px} table.classtbl th{font-size:.68rem;letter-spacing:.02em} table.classtbl .pill{font-size:.7rem;padding:2px 6px} table.classtbl tr > :first-child{display:none} table.classtbl tr > :nth-child(2){padding-left:12px} table.classtbl .wlph{padding-right:10px} .wlnum.zero{color:var(--muted)} }
+.wlgo.none{color:var(--muted)}
+.pagehead{position:sticky;top:var(--stick,100px);z-index:6;background:var(--bg);padding:10px 0;margin:-10px 0}
+table.sticky thead th{position:sticky;top:var(--stick2,var(--stick,100px));z-index:5;background:var(--surface);box-shadow:0 1px 0 var(--line)}
+table.week tr.upcoming td:first-child{box-shadow:inset 3px 0 0 var(--info)}
+@media (max-width:900px){ .tablewrap.sticky{overflow-x:auto} table.sticky thead th{position:static} .pagehead{position:static;margin:0;padding:0} }
+.wltools{position:sticky;top:var(--stick3,100px);z-index:6;background:var(--bg);padding:0 0 10px;display:flex;flex-direction:column;gap:10px}
+.pagehead.wlstick{padding-bottom:10px;margin-bottom:0}
+.pagehead.wlstick + .wltools{margin-top:-16px}
+@media (max-width:900px){ .pagehead.wlstick{position:-webkit-sticky;position:sticky;z-index:12;padding:8px 0;margin:-8px 0 0;box-shadow:0 1px 0 var(--line);-webkit-transform:translateZ(0);transform:translateZ(0)} .wltools{position:relative;top:auto;z-index:1;padding:0} .pagehead.wlstick + .wltools{margin-top:0}
+  .wlsec .tablewrap.sticky{overflow-x:visible} .wlsec table.sticky thead th{position:sticky;top:var(--stick2,100px)} }
+
+tfoot th{border-top:1px solid var(--ink);border-bottom:0;color:var(--ink);font-weight:700;font-size:.9rem;letter-spacing:0;text-transform:none}
+td.c,th.c{text-align:center}
+.nowrap{white-space:nowrap}
+.mtph,.mtcatph{display:none}
+.mtnbtn{background:none;border:0;padding:0;font:inherit;text-align:left;cursor:pointer;color:var(--ink);font-size:.86rem}
+.mtnbtn .nt{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-style:italic;border-left:2px solid var(--accent);padding-left:7px;overflow-wrap:anywhere}
+.mtnbtn.empty{color:var(--muted);font-weight:600;font-size:.78rem;opacity:.8}
+.mtnbtn.empty:hover{opacity:1;color:var(--accent)}
+td.mtnote{min-width:150px;max-width:260px}
+.mtcnrow{font-size:.8rem;line-height:1.35;margin:1px 0} .mtcnwho{font-weight:600;color:var(--ink)}
+.mtcn{color:var(--muted)} .mtcnro .mtcn{opacity:.75;font-style:italic}
+.mtcnedit{cursor:text;border-radius:5px;padding:1px 3px;margin:-1px -3px;display:inline-block;min-width:60px} .mtcnedit:hover{background:var(--accent-soft)}
+.mtcnrow:hover .noteadd, .mtcnedit:focus .noteadd{opacity:.85}
+.mtcnedit input.noteinl{width:100%;min-width:180px;font-size:.85rem}
+.mtcnph{font-size:.8rem;color:var(--muted);text-align:left;padding:0;text-decoration:underline;text-decoration-color:var(--line)}
+.mtnotes{margin-top:10px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface)} .mtnotes:empty{display:none}
+.mtnoteshead{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px}
+#mt-notes .mtcnrow{display:flex;gap:6px;align-items:baseline;font-size:.85rem;margin:3px 0} #mt-notes .mtcnwho{flex:0 0 auto}
+#mt-notes .mtcnedit{display:block;flex:1;min-height:22px;margin:0;padding:2px 5px}
+.mtnoteph{display:none}
+@media (max-width:600px){ table.mettletbl .mtnote{display:none} .mtnoteph{display:block;margin-top:4px} .mtnoteph .nt{-webkit-line-clamp:2} }
+/* Students: search + filters and column headings stay put while scrolling */
+.sthead .field{margin:0}
+.stclsph{display:none;font-weight:400}
+.mtcount{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:999px;background:var(--warn-soft);color:var(--warn);font-size:.75rem;font-weight:700;line-height:18px;text-align:center} .mtcount.zero{background:var(--line);color:var(--muted)}
+@media (max-width:600px){ table.mettletbl td, table.mettletbl th{padding-left:4px !important;padding-right:4px !important} table.mettletbl td.nm{min-width:0 !important;max-width:118px} table.mettletbl .mtmatch{max-width:100px} .mtsel input{width:17px;height:17px} }
+.mtgo{font-weight:600;text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:2px;padding:0;text-align:left} .mtgo:hover{text-decoration-color:currentColor}
+.mtlab{padding:0;text-decoration:none}
+tr.hlrow > td{animation:hlrow 3.2s ease-out}
+@keyframes hlrow{0%,40%{background:var(--warn-soft)} 100%{background:transparent}}
+.mtstats{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline} .mtstats b{color:var(--ink);font-weight:600}
+td.mtsel,th.mtsel{width:1%;text-align:center;padding-left:6px;padding-right:6px} .mtsel input{width:18px;height:18px;cursor:pointer;accent-color:var(--accent)}
+.mtmatch{min-width:170px} .mtmatch .linkbtn{text-decoration:none;font-weight:500;text-align:left}
+.mtpay{background:var(--bg);border-radius:var(--r);padding:10px 12px;margin-top:8px;display:flex;flex-direction:column;gap:2px}
+.mtwhy{margin-top:10px} .mtwhy ul{margin:6px 0 0 18px;padding:0} .mtwhy li{margin:2px 0}
+.mtlist{display:flex;flex-direction:column;gap:4px}
+.mtsib{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px} .mtsib:empty{display:none}
+.mtsib.nudge .mtsibbtn{border-color:var(--warn);background:var(--warn-soft)}
+.mtamtw{margin-left:auto;display:flex;align-items:center;gap:3px;font-weight:600;white-space:nowrap}
+.mtamt{width:84px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;font:inherit;text-align:right;background:var(--surface);color:var(--ink)}
+.mtrow{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-weight:400}
+.mtrow:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+@media (max-width:600px){ .mtcards{grid-template-columns:repeat(3,1fr);gap:6px} .mtcards .card{padding:8px;gap:2px} .mtcards .card .num{font-size:1rem !important} .mtcards .card > .small:last-child{display:none} .mtmatch{min-width:0;max-width:120px} table.mettletbl .mtmatch .muted{display:none} }
+@media (max-width:600px){ table.studtbl .stx{display:none} table.studtbl td.nm{min-width:0} .sthead label, .sthead .field > span.small{display:none} .pagehead.wlstick.sthead > .rowgap{flex-wrap:wrap;gap:6px} .sthead .field:first-child{flex:1 1 100% !important} table.studtbl .stclsph{display:block} .sthead .seg{padding:5px 9px} }
+@media (max-width:600px){ table.mettletbl .mtcat{display:none} table.mettletbl .mtph{display:inline} table.mettletbl .mtcatph{display:block} table.mettletbl td.nm{min-width:0} }
+table.week tbody tr.clickrow{cursor:pointer}
+table.week tr.clickrow.sel td{background:var(--sel)}
+table.week tr.clickrow.sel td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+table.week tr.subtot th{font-weight:600;color:var(--muted);border-top:1px solid var(--line);text-transform:none;letter-spacing:0}
+table.week tr.grouprow th{background:var(--bg);text-align:left;font:400 1rem/1.2 var(--display);letter-spacing:0;text-transform:none;color:var(--ink);padding-top:12px}
+table.week tbody tr.clickrow:hover td{background:var(--hover)}
+table.reg{font-size:.86rem;line-height:1.3}
+table.reg th,table.reg td{padding:5px 7px}
+table.reg tfoot th{font-size:.86rem;position:static}
+table.reg th{font-size:.7rem;white-space:nowrap;position:sticky;top:0;background:var(--surface)}
+table.reg tbody tr:nth-child(even) td{background:color-mix(in srgb, var(--bg) 55%, var(--surface))}
+table.reg tr.flag td:first-child{box-shadow:inset 4px 0 0 var(--accent)}
+table.reg tr.left td{opacity:.55}
+table.reg td.nm{min-width:150px}
+table.reg td.clip{max-width:200px}
+.pill.abs{background:var(--bg);color:var(--muted);border:1px dashed var(--muted)}
+.btn.tiny.on{background:var(--bg)}
+table.reg td.notes{min-width:180px;max-width:280px}
+table.reg td.notes .notewrap{font-size:.8rem;color:var(--muted);line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+table.reg td.notes .pill{font-size:.7rem;padding:0 6px;vertical-align:1px}
+table.reg td.clip>*,table.reg td.clip.small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.medcell{color:var(--accent);font-weight:600}
+.yn-i{color:var(--info);font-weight:700}
+.yn-n{color:var(--bad);font-weight:600}
+.btn.tiny{padding:2px 9px;font-size:.8rem;border-radius:999px}
+table.reg .pill{font-size:.72rem;padding:1px 6px}
+.sortbtn{background:none;border:0;padding:0;font:inherit;font-weight:600;color:inherit;cursor:pointer;white-space:nowrap}
+.sortbtn.on{color:var(--ink)}
+.sortbtn span{color:var(--muted);font-size:.8em}
+.segs{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg{border:0;background:var(--surface);padding:6px 11px;cursor:pointer;font-weight:600;color:var(--muted)}
+.seg+.seg{border-left:1px solid var(--line)}
+.seg.on{background:var(--accent);color:var(--accent-ink)}
+.overlay{position:fixed;inset:0;background:rgba(30,20,16,.42);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:20;overflow-y:auto}
+.dialog.wide{max-width:760px}
+.dialog .section{border-radius:8px}
+.dialog{background:var(--surface);border-radius:16px;border-top:4px solid var(--accent);max-width:520px;width:100%;padding:20px 22px;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:.88rem;font-weight:600;color:var(--muted)}
+.rowgap{display:flex;gap:10px;flex-wrap:wrap}
+.rowgap>.field{flex:1 1 140px}
+.reglist{margin-top:10px;border-top:1px solid var(--line)}
+.sessstrip{display:flex;flex-wrap:wrap;gap:5px}
+.sesschip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:2px 5px 2px 7px;font:inherit;font-size:.74rem;cursor:pointer;color:var(--ink);white-space:nowrap}
+.sesschip.done{background:#e3f1e6;border-color:#9ccaa6;color:#1f5c2e}
+.sesschip.missed{background:#fbe4e1;border-color:#e6a39a;color:#8a2a1d}
+.sesschip.today{border-color:var(--accent);font-weight:700}
+.sesschip.upcoming{color:var(--muted)}
+.sesschip.before{color:var(--muted);background:transparent;border-style:dashed}
+.sesschip.cancelled{color:var(--muted);text-decoration:line-through;background:transparent}
+.sesschip.sel{outline:2px solid var(--accent);outline-offset:1px}
+table.classdates th,table.classdates td{padding:4px 2px;vertical-align:middle}
+table.classdates th:first-child,table.classdates td:first-child{padding-left:8px;padding-right:6px}
+table.classdates thead th.c{font-size:.7rem}
+table.classdates td .sesschip{margin:1px 0}
+table.classdates tr.halfterm th,table.classdates tr.halfterm td{background:var(--bg)}
+table.classdates th.blockhead{vertical-align:middle}
+.blocktoggle{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:var(--serif,Georgia,serif);font-size:1.15rem;font-weight:700;letter-spacing:0;text-transform:none;color:var(--ink);white-space:nowrap}
+.blocktoggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+table.classdates tr.htbar th{padding:3px 8px;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:center}
+.sessadd{border:1px dashed var(--line);background:transparent;border-radius:999px;width:28px;height:24px;color:var(--muted);cursor:pointer;font:inherit}
+.sessadd:hover{border-color:var(--accent);color:var(--accent)}
+.hc{display:inline-block;min-width:1.3em;margin-left:3px;padding:0 3px;border-radius:999px;background:var(--bg);color:var(--ink);font-weight:700;font-size:.72rem;text-align:center}
+.hc.up1{background:#f6c3b9;color:#7a1f13}.hc.up2{background:#ec8f7f;color:#5c140a}.hc.up3{background:#d4503a;color:#fff}
+.hc.down1{background:#c4e6ca;color:#174a24}.hc.down2{background:#8fd09b;color:#123d1d}.hc.down3{background:#3f9a52;color:#fff}
+.hc.full{box-shadow:0 0 0 2px #d9a336}
+.hc.over{box-shadow:0 0 0 2px #c0392b}
+.sesschip .chiplab{margin-right:1px}.sesschip .chiplab+.hc{margin-left:3px}.sesschip>.hc:first-child{margin-left:0}
+table.classdates td.past{background:rgba(60,50,40,.06)}
+table.classdates .wkdate{font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)}
+.swsec{max-width:640px}.swowed{max-width:760px}.swowed td{vertical-align:top}.swtbl{width:100%}
+/* Swaps tab: heading row and table headers stay in place when scrolling (Chris, 22-Nov-2026) */
+.swtbl thead th{position:sticky;top:var(--stick2,var(--stick,100px));z-index:5;background:var(--surface);box-shadow:0 1px 0 var(--line)}
+.swtbl tr.swday td{border-top:2px solid var(--line)}
+.swtbl tr.swtoday td{background:var(--sel)}
+.swnum{background:none;border:0;padding:2px 6px;margin:-2px -6px;border-radius:6px;font:inherit;color:var(--ink);cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.swnum:hover,.swnum:focus-visible{background:var(--hover)}
+.swtbl .swtot{font-weight:700}.swtbl .swtot.full{color:var(--warn)}.swtbl .swtot.over{color:var(--bad)}
+.swin{color:var(--good);font-weight:700}.swout{color:var(--bad);font-weight:700}
+ul.swwho{list-style:none;margin:0 0 10px;padding:0}ul.swwho li{padding:6px 0;border-bottom:1px solid var(--line)}
+h4.swh{margin:12px 0 2px;font-size:.85rem}
+.swnote{margin-top:2px}.swnote.chk{color:var(--warn);font-weight:600}
+@media (max-width:600px){ .swtbl td,.swtbl th{padding-top:5px;padding-bottom:5px} .swtbl .pill{display:none} .swtbl .swyr{display:none} .swtbl td:first-child{white-space:nowrap} .swtbl td,.swtbl th{padding-left:6px;padding-right:6px} .swtbl{font-size:.9rem} .swtbl th{letter-spacing:0} }
+.swnet{margin-left:2px;font-size:.68rem;color:var(--muted);font-weight:700}
+.swapbox{margin-top:10px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;gap:3px}
+.regcell{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center}
+.regrow{display:flex;align-items:center;gap:12px;padding:3px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+.regrow input[type=checkbox]{width:19px;height:19px;flex:0 0 auto;accent-color:var(--accent,#b5462a)}
+.regrow .regname{flex:1 1 auto}
+.regrow.off .regname{color:var(--muted);text-decoration:line-through}
+.picklist{max-height:240px;overflow-y:auto;border:1px solid var(--line);border-radius:8px}
+.picklist button{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:8px 10px;cursor:pointer}
+.picklist button:hover,.picklist button.sel{background:var(--sel)}
+.editbar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;background:var(--accent-soft);border:1px solid var(--accent);border-radius:var(--r);padding:10px 14px}
+.editbar span{color:var(--ink)}
+.section.editing{border-color:var(--accent)}
+table.reg td.edcell{padding:3px 5px}
+table.reg .edin{width:100%;min-width:70px;padding:4px 6px;border:1px solid var(--line);border-radius:6px;font-size:.84rem;background:var(--surface)}
+table.reg input.edin[type=number]{width:68px;min-width:68px;text-align:right}
+table.reg input.edin[type=text]{min-width:130px}
+table.reg select.edin{width:92px;min-width:92px;padding:4px 2px}
+.section.editing table.reg td.nm{min-width:120px}
+table.reg td.changed{background:var(--warn-soft) !important}
+table.reg tr.removing td{background:var(--bad-soft) !important;text-decoration:line-through;color:var(--muted)}
+table.reg tr.removing td .edin,table.reg tr.removing td .btn{text-decoration:none}
+.btn.tiny.rmbtn{color:var(--bad);border-color:var(--bad-soft)}
+table.reg td.changed .edin{border-color:var(--warn)}
+.paidbtn{background:none;border:0;padding:0;cursor:pointer;display:inline-flex;align-items:center;gap:4px;color:var(--muted)}
+.paidbtn:hover .pill{outline:2px solid var(--accent);outline-offset:1px}
+table.paylines td{padding:3px 4px}
+.monly{display:none}
+.notetap{display:none}
+.upcls{display:none}
+@media (max-width:600px){ header.top .brand{display:none} header.top{padding:8px 16px;flex-wrap:nowrap;gap:10px} header.top .termsel{flex:1 1 auto;display:flex;align-items:center;gap:8px;min-width:0} header.top .termsel select{flex:1;min-width:0} }
+@media (max-width:600px){ nav.tabs a[data-view="dashboard"]{display:none} }
+.sxonly{display:none}
+@media (max-width:600px){
+  table.sumty .sx, table.sumgrp .sx, table.grpdlg .sx, table.clsdlg .sx{display:none}
+  table.grpdlg .sxonly{display:block;margin-top:1px}
+  table.grpdlg td, table.grpdlg th, table.clsdlg td, table.clsdlg th{padding:6px 6px;vertical-align:middle}
+  table.sumty{font-size:.88rem} table.sumty .pill{font-size:.68rem;padding:1px 6px}
+  table.sumty td:first-child .pill{display:table;margin-top:2px}
+  table.sumgrp .sxonly{display:block;font-weight:400;margin-top:1px}
+  table.sumty td, table.sumty th, table.sumgrp td, table.sumgrp th{padding:7px 8px;vertical-align:middle}
+  table.sumty tr > :first-child, table.sumgrp tr > :nth-child(2){padding-left:12px}
+  .sumsec .head .small.muted{display:none}
+}
+@media (max-width:600px){
+  .uphead h2 > .muted{display:none}
+  table.unpaidtbl tr > :first-child, table.unpaidtbl .upclscol, table.unpaidtbl .uppay{display:none}
+  table.unpaidtbl .upcls{display:block;margin-top:1px} table.unpaidtbl .upcls .linkbtn{font-size:.78rem;color:var(--muted);font-weight:500;text-decoration:none}
+  table.unpaidtbl td, table.unpaidtbl th{padding:6px 8px;vertical-align:middle}
+  table.unpaidtbl tr > :nth-child(2){padding-left:12px}
+  table.unpaidtbl .watxt{display:none}
+  table.unpaidtbl .btn.wa{width:36px;height:36px;padding:0;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:#25d366;border-color:#25d366;color:#fff}
+  table.unpaidtbl .btn.wa svg{width:20px;height:20px;vertical-align:0}
+}
+.notecol{display:none}
+.tdcard{max-width:760px;padding:14px}
+.tdmove{display:flex;flex-direction:column;flex:0 0 auto;gap:1px} .tdarrow{border:0;background:none;color:var(--muted);cursor:pointer;font-size:.62rem;line-height:1;padding:2px 5px;border-radius:4px}
+.tdarrow:hover:not(:disabled){background:var(--accent-soft);color:var(--accent)} .tdarrow:disabled{opacity:.2;cursor:default}
+.tdadd{display:flex;gap:8px;margin-bottom:8px} .tdadd input{flex:1;padding:9px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:var(--surface);color:var(--ink)}
+.tdlist{list-style:none;margin:0;padding:0}
+.tdrow{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid var(--line)} .tdrow:last-child{border-bottom:0}
+.tdrow input[type=checkbox]{width:18px;height:18px;flex:0 0 auto;accent-color:var(--accent);cursor:pointer}
+.tdtext{flex:1;min-width:0;line-height:1.35;overflow-wrap:anywhere} .tdrow.done .tdtext{text-decoration:line-through;color:var(--muted)}
+.tddate{white-space:nowrap} .tddel{border:0;background:none;color:var(--muted);cursor:pointer;font-size:.85rem;padding:4px 6px;border-radius:6px;opacity:.5} .tdrow:hover .tddel{opacity:1} .tddel:hover{background:var(--bad-soft,#fde8e8);color:var(--bad,#b42318)}
+.tddone{margin-top:10px} .tddone summary{cursor:pointer;padding:4px}
+@media (max-width:600px){ .tddate{display:none} .tddel{opacity:1} .tdarrow{font-size:.8rem;padding:5px 8px} }
+table.reg td.inote{cursor:text;border-radius:6px} table.reg td.inote:hover{background:var(--accent-soft)}
+.noteadd{font-size:.8rem;color:var(--muted);opacity:0} tr:hover .noteadd, td.inote:focus .noteadd{opacity:.85}
+table.reg td.inote input.noteinl{width:100%;min-width:200px} table.reg td.inote.saving{opacity:.6}
+.noteic{width:30px;height:30px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.noteic.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.notetext{width:100%;font:inherit;line-height:1.45;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);resize:vertical}
+@media (max-width:600px){
+  .phonereg table.reg .mh{display:none}
+  .phonereg table.reg tfoot{display:none}
+  .phonereg .monly{display:inline}
+  .notetap{display:block;margin-top:5px;background:none;border:0;padding:0;text-align:left;font:inherit;font-size:.82rem;color:var(--muted);cursor:pointer;max-width:58vw}
+  .phonereg .notecol{display:table-cell;padding-left:2px !important;padding-right:2px !important}
+  .phonereg table.reg:not(.wlq) td{padding-top:6px;padding-bottom:6px}
+  .phonereg table.reg:not(.wlq) td.nm .pill{font-size:.68rem;padding:1px 6px}
+  .notetap{margin-top:2px !important}
+  .notetap .nt{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;font-style:italic;border-left:2px solid var(--line);padding-left:7px}
+  .notetap.empty{color:var(--muted);opacity:.75;font-weight:600;font-size:.74rem}
+  .overlay:has(.dialog.sheet){align-items:flex-start;padding:0}
+  .dialog.sheet{border-radius:16px 16px 0 0;max-width:none;padding-bottom:22px;margin-top:auto}
+  .notetext{font-size:16px}
+  .phonereg table.reg td.nm{min-width:0}
+  .phonereg table.reg td,.phonereg table.reg th{padding:10px 8px}
+  .phonereg .paidbtn .pill{font-size:.85rem;padding:5px 10px}
+  .phonereg .btn.tiny{padding:6px 11px}
+  table.paylines input.edin[type=number],table.paylines input.edin[type=text],table.paylines select.edin{width:100% !important;min-width:0 !important}
+  table.paylines tr td{background:transparent !important}
+}
+@media (max-width:600px){
+  .overlay{padding:12px 8px}
+  .dialog{padding:16px 14px}
+  table.paylines thead{display:none}
+  table.paylines, table.paylines tbody{display:block}
+  table.paylines tr{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;padding:10px 0;border-bottom:1px solid var(--line)}
+  table.paylines td{display:block;border:0;padding:0}
+  table.paylines td:nth-child(1){grid-column:1/2} table.paylines td:nth-child(2){grid-column:2/3} table.paylines td:nth-child(5){grid-column:3/4;grid-row:1/3;align-self:start}
+  table.paylines td:nth-child(3){grid-column:1/2} table.paylines td:nth-child(4){grid-column:2/3}
+  table.paylines input.edin,table.paylines select.edin{width:100%;min-width:0;font-size:16px;padding:8px}
+  table.paylines .btn.tiny{padding:8px 11px}
+  .paidbtn .pill{padding:4px 9px}
+}
+table.paylines input.edin[type=text]{min-width:110px}
+table.paylines input.edin[type=number]{width:90px;min-width:90px}
+table.paylines select.edin{width:120px;min-width:120px}
+.pickedcard{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:10px 12px;background:var(--hover)}
+.pickedcard .banner{padding:6px 10px}
+.btn.primary.danger{background:var(--bad);border-color:var(--bad)}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(460px,1fr));gap:18px}
+@media (max-width:520px){ .dgrid{grid-template-columns:1fr} }
+.dcard .dbody{padding:12px 14px 14px;display:flex;flex-direction:column;gap:8px}
+svg.chart{width:100%;height:auto;display:block;overflow:visible}
+svg.chart .grid{stroke:var(--line);stroke-width:1}
+svg.chart .base{stroke:var(--muted);stroke-width:1}
+svg.chart .ax{fill:var(--muted);font-size:11px;font-family:var(--body)}
+svg.chart .lab{fill:var(--ink);font-size:12px;font-family:var(--body)}
+svg.chart .val{fill:var(--ink);font-size:12px;font-weight:600;font-family:var(--body)}
+svg.chart [data-tip]{cursor:default}
+svg.chart rect[data-tip]:hover,svg.chart circle[data-tip]:hover{opacity:.8}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.84rem;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.legend i.good{background:var(--good)} .legend i.warn{background:var(--warn)} .legend i.bad{background:var(--bad)}
+.paybar{display:flex;gap:2px;height:42px;border-radius:8px;overflow:hidden;margin:6px 0}
+.paybar .seg{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;min-width:26px}
+.paybar .seg.good{background:var(--good)} .paybar .seg.warn{background:var(--warn)} .paybar .seg.bad{background:var(--bad)}
+.tip{position:fixed;z-index:30;pointer-events:none;background:var(--ink);color:var(--surface);font-size:.82rem;padding:6px 9px;border-radius:7px;max-width:280px;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+.wsdetails{border-color:var(--accent)}
+.wsdetails input:not([type=checkbox]),.wsdetails select{width:100%}
+.wsdetails input[type=date]{padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.wsdetails input[type=checkbox]{margin-right:6px}
+input.changedin,select.changedin{background:var(--warn-soft);border-color:var(--warn)}
+.btn.wa{color:#1a7f4b;border-color:#bfe3cd}
+.btn.wa:hover{border-color:#1a7f4b}
+.btn.primary.wa-go{background:#1a7f4b;border-color:#1a7f4b;color:#fff;text-decoration:none;display:inline-flex;gap:6px;align-items:center}
+.waTo{background:var(--hover);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.watext{width:100%;font:inherit;line-height:1.45;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#f4fbf6;resize:vertical}
+.slotchips{display:flex;flex-wrap:wrap;gap:4px}
+.slotchip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:2px 9px;font-size:.78rem;cursor:pointer;white-space:nowrap;color:var(--ink)}
+.slotchip b{color:var(--muted);font-weight:600}
+.slotchip:hover,.slotchip.on{border-color:var(--accent);background:var(--accent-soft)}
+table.wl td.notes{max-width:260px}
+.morecls{font-size:.78rem;color:var(--muted);white-space:nowrap;align-self:center;border-bottom:1px dotted var(--muted);cursor:help}
+.monlyb{display:none}
+.posbtn{border:1px dashed var(--accent);background:var(--surface);border-radius:8px;padding:3px 8px;font-weight:700;color:var(--ink);cursor:pointer}
+.arrows{display:flex;gap:4px}
+.btn.tiny.arrow{padding:4px 11px;font-size:1rem}
+@media (max-width:600px){ .arrows{flex-direction:column} .btn.tiny.arrow{padding:6px 13px} }
+table.wl tr.moved td{background:var(--warn-soft) !important}
+.morebtn{min-width:30px;height:30px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:700;color:var(--ink);cursor:pointer}
+.morebtn:hover{border-color:var(--accent);background:var(--accent-soft)}
+.otherlist{display:flex;flex-direction:column}
+.otherrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.otherrow:last-child{border-bottom:0}
+.wlname{background:none;border:0;padding:0;font:inherit;font-weight:700;color:var(--ink);cursor:pointer;text-align:left}
+.wlname:hover{color:var(--accent)}
+@media (max-width:600px){ .phonereg .monlyb{display:flex;flex-direction:column;gap:2px;margin-top:4px} .wlnote{font-size:.8rem;color:var(--muted);font-style:italic} .phonereg table.wl .morecls{border:0} }
+.linkbtn.on{color:var(--accent)}
+@media (max-width:600px){ table.wlq .wlx{display:none} .phonereg table.reg.wlq td{padding:5px 6px;vertical-align:middle;line-height:1.2} .phonereg table.reg.wlq .btn.tiny{padding:4px 11px} table.wlq .morebtn{min-width:24px;height:24px;font-size:.8rem} table.wlq th{padding:5px 6px} table.wlq .wlname{font-weight:600} }
+.wpdls{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.wpdl{display:grid;grid-template-columns:140px 1fr;gap:8px;font-size:.88rem} .wpdl > span{color:var(--muted)}
+@media (max-width:600px){ .wpdl{grid-template-columns:1fr;gap:0} }
+details.wpmore{margin:4px 0 8px} details.wpmore summary{cursor:pointer;font-weight:600;font-size:.9rem}
+@media (max-width:600px){ .pagehead.wlstick h2.wlh{display:none} .wltools.wdbtools > .rowgap{flex-wrap:wrap !important} .wdbtools .wlq-in{flex:1 1 100% !important} .wdbtools select{flex:1 1 auto;min-width:0} }
+.wpcontact a.btn{text-decoration:none;color:var(--ink)} .wpcontact a.btn.wa{color:#1a7f37}
+.pagehead.wlstick .segs{flex:none} @media (max-width:600px){ .pagehead.wlstick #wl-slot{flex:1 1 auto;min-width:0;width:auto} }
+table.wldb a, .wpinfo a{color:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:2px}
+@media (max-width:600px){ table.wldb .monlyb a, table.wldb .monlyb .clip{overflow-wrap:anywhere;word-break:break-word;white-space:normal} table.wldb td.nm{width:auto} }
+@media (max-width:600px){ .termsel > label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)} }
+.phoneback{position:fixed;top:8px;right:8px;z-index:900;display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:999px;font-size:12px;line-height:1.2;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+.phoneback svg{width:13px;height:13px}
+.phoneback[hidden]{display:none}
+table.wldb th .sortbtn{text-transform:inherit;letter-spacing:inherit;font-size:inherit;font-weight:inherit}
+table.wldb td.dbmail{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wpinfo{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:-4px 0 10px}
+.slotpick{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px}
+.wplist{display:flex;flex-direction:column;gap:6px}
+.wprow{display:grid;grid-template-columns:150px 40px 1fr auto;gap:8px;align-items:center}
+@media (max-width:600px){ .wprow{grid-template-columns:1fr auto} .wprow input[type=text]{grid-column:1/-1} }
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:0}
+.formgrid{display:grid;grid-template-columns:2fr 1fr;gap:16px 24px;padding:14px 16px}
+.perms{margin:0;display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-content:start;border-left:1px solid var(--line);padding-left:20px}
+.perms dt{color:var(--muted);font-size:.9rem}
+.perms dd{margin:0;text-align:right}
+@media (max-width:620px){ .formgrid{grid-template-columns:1fr} .perms{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:12px} }
+.kv dt{color:var(--muted)}
+.kv dd{margin:0}
+.loading{padding:30px;text-align:center;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.card,.btn{transition:border-color .15s}}
+/* New students tab */
+.nslist .nsrow{display:flex;gap:12px;padding:12px 16px;border-top:1px solid var(--line)}
+.nslist .nsrow:first-child{border-top:0}
+.nsmain{flex:1 1 auto;min-width:0}
+.nstop{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.nschips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.nsmsg{margin-top:6px;color:var(--ink);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.nsside{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.nsdet{width:100%;border-collapse:collapse}
+.nsdet th{text-align:left;vertical-align:top;padding:6px 12px 6px 0;color:var(--muted);font-weight:600;white-space:nowrap;width:1%}
+.nsdet td{padding:6px 0;overflow-wrap:anywhere;border-bottom:1px solid var(--line)}
+.nsdet th{border-bottom:1px solid var(--line)}
+.nsmail{margin:0;padding-left:18px;color:var(--ink)}
+.nsmail li{margin:4px 0}
+.actions a.btn{text-decoration:none;color:var(--ink)}
+@media (max-width:600px){ .nslist .nsrow{padding:10px 12px} .nsdet th{white-space:normal} }
+
+/* Portal prototype (24-Nov-2026) */
+.ptwrap{display:flex;justify-content:center;margin:6px 0 18px}
+.ptphone{width:100%;max-width:400px;min-height:640px;background:var(--surface);border:1px solid var(--line);border-radius:28px;box-shadow:0 14px 40px rgba(0,0,0,.10);overflow:hidden;display:flex;flex-direction:column}
+.pttop{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--accent);color:var(--accent-ink);padding:14px 18px;min-height:8px}
+.pttop:empty{padding:0;min-height:6px}
+.ptbrand{display:flex;flex-direction:column;line-height:1.2} .ptbrand span{font-size:.8rem;opacity:.85}
+.ptwho{display:flex;flex-direction:column;align-items:flex-end;font-size:.85rem;font-weight:600;line-height:1.3}
+.ptlink{background:none;border:0;padding:0;font:inherit;font-size:.85rem;font-weight:600;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:3px;text-decoration-color:transparent}
+.ptlink:hover{text-decoration-color:currentColor} .pttop .ptlink{color:var(--accent-ink);opacity:.9}
+.ptlogin{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:40px 28px 32px}
+.ptlogo{border-radius:50%;margin-bottom:12px} .ptlogin h3{margin:0;font-size:1.25rem} .ptlogin > p.small{margin:2px 0 26px}
+.ptlbl{align-self:flex-start;font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:6px}
+.ptsel{width:100%;font:inherit;font-size:16px;padding:12px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink)}
+.ptsel:focus{outline:2px solid var(--accent);outline-offset:1px}
+.ptdemo{font-size:.78rem;color:var(--warn);background:var(--warn-soft);border-radius:10px;padding:8px 10px;margin:12px 0 18px;text-align:left}
+.ptbig{width:100%;justify-content:center;padding:13px;font-size:1rem;border-radius:12px;margin-top:22px}
+.ptbody{padding:14px 16px 18px}
+.pth{margin:0;font-family:inherit;font-size:1.15rem;font-weight:700}
+.ptkids{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.ptkid{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.ptkid:hover{border-color:var(--accent)}
+.ptav{flex:none;width:40px;height:40px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;display:flex;align-items:center;justify-content:center;font-size:1.05rem}
+.ptkn{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.ptbadge{align-self:flex-start;font-size:.72rem;font-weight:700;color:var(--warn);background:var(--warn-soft);border-radius:999px;padding:1px 8px;margin-top:2px}
+.ptkid .ptused{align-self:flex-start;margin-top:3px} .ptchev{color:var(--muted);font-size:1.3rem}
+.ptback{display:inline-block;margin-bottom:10px}
+.ptsh{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px}
+.ptused{font-size:.75rem;font-weight:700;color:var(--good);white-space:nowrap} .ptused.full{color:var(--bad)}
+.ptintro{margin:4px 0 8px}
+.ptlist,.ptowed{display:flex;flex-direction:column;gap:6px}
+.ptowed{background:var(--warn-soft);border-radius:12px;padding:8px;margin-bottom:10px} .ptoh{font-size:.78rem;font-weight:700;color:var(--warn)}
+.ptrow{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+button.ptrow:hover{border-color:var(--muted)}
+.ptrow.dim{color:var(--muted);background:var(--bg);cursor:default}
+.ptrow.out .ptd{color:var(--muted)} .ptrow.in{border-color:var(--good);background:var(--good-soft)} .ptrow.owed{border-color:var(--warn)}
+.ptd{font-weight:600;white-space:nowrap} .ptgo{color:var(--accent);font-weight:700;white-space:nowrap}
+.ptst{font-size:.78rem;color:var(--muted);text-align:right} .ptst.good{color:var(--good);font-weight:700} .ptst.warn{color:var(--warn);font-weight:700}
+.ptmore{margin-top:10px}
+.ptdlg h2{margin:0}
+.ptrl{margin:10px 0;padding-left:18px} .ptrl li{margin:6px 0}
+.ptlater{width:100%;justify-content:center;border-color:var(--warn);color:var(--warn);font-weight:700}
+.ptor{text-align:center;margin:10px 0 4px}
+.ptopts{display:flex;flex-direction:column;gap:6px;max-height:52vh;overflow:auto}
+.ptday{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:8px 0 0}
+.ptopt{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+button.ptopt:hover{border-color:var(--accent)} .ptsp{font-size:.8rem;font-weight:700;color:var(--good);white-space:nowrap}
+.ptopt.full{color:var(--muted);background:var(--bg);cursor:default} .ptopt.full .ptsp{color:var(--bad)}
+.ptsum{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;padding:10px 12px;background:var(--bg);border-radius:10px}
+.ptbtns{display:flex;flex-direction:column;gap:8px;margin-top:10px} .ptbtns .btn{justify-content:center}
+.ptfoot{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+@media (max-width:600px){ .ptphone{border-radius:16px;min-height:0} .ptlogin{padding:28px 20px 24px} .ptbig{margin-top:18px} }
+.ptacts{display:flex;gap:14px;align-items:center;margin-top:4px} .ptrlink{margin-top:14px} .ptlogin h3{font-family:inherit;font-weight:700}
+.ptout{font:inherit;font-size:.9rem;font-weight:700;padding:7px 16px;border-radius:999px;border:1.5px solid var(--accent-ink);background:transparent;color:var(--accent-ink);cursor:pointer} .ptout:hover{background:var(--accent-ink);color:var(--accent)}
+.ptot{font-weight:600}
+/* full-screen parent view (#parent) */
+body.parentmode header.top, body.parentmode nav.tabs, body.parentmode #main > p.small.muted{display:none}
+body.parentmode #main{padding-top:24px;padding-bottom:72px}
+body.parentmode .ptwrap{margin:0}
+.ptexit{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:var(--ink);color:var(--bg);border-radius:999px;padding:7px 8px 7px 16px;font-size:.8rem;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:50;white-space:nowrap}
+.ptexit button,.ptexit a{font:inherit;font-weight:700;color:var(--bg);background:rgba(255,255,255,.14);border:0;border-radius:999px;padding:5px 12px;cursor:pointer;text-decoration:none}
+@media (max-width:600px){ body.parentmode #main{padding:0 0 64px} body.parentmode .ptphone{max-width:none;border:0;border-radius:0;box-shadow:none;min-height:100vh} }
+.ptlen{font-size:.78em;font-weight:500;color:var(--muted);white-space:nowrap}
+.ptrow.in .ptlen{color:inherit;opacity:.75}
+.ptsearch{position:relative;width:100%} .ptsearch .ptsel{padding-right:38px} .ptsel.picked{border-color:var(--good);background:var(--good-soft);font-weight:600}
+.pttick{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--good);font-weight:800}
+.ptresults{width:100%;display:flex;flex-direction:column;gap:6px;margin-top:8px;text-align:left}
+.ptres{display:flex;flex-direction:column;gap:1px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.ptres:hover,.ptres:focus{border-color:var(--accent);outline:none} .ptres span{font-size:.8rem;color:var(--muted)}
+.ptnone{font-size:.85rem;color:var(--muted);margin:4px 0 0}
+#pt-go:disabled{opacity:.45;cursor:default}
+.ptlogin p.ptlhint{margin:-4px 0 8px;text-align:left}
+
+/* "Swap confirmed!" pop-up (24-Nov 22:12) */
+.ptyay{text-align:center;padding:8px 4px 4px}
+.ptyay h2{font-size:1.5rem;margin:14px 0 6px;font-family:inherit;font-weight:700}
+.ptyayft{margin:4px 0 22px;display:flex;flex-direction:column;align-items:stretch;gap:2px}
+.ptyrow{display:flex;align-items:baseline;gap:10px;padding:10px 12px;border-radius:12px;text-align:left}
+.ptyrow:first-child{background:#f4f1ec}
+.ptyrow:last-child{background:#e7f4ec}
+.ptylbl{flex:0 0 50px;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:#7a746c;font-weight:700}
+.ptyfrom{color:#5f5a53;font-weight:600}
+.ptyto{font-size:1.1rem;font-weight:700;color:#1f6b43}
+.ptyarr{color:#2f8f5b;font-size:1.1rem;line-height:1;margin:-2px 0}
+.ptyay .ptbig{width:100%}
+.ptburst{position:relative;width:96px;height:96px;margin:6px auto 0}
+.pttickc{position:absolute;inset:0;border-radius:50%;background:#2f8f5b;display:flex;align-items:center;justify-content:center;animation:ptpop .5s cubic-bezier(.2,1.6,.4,1) both}
+.pttickc svg{width:60px;height:60px;fill:none;stroke:#fff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+.pttickc path{stroke-dasharray:40;stroke-dashoffset:40;animation:ptdraw .35s .35s ease-out forwards}
+.ptburst i{position:absolute;left:50%;top:50%;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--accent,#c0532a);opacity:0;animation:ptfly .8s .15s ease-out forwards;transform:rotate(var(--a)) translateY(0)}
+.ptburst i:nth-child(3n+1){background:#f2b33d}.ptburst i:nth-child(3n+2){background:#2f8f5b}
+@keyframes ptpop{0%{transform:scale(0)}100%{transform:scale(1)}}
+@keyframes ptdraw{to{stroke-dashoffset:0}}
+@keyframes ptfly{0%{opacity:1;transform:rotate(var(--a)) translateY(0) scale(1)}100%{opacity:0;transform:rotate(var(--a)) translateY(calc(-62px - var(--d)*10px)) scale(.6)}}
+@media (prefers-reduced-motion:reduce){.pttickc,.pttickc path,.ptburst i{animation:none}.pttickc path{stroke-dashoffset:0}}
+
+/* My Red Robin – the app's own bits (the rest is the Rocker's styles) */
+html,body{background:var(--surface)}
+body.parentmode #main{padding:0;max-width:none}
+.ptphone{min-height:100vh;min-height:100dvh;padding-bottom:env(safe-area-inset-bottom)}
+.pttop{padding-top:calc(14px + env(safe-area-inset-top))}
+@media (min-width:601px){ html,body{background:var(--bg)} .ptwrap{padding:24px 0} .ptphone{max-width:420px;min-height:760px;border:1px solid var(--line);border-radius:28px;box-shadow:0 14px 40px rgba(0,0,0,.10)} }
+.rrver{margin-top:auto;padding-top:28px;font-size:.75rem;color:var(--muted)}
+.rrload{justify-content:flex-start}
+.rrspin{width:34px;height:34px;margin-top:24px;border-radius:50%;border:3px solid var(--accent-soft);border-top-color:var(--accent);animation:rrspin .9s linear infinite}
+@keyframes rrspin{to{transform:rotate(360deg)}}
+.rrdemo{background:var(--warn-soft);color:var(--warn);font-size:.8rem;font-weight:600;text-align:center;padding:6px 10px;border-radius:10px;margin-bottom:12px}
+.rrinst{display:grid;grid-template-columns:44px 1fr;gap:4px 12px;align-items:center;background:var(--accent-soft);border-radius:14px;padding:12px 14px;margin-bottom:14px}
+.rrinst img{border-radius:10px}
+.rrinst b{display:block;font-size:.95rem}
+.rrinst span{font-size:.85rem;color:var(--muted)}
+.rrinstb{grid-column:1 / -1;display:flex;align-items:center;gap:14px;margin-top:6px}
+.rrhelp{text-align:center}
+.rrhelp img{border-radius:16px;display:block;margin:4px auto 10px}
+.rrhelp h2{font-family:inherit;font-weight:700;font-size:1.3rem;margin-bottom:10px}
+.rrhelp .ptbig{width:100%;margin-top:14px}
+.rrsteps{list-style:none;margin:6px 0 10px;padding:0;text-align:left;display:flex;flex-direction:column;gap:12px}
+.rrsteps li{display:flex;gap:12px;align-items:flex-start;font-size:1rem;line-height:1.45}
+.rrn{flex:0 0 28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}
+.rrico{width:22px;height:22px;vertical-align:-5px;fill:none;stroke:var(--info);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rrico circle{fill:var(--info);stroke:none}
+
+</style>
+</head>
+<body class="parentmode">
+<main id="main"></main>
+<div id="modal"></div>
+<script>
+const CONFIG = {"api": "https://script.google.com/macros/s/AKfycbwWruMZQLLSaN1fFWjAN5NN-YXZSFIfdl3qM4ykaevZYo2K5FrfEKEnfYzZbyKBJejx/exec", "version": "0.1.02", "demo": true};
+</script>
+<script>
+
+/* ---------- Portal tab – PROTOTYPE (Chris, 24-Nov-2026) ----------
+   What a family would see in a self-service swaps portal: log in -> select child -> that child's classes.
+   Log in by typing the email address on the registration form (Chris, 24-Nov 22:05); you then see every student
+   registered with that email (Parent 1 / Parent 2 email for children, Email for adults) – usually one child,
+   several for families. Test families have made-up emails (test1@redrobin.test …).
+   classes, class dates (Sessions tab), places and existing swaps (Swaps tab), but every swap made here is
+   kept in memory only: nothing is written to the sheet. "Reset demo" starts again from the sheet.
+   Rules (Chris, 24-Nov): max 16 in a children's class, 14 in an
+   adult class (unless the class's Capacity is set); a child can swap into any other children's class (the
+   "no longer than their own" rule was dropped 24-Nov 11:34; adults: adult classes); 3 hours' notice; make-up in the same term; 2 swaps per
+   term per student; "owed" = unhook a class now, book the make-up later (until the end of term); cancel up
+   to the deadline. Absent-this-term students don't count towards the max. */
+const PT_DAY = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const PT_MAX = {Children:16, Adults:14}, PT_LIMIT = 2, PT_NOTICE_H = 3;
+let PT = null;
+window.__portal = ()=>PT; /* for testing */
+function ptTerm(){ return (S.settings && S.settings.CurrentTerm) || S.term; }
+function ptGrp(c){ return isAdultClass(c) ? "Adults" : "Children"; }
+function ptMins(c){ /* class length: adults 2h15, the £32-a-week children's class (Sun 3pm) 2h, the rest 1h30. Fee is per term, so divide by Weeks */
+  if(isAdultClass(c)) return 135; const f = num(c.Fee), w = num(c.Weeks), rate = w>0 && f>60 ? f/w : f; return rate >= 30 ? 120 : 90; }
+function ptMax(c){ return capOf(c.ClassID) || PT_MAX[ptGrp(c)]; }
+function ptHm(c){ const m = String(c.Time||"").match(/(\d{1,2})(?:[.:](\d{2}))?\s*(am|pm)/i); if(!m) return [0,0]; let h = +m[1]%12; if(/pm/i.test(m[3])) h += 12; return [h, +(m[2]||0)]; }
+function ptTime(c){ return String(c.Time||"").trim(); }
+function ptDt(cid, iso){ const c = classById(cid), d = isoDate(iso), hm = ptHm(c); d.setHours(hm[0], hm[1], 0, 0); return d.getTime(); }
+function ptD(iso, yr){ const d = isoDate(iso); return d ? `${PT_DAY[d.getDay()]} ${String(d.getDate()).padStart(2,"0")}-${MON[d.getMonth()]}${yr?"-"+d.getFullYear():""}` : iso; }
+function ptWhen(cid, iso){ return `${ptD(iso)} · ${ptTime(classById(cid))}`; }
+function ptLen(c){ const m = ptMins(c), h = Math.floor(m/60), q = {0:"",15:"¼",30:"½",45:"¾"}[m%60]; return q===undefined ? `${m} mins` : `${h}${q} hr${m>60?"s":""}`; } /* "1½ hrs", "2 hrs", "2¼ hrs" */
+function ptLenH(cid){ const c = classById(cid); return c ? ` <span class="ptlen">(${esc(ptLen(c))})</span>` : ""; }
+function ptWhenH(cid, iso){ return esc(ptWhen(cid, iso)) + ptLenH(cid); } /* day, date and time, with the class length in brackets in smaller type */
+function ptLblH(cid){ return esc(classLabel(classById(cid))) + ptLenH(cid); }
+function ptOpen(cid, iso){ return ptDt(cid, iso) - Date.now() >= PT_NOTICE_H*3600e3; } /* still before the deadline? */
+function ptHash(s){ let h = 7; for(const ch of s) h = (h*31 + ch.charCodeAt(0))>>>0; return h; }
+function ptFirst(name){ return String(name||"").replace(/\([^)]*\)/g, " ").trim().split(/\s+/)[0] || String(name||""); }
+function ptSurname(name){ const p = String(name||"").replace(/\([^)]*\)/g, " ").trim().split(/\s+/); return p[p.length-1] || String(name||""); }
+
+/* every term class, its dates and the people in it (left and absent-this-term places don't count) */
+function ptClasses(){ return S.classes.filter(c=>c.Term===ptTerm() && !isWorkshop(c)); }
+function ptSessions(cid){ return sessAll().filter(s=>s.ClassID===cid && s.day && !/^cancel/i.test(s.Status)).map(s=>s.day).sort(); }
+function ptBase(cid){ return classRoster(cid).filter(v=>!v.left && !v.absent).length; }
+function ptCount(cid, iso){ let n = ptBase(cid);
+  PT.swaps.forEach(w=>{ if(w.status==="booked" && w.to===cid && w.td===iso) n++; if(w.from===cid && w.fd===iso && !/^T/.test(w.sid)) n--; }); return n; } /* test students aren't in the class numbers, so their swaps out don't free a place */
+function ptFamilies(){ /* families in the current term: brothers and sisters share a phone number / parent; adults are on their own */
+  const fams = new Map();
+  ptClasses().forEach(c=>classRoster(c.ClassID).filter(v=>!v.left && !v.absent && v.st).forEach(v=>{
+    const key = familyKey(v.st, v.e); let f = fams.get(key);
+    if(!f){ f = {key, adult:isAdult(v.st), parent:v.st.p1||"", kids:new Map()}; fams.set(key, f); }
+    let k = f.kids.get(v.st.ref); if(!k){ k = {ref:String(v.st.ref), name:v.name, adult:isAdult(v.st), enr:[]}; f.kids.set(v.st.ref, k); }
+    k.enr.push({eid:v.e.EnrolmentID, cid:c.ClassID});
+  }));
+  const all = [...fams.values()].map(f=>Object.assign(f, {kids:[...f.kids.values()].sort((a,b)=>a.name.localeCompare(b.name))}));
+  all.forEach(f=>{ f.label = f.adult ? f.kids[0].name : `${ptSurname(f.kids[0].name)} family`; });
+  return all;
+}
+function ptTestFams(){ /* 3 made-up families placed in real classes, for trying things out (they don't change class sizes) */
+  const cs = ptClasses().slice().sort((a,b)=>num(a.Sort)-num(b.Sort)), kidsC = cs.filter(c=>!isAdultClass(c)), adC = cs.filter(isAdultClass);
+  const short = kidsC.filter(c=>ptMins(c)===90), long = kidsC.find(c=>ptMins(c)>90) || kidsC[kidsC.length-1];
+  const at = (arr, i) => arr.length ? arr[i % arr.length] : null;
+  const fam = (n, code, label, adult, kids) => ({key:"test|"+n, code, label, adult, test:true, email:`test${n===4?3:n===3?4:n}@redrobin.test`,
+    kids: kids.filter(k=>k[1]).map((k,i)=>({ref:`T${n}${i}`, name:k[0], adult, enr:[{eid:`TE${n}${i}`, cid:k[1].ClassID}]}))});
+  return [ fam(1, "TST222", "Test family 1", false, [["Alfie Test", at(short,0)], ["Bella Test", long]]),
+           fam(2, "TST333", "Test family 2", false, [["Cara Test", at(short,2)]]),
+           fam(4, "TST444", "Test family 3", false, [["Eddie Test", at(short,1)], ["Flora Test", at(short,3)], ["George Test", at(short,4)]]),
+           fam(3, "TST555", "Dan Test", true, [["Dan Test", at(adC,0)]]) ].filter(f=>f.kids.length);
+}
+function ptInit(){
+  const term = ptTerm(), eids = new Map();
+  S.enrol.filter(e=>e.Term===term).forEach(e=>eids.set(e.EnrolmentID, e));
+  PT = { fam:null, sid:null, all:{}, seq:1, _more:false, _q:"", _pick:null, _err:"",
+    swaps: swapsAll().filter(r=>eids.has(r.EnrolmentID) && classById(r.FromClass) && (!/^booked/i.test(r.Status) || classById(r.ToClass)) && (/^owed/i.test(r.Status) || /^booked/i.test(r.Status)))
+      .map(r=>({id:"R"+r.SwapID, eid:r.EnrolmentID, sid:String(eids.get(r.EnrolmentID).Ref), from:r.FromClass, fd:r.fd||"", to:/^booked/i.test(r.Status)?r.ToClass:"", td:/^booked/i.test(r.Status)?r.td:"", status:/^booked/i.test(r.Status)?"booked":"owed", real:true})) };
+  PT.fams = ptFamilies().concat(ptTestFams()); /* every family this term, plus the test families */
+}
+function ptFam(){ return PT.fams.find(f=>f.key===PT.fam); }
+function ptKid(sid){ const f = ptFam(); return f && f.kids.find(k=>k.ref===sid); }
+function ptUsed(sid){ return PT.swaps.filter(w=>w.sid===sid).length; }
+function ptUsedHtml(sid){ const u = ptUsed(sid); return `<span class="ptused${u>=PT_LIMIT?" full":""}">${u>PT_LIMIT?`${u} swaps (limit ${PT_LIMIT})`:`${u} of ${PT_LIMIT} swaps used`}</span>`; }
+function ptOptions(kid, cid, skip){ /* classes this student could go to instead of a date in class cid */
+  const own = classById(cid), mine = new Set(PT.swaps.filter(w=>w.sid===kid.ref && w.status==="booked").map(w=>w.to+"|"+w.td)), myCls = new Set(kid.enr.map(x=>x.cid));
+  return ptClasses().filter(c=>ptGrp(c)===ptGrp(own) && !myCls.has(c.ClassID)) /* any children's class (Chris, 24-Nov 11:34: length rule dropped); adults: adult classes */
+    .flatMap(c=>ptSessions(c.ClassID).map(iso=>({cid:c.ClassID, iso, dt:ptDt(c.ClassID, iso)})))
+    .filter(x=>ptOpen(x.cid, x.iso) && !mine.has(x.cid+"|"+x.iso) && skip!==x.cid+"|"+x.iso)
+    .map(x=>({...x, spaces: ptMax(classById(x.cid)) - ptCount(x.cid, x.iso)})).sort((a,b)=>a.dt-b.dt);
+}
+function ptTermEnd(){ const td = termDates(ptTerm()); return td && isoDate(td.End) ? toIso(isoDate(td.End)) : ""; }
+function ptByWhen(){ const e = ptTermEnd(); return e ? ptD(e, true) : "the end of term"; }
+
+/* ----- screens ----- */
+function ptLogo(){ const img = document.querySelector("header .logo"); return img ? `<img src="${img.src}" alt="" width="56" height="56" class="ptlogo">` : ""; }
+function ptTop(sub){ const f = PT.fam && ptFam();
+  return `<div class="pttop">${PT.fam?`<div class="ptbrand"><b>Red Robin</b><span>${esc(sub||"Class swaps")}</span></div><div class="ptwho"><span>${esc(f?f.label:"")}</span><span class="ptacts"><button type="button" class="ptlink" data-pt="rules">Rules</button><button type="button" class="ptout" data-pt="logout">Log out</button></span></div>`:""}</div>`; }
+function ptEmailNorm(e){ return String(e||"").trim().toLowerCase(); }
+function ptEmailOk(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(ptEmailNorm(e)); }
+function ptStEmails(ref){ /* the emails on a student's registration form row */
+  const st = S.byRef.get(String(ref)); if(!st) return [];
+  return [st.emailAddr, st.emailAddr2, st.emailOld].map(ptEmailNorm).filter(Boolean);
+}
+function ptByEmail(email){ /* everyone this term registered with this email -> one "family" to log in as */
+  const e = ptEmailNorm(email); if(!ptEmailOk(e)) return null;
+  const kids = PT.fams.flatMap(f=>f.kids.filter(k=> f.test ? f.email===e : ptStEmails(k.ref).includes(e)));
+  if(!kids.length) return null;
+  const uniq = [...new Map(kids.map(k=>[k.ref, k])).values()].sort((a,b)=>a.name.localeCompare(b.name));
+  const adult = uniq.every(k=>k.adult), test = /@redrobin\.test$/.test(e);
+  const st0 = S.byRef.get(String(uniq[0].ref));
+  const label = uniq.length===1 && adult ? uniq[0].name : test ? (PT.fams.find(f=>f.test && f.email===e)||{}).label : `${ptSurname(uniq[0].name)} family`;
+  return {key:"email|"+e, email:e, adult, test, label: label || (st0 && st0.p1) || e, kids:uniq};
+}
+function ptLogin(){
+  return `<div class="ptlogin">${ptLogo()}<h3>Red Robin Art Academy</h3><p class="small muted">Class swaps</p>
+    <label class="ptlbl" for="pt-q">Your email address</label>
+    <p class="small muted ptlhint" style="text-align:left;margin:-4px 0 8px;align-self:stretch">The one you gave on the registration form</p>
+    <div class="ptsearch"><input id="pt-q" class="ptsel" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="name@example.com" value="${esc(PT._q||"")}"></div>
+    ${PT._err?`<p class="ptnone">${PT._err}</p>`:""}
+    <button type="button" id="pt-go" class="btn primary ptbig" data-pt="login"${ptEmailOk(PT._q)?"":" disabled"}>Log in</button><button type="button" class="ptlink ptrlink" data-pt="rules">Swap rules</button></div>`;
+}
+function ptSearch(){ /* typing in the email box: just enable the button, so the box keeps focus */
+  const inp = $("#pt-q"); if(!inp) return; PT._q = inp.value;
+  const b = $("#pt-go"); if(b) b.disabled = !ptEmailOk(PT._q);
+  if(PT._err){ PT._err = ""; const m = document.querySelector(".ptlogin .ptnone"); if(m) m.remove(); }
+}
+document.addEventListener("input", ev=>{ if(ev.target && ev.target.id==="pt-q") ptSearch(); });
+document.addEventListener("keydown", ev=>{ if(ev.key!=="Enter" || !ev.target || ev.target.id!=="pt-q") return; ev.preventDefault();
+  if(PT && ptEmailOk(PT._q)) ptClick({dataset:{pt:"login"}}); });
+function ptChildren(){
+  const f = ptFam();
+  return ptTop("Class swaps") + `<div class="ptbody"><h3 class="pth">${f.adult?"Select student":"Select child"}</h3>
+    <div class="ptkids">${f.kids.map(k=>{ const owed = PT.swaps.filter(w=>w.sid===k.ref && w.status==="owed").length;
+      return `<button type="button" class="ptkid" data-pt="kid|${esc(k.ref)}"><span class="ptav">${esc(ptFirst(k.name).slice(0,1))}</span>
+        <span class="ptkn"><b>${esc(k.adult?k.name:ptFirst(k.name))}</b><span class="small muted">${k.enr.map(x=>ptLblH(x.cid)).join(" · ")}</span>
+        ${owed?`<span class="ptbadge">${owed} owed swap${owed>1?"s":""} to book</span>`:""}</span>${ptUsedHtml(k.ref)}<span class="ptchev">›</span></button>`; }).join("")}</div></div>`;
+}
+function ptStudent(){
+  const f = ptFam(), k = ptKid(PT.sid); if(!k){ PT.sid = null; return ptChildren(); }
+  const rows = [], now = Date.now();
+  k.enr.forEach(({cid})=>{ const c = classById(cid);
+    ptSessions(cid).filter(iso=>ptDt(cid, iso) + ptMins(c)*60e3 > now).forEach(iso=>{
+      const w = PT.swaps.find(w=>w.sid===k.ref && w.from===cid && w.fd===iso), when = ptWhenH(cid, iso);
+      rows.push({dt:ptDt(cid, iso), own:true, html: w ? (w.status==="booked"
+        ? `<button type="button" class="ptrow out" data-pt="manage|${w.id}"><span class="ptd"><s>${when}</s></span><span class="ptst">Swapped to ${esc(ptD(w.td))}</span></button>`
+        : `<button type="button" class="ptrow out" data-pt="manage|${w.id}"><span class="ptd"><s>${when}</s></span><span class="ptst warn">Not coming · make-up to book</span></button>`)
+        : ptOpen(cid, iso) ? `<button type="button" class="ptrow" data-pt="swap|${esc(k.ref)}|${esc(cid)}|${iso}"><span class="ptd">${when}</span><span class="ptgo">Swap ›</span></button>`
+        : `<div class="ptrow dim"><span class="ptd">${when}</span><span class="ptst">Too late to swap</span></div>`});
+    });
+  });
+  PT.swaps.filter(w=>w.sid===k.ref && w.status==="booked" && w.to && classById(w.to) && ptDt(w.to, w.td) + ptMins(classById(w.to))*60e3 > now).forEach(w=>{
+    rows.push({dt:ptDt(w.to, w.td), html:`<button type="button" class="ptrow in" data-pt="manage|${w.id}"><span class="ptd">${ptWhenH(w.to, w.td)}</span><span class="ptst good">Make-up${w.fd?` for ${esc(ptD(w.fd))}`:""}</span></button>`});
+  });
+  rows.sort((a,b)=>a.dt-b.dt);
+  const ownRows = rows.filter(r=>r.own), cut = ownRows.length>4 ? ownRows[3].dt : Infinity, first = rows.filter(r=>r.dt<=cut),
+    more = rows.length - first.length, showAll = PT.all[k.ref] || more<=1, shown = showAll ? rows : first;
+  const owed = PT.swaps.filter(w=>w.sid===k.ref && w.status==="owed");
+  return ptTop("Class swaps") + `<div class="ptbody">
+    <button type="button" class="ptlink ptback" data-pt="kids">‹ ${f.kids.length>1?"All children":"Back"}</button>
+    <div class="ptsh"><div><h3 class="pth">${esc(k.adult?k.name:ptFirst(k.name))}</h3><span class="small muted">${k.enr.map(x=>ptLblH(x.cid)).join(" · ")}</span></div>${ptUsedHtml(k.ref)}</div>
+    ${owed.length?`<div class="ptowed"><div class="ptoh">Owed swap${owed.length>1?"s":""} · book by ${esc(ptByWhen())}</div>${owed.map(w=>`<button type="button" class="ptrow owed" data-pt="manage|${w.id}"><span class="ptd">Missed ${w.fd?esc(ptD(w.fd)):"a class"}</span><span class="ptgo">Book make-up ›</span></button>`).join("")}</div>`:""}
+    <p class="small muted ptintro">Tap a class to swap it.</p>
+    <div class="ptlist">${shown.map(r=>r.html).join("")||'<p class="small muted">No more classes this term.</p>'}</div>
+    ${more>1?`<button type="button" class="ptlink ptmore" data-pt="all|${esc(k.ref)}">${showAll?"Show fewer":`Show all dates this term (${more} more)`}</button>`:""}</div>`;
+}
+function viewPortal(){
+  if(!PT) ptInit();
+  const head = `<div class="pagehead"><div class="rowgap" style="align-items:center"><h2>Portal</h2><span class="pill warn">Prototype</span><span class="small muted">Test logins: test1@redrobin.test (Alfie, Bella) · test2@ (Cara) · test3@ (Eddie, Flora, George) · test4@ (Dan, adult)</span>
+      <a class="btn small primary" href="#parent" data-pt="parent" style="margin-left:auto">Open parent view ↗</a><button type="button" class="btn small" data-pt="reset">Reset demo</button></div></div>`;
+  if(!PT.fams.length) return head + `<p class="muted">No children in classes in ${esc(ptTerm())} yet.</p>`;
+  const screen = !PT.fam ? ptLogin() : !PT.sid ? ptChildren() : ptStudent();
+  const bar = S.parent ? `<div class="ptexit"><span>Parent view · preview</span><button type="button" data-pt="reset">Reset</button><a href="#portal" data-pt="exit">Exit</a></div>` : "";
+  return (S.parent ? "" : head) + `<div class="ptwrap"><div class="ptphone">${screen}</div></div>` + bar;
+}
+function ptRules(){
+  ptDialog(`<h2>Swap rules</h2><ul class="ptrl">
+    <li>Up to <b>${PT_LIMIT} swaps</b> per student each term. A swap counts as soon as a class is unbooked; cancelling gives it back.</li>
+    <li>Swap at least <b>${PT_NOTICE_H} hours</b> before the class starts. The same goes for booking and cancelling.</li>
+    <li>The make-up must be in the <b>same term</b> (this term ends ${esc(ptByWhen())}).</li>
+    <li>Children can go to <b>any other children's class</b>. Adults can go to the other adult class.</li>
+    <li>Classes take up to <b>${PT_MAX.Children} children</b> or <b>${PT_MAX.Adults} adults</b>.</li>
+    <li>Can't come and don't know when you can make up? Choose <b>"book the make-up later"</b>. It stays as an owed swap until the end of term.</li></ul>
+    <p class="small muted"><b>Still to confirm</b> (how the demo works for now): age ranges are ignored; a make-up can be before the missed date; cancelling a make-up after the missed date has gone turns it back into an owed swap.</p>
+    <div class="ptfoot"><button type="button" class="btn" data-close>Close</button></div>`);
+}
+function ptPicker(kid, mode, cid, ref){ /* mode "swap" (ref = own date), "book" / "change" (ref = swap id) */
+  const w = mode==="swap" ? null : PT.swaps.find(x=>x.id===ref);
+  const own = mode==="swap" ? cid : w.from;
+  const opts = ptOptions(kid, own, mode==="change" ? w.to+"|"+w.td : "");
+  const limit = PT._more ? opts.length : Math.min(opts.length, 12);
+  let prev = ""; const list = opts.slice(0, limit).map(o=>{ const day = ptD(o.iso), c = classById(o.cid), hd = day!==prev ? `<div class="ptday">${esc(day)}</div>` : ""; prev = day;
+    const lbl = `<span class="ptot">${esc(ptD(o.iso))} · ${esc(ptTime(c))}${ptLenH(o.cid)}</span>`;
+    return hd + (o.spaces>0
+      ? `<button type="button" class="ptopt" data-pt="pick|${mode}|${esc(kid.ref)}|${esc(own)}|${esc(ref)}|${esc(o.cid)}|${o.iso}">${lbl}<span class="ptsp">${o.spaces} space${o.spaces>1?"s":""}</span></button>`
+      : `<div class="ptopt full">${lbl}<span class="ptsp">Full</span></div>`); }).join("");
+  const nm = ptFirst(kid.name);
+  const title = mode==="swap" ? `Swap ${nm}'s class on ${ptD(ref)}` : mode==="book" ? `Book ${nm}'s make-up` : `Change ${nm}'s make-up`;
+  const sub = mode==="swap" ? `${ptUsed(kid.ref)} of ${PT_LIMIT} swaps used this term` : `Instead of ${w.fd?ptWhen(w.from, w.fd):"a missed class"}`;
+  ptDialog(`<h2>${esc(title)}</h2><p class="small muted" style="margin:2px 0 10px">${esc(sub)}</p>
+    ${mode==="swap"?`<button type="button" class="btn ptlater" data-pt="later|${esc(kid.ref)}|${esc(cid)}|${ref}">Can't come – I'll book the make-up later</button><div class="ptor small muted">or choose a class to come to instead</div>`:""}
+    <div class="ptopts">${list||'<p class="muted">No classes with space before the end of term.</p>'}</div>
+    ${opts.length>limit?`<button type="button" class="ptlink" data-pt="more|${mode}|${esc(kid.ref)}|${esc(cid||"")}|${esc(ref)}" style="margin-top:8px">Show later dates (${opts.length-limit} more)</button>`:""}
+    <div class="ptfoot"><button type="button" class="btn" data-close>Close</button></div>`);
+}
+function ptDing(){ /* a soft two-note chime, made in the browser (no sound file); silently skipped if sound isn't allowed */
+  try{ const A = window.AudioContext || window.webkitAudioContext; if(!A) return; const ac = ptDing.ac || (ptDing.ac = new A()); if(ac.state==="suspended") ac.resume();
+    [[880,0],[1318.5,0.13]].forEach(([f,t])=>{ const o = ac.createOscillator(), g = ac.createGain(), t0 = ac.currentTime + t;
+      o.type = "sine"; o.frequency.value = f; g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.25, t0+0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0+0.9);
+      o.connect(g); g.connect(ac.destination); o.start(t0); o.stop(t0+0.95); });
+  }catch(e){}
+}
+function ptCelebrate(fromH, toH){ /* from + to (Chris, 22:14) */
+  const dots = Array.from({length:14}, (_,i)=>`<i style="--a:${i*360/14}deg;--d:${i%3}"></i>`).join("");
+  ptDialog(`<div class="ptyay"><div class="ptburst">${dots}<div class="pttickc"><svg viewBox="0 0 52 52" aria-hidden="true"><path d="M14 27 l8 8 l16 -18"/></svg></div></div>
+    <h2>Swap confirmed!</h2>
+    <div class="ptyayft"><div class="ptyrow"><span class="ptylbl">From</span><span class="ptyfrom">${fromH}</span></div>
+      <div class="ptyarr" aria-hidden="true">↓</div>
+      <div class="ptyrow"><span class="ptylbl">To</span><span class="ptyto">${toH}</span></div></div>
+    <button type="button" class="btn primary ptbig" data-close>Done</button></div>`);
+  ptDing();
+}
+function ptDialog(html){ closeAllDialogs(); openDialog(`<div class="ptdlg">${html}</div>`); }
+function ptConfirm(text, btn, action, back){ ptDialog(`<h2>Check and confirm</h2><p>${text}</p><div class="ptfoot"><button type="button" class="btn" ${back?`data-pt="${esc(back)}"`:"data-close"}>Back</button><button type="button" class="btn primary" data-pt="${esc(action)}">${esc(btn)}</button></div>`); }
+function ptManage(w){
+  const k = ptKid(w.sid), nm = k ? ptFirst(k.name) : "", fromOpen = w.fd && ptOpen(w.from, w.fd), toOpen = w.status==="booked" && w.td && ptOpen(w.to, w.td), btns = [];
+  if(w.status==="owed"){
+    btns.push(`<button type="button" class="btn primary" data-pt="book|${w.id}">Book make-up</button>`);
+    if(fromOpen) btns.push(`<button type="button" class="btn" data-pt="undo|${w.id}">Cancel – ${esc(nm)} will come on ${esc(ptD(w.fd))}</button>`);
+  } else {
+    if(toOpen) btns.push(`<button type="button" class="btn" data-pt="change|${w.id}">Change make-up</button>`);
+    if(fromOpen && toOpen) btns.push(`<button type="button" class="btn" data-pt="undo|${w.id}">Cancel swap – back to ${esc(ptD(w.fd))}</button>`);
+    else if(toOpen) btns.push(`<button type="button" class="btn" data-pt="toowed|${w.id}">Cancel make-up (book another later)</button>`);
+  }
+  const toC = w.to && classById(w.to);
+  ptDialog(`<h2>${esc(nm)}'s swap</h2>
+    <div class="ptsum"><div><span class="small muted">Not coming</span><br><b>${w.fd?ptWhenH(w.from, w.fd):"A missed class"}</b></div>
+      <div><span class="small muted">Coming instead</span><br><b>${w.status==="booked"&&toC?ptWhenH(w.to, w.td):'<span style="color:var(--warn)">Not booked yet</span>'}</b></div></div>
+    ${w.status==="owed"?`<p class="small muted">Book the make-up any time before ${esc(ptByWhen())}.</p>`:""}
+    ${btns.length?`<div class="ptbtns">${btns.join("")}</div>`:'<p class="small muted">It is too late to change this swap.</p>'}
+    <div class="ptfoot"><button type="button" class="btn" data-close>Close</button></div>`);
+}
+function ptOuterHash(h){ /* on Carla's Apps Script link, also put #parent / #portal in the real address bar so it can be bookmarked */
+  try{ if(viaAppsScript() && window.google && google.script && google.script.history) google.script.history.push(null, null, h); }catch(e){}
+}
+function ptClick(el){
+  const p = el.dataset.pt.split("|"), k = p[0];
+  if(k==="reset"){ PT = null; closeAllDialogs(); render(); toast("Demo reset – back to what's in the sheet."); return; }
+  if(k==="rules"){ ptRules(); return; }
+  if(k==="parent"||k==="exit"){ ptOuterHash(k==="parent" ? "parent" : "portal"); return; } /* the link's own href changes the hash */
+  if(k==="login"){ const inp = $("#pt-q"); if(inp) PT._q = inp.value; const f = ptByEmail(PT._q);
+    if(!f){ PT._err = `We can't find <b>${esc(ptEmailNorm(PT._q))}</b>. Please use the email address you gave on the registration form, or contact Carla.`; render(); const i = $("#pt-q"); if(i) i.focus(); return; }
+    PT.fams = PT.fams.filter(x=>x.key!==f.key).concat([f]); PT.fam = f.key; PT._err = "";
+    PT.sid = null; render(); window.scrollTo(0,0); return; } /* then "Select child" – one card for most, several for families */
+  if(k==="logout"){ PT.fam = null; PT.sid = null; PT._q = ""; PT._err = ""; closeAllDialogs(); render(); return; }
+  if(k==="kids"){ PT.sid = null; render(); return; }
+  if(k==="kid"){ PT.sid = p[1]; render(); window.scrollTo(0,0); return; }
+  if(k==="all"){ PT.all[p[1]] = !PT.all[p[1]]; render(); return; }
+  if(k==="swap"){ const kid = ptKid(p[1]); PT._more = false;
+    if(ptUsed(kid.ref)>=PT_LIMIT){ ptDialog(`<h2>No swaps left</h2><p>${esc(ptFirst(kid.name))} has used both swaps this term. Please contact Carla if you need to miss this class.</p><div class="ptfoot"><button type="button" class="btn" data-close>Close</button></div>`); return; }
+    ptPicker(kid, "swap", p[2], p[3]); return; }
+  if(k==="more"){ PT._more = true; ptPicker(ptKid(p[2]), p[1], p[3], p[4]); return; }
+  if(k==="manage"){ ptManage(PT.swaps.find(w=>w.id===p[1])); return; }
+  if(k==="book"||k==="change"){ const w = PT.swaps.find(x=>x.id===p[1]); PT._more = false; ptPicker(ptKid(w.sid), k, w.from, w.id); return; }
+  if(k==="later"){ const kid = ptKid(p[1]); ptConfirm(`<b>${esc(ptFirst(kid.name))}</b> won't come on <b>${ptWhenH(p[2], p[3])}</b>. You can book the make-up any time before ${esc(ptByWhen())}.<br><span class="small muted">This uses ${ptUsed(kid.ref)+1} of ${PT_LIMIT} swaps this term.</span>`, "Confirm", `dolater|${kid.ref}|${p[2]}|${p[3]}`, `swap|${kid.ref}|${p[2]}|${p[3]}`); return; }
+  if(k==="pick"){ const [ , mode, sid, own, ref, cid, iso] = p, kid = ptKid(sid), w = mode==="swap" ? null : PT.swaps.find(x=>x.id===ref);
+    const from = mode==="swap" ? ptWhen(own, ref) : (w.fd ? ptWhen(w.from, w.fd) : "the missed class");
+    ptConfirm(`<b>${esc(ptFirst(kid.name))}</b> will come to <b>${ptWhenH(cid, iso)}</b> instead of <b>${esc(from)}</b>.${mode==="swap"?`<br><span class="small muted">This uses ${ptUsed(kid.ref)+1} of ${PT_LIMIT} swaps this term.</span>`:""}`,
+      "Confirm swap", `do|${mode}|${sid}|${own}|${ref}|${cid}|${iso}`, mode==="swap" ? `swap|${sid}|${own}|${ref}` : `${mode}|${ref}`); return; }
+  if(k==="do"){ const [ , mode, sid, own, ref, cid, iso] = p, kid = ptKid(sid);
+    if(ptCount(cid, iso) >= ptMax(classById(cid)) || !ptOpen(cid, iso)){ toast("Sorry – that class is no longer available."); ptPicker(kid, mode, own, ref); return; }
+    if(mode==="swap") PT.swaps.push({id:"D"+PT.seq++, sid, eid:(kid.enr.find(x=>x.cid===own)||{}).eid, from:own, fd:ref, to:cid, td:iso, status:"booked"});
+    else Object.assign(PT.swaps.find(x=>x.id===ref), {to:cid, td:iso, status:"booked"});
+    const w = mode==="swap" ? null : PT.swaps.find(x=>x.id===ref), fromH = mode==="swap" ? ptWhenH(own, ref) : (w && w.fd ? ptWhenH(w.from, w.fd) : "The missed class");
+    closeAllDialogs(); render(); ptCelebrate(fromH, ptWhenH(cid, iso)); return; } /* Chris, 24-Nov 22:12: a fun "Swap confirmed" pop-up + ding, then back to the child's classes */
+  if(k==="dolater"){ const kid = ptKid(p[1]); PT.swaps.push({id:"D"+PT.seq++, sid:kid.ref, eid:(kid.enr.find(x=>x.cid===p[2])||{}).eid, from:p[2], fd:p[3], to:"", td:"", status:"owed"});
+    closeAllDialogs(); render(); toast(`Saved as an owed swap for ${ptFirst(kid.name)}.`); return; }
+  if(k==="undo"){ const w = PT.swaps.find(x=>x.id===p[1]), kid = ptKid(w.sid); ptConfirm(`Cancel this swap? <b>${esc(ptFirst(kid.name))}</b> will come to <b>${ptWhenH(w.from, w.fd)}</b> as usual, and gets the swap back.`, "Cancel swap", `doundo|${w.id}`, `manage|${w.id}`); return; }
+  if(k==="doundo"){ PT.swaps = PT.swaps.filter(x=>x.id!==p[1]); closeAllDialogs(); render(); toast("Swap cancelled."); return; }
+  if(k==="toowed"){ const w = PT.swaps.find(x=>x.id===p[1]); ptConfirm(`Cancel the make-up on <b>${ptWhenH(w.to, w.td)}</b>? It goes back to an owed swap you can book later.`, "Cancel make-up", `dotoowed|${w.id}`, `manage|${w.id}`); return; }
+  if(k==="dotoowed"){ const w = PT.swaps.find(x=>x.id===p[1]); Object.assign(w, {to:"", td:"", status:"owed"}); closeAllDialogs(); render(); toast("Make-up cancelled – saved as owed."); return; }
+}
+
+</script>
+<script>
+/* ---------- My Red Robin – the parents' app (started as Red Robin Swaps) (24-Nov-2026) ----------
+   The screens come from the Rocker's Portal tab (portal.js, unchanged). This file supplies what the Rocker would:
+   the family's data (from the bridge script that runs as Carla), the login by personal link or email,
+   "remember me" on this phone, and the add-to-home-screen help. Swaps are a DEMO for now: nothing is saved. */
+
+/* ----- small helpers the portal screens use (same as in the Rocker) ----- */
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const $ = (s, el=document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const num = v => { const n = parseFloat(String(v ?? "").replace(/[£,\s]/g,"")); return isFinite(n) ? n : 0; };
+function isoDate(v){ const s = String(v||"").trim(); let m;
+  if((m = s.match(/^(\d{4})-(\d{2})-(\d{2})/))) return new Date(+m[1], +m[2]-1, +m[3]);
+  if((m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/))) return new Date(+m[3], +m[2]-1, +m[1]);
+  return null; }
+function toIso(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+const isAdultClass = c => /^adult/i.test(String((c||{}).Group||""));
+const isWorkshop = c => /^workshop/i.test(String((c||{}).Type||""));
+function shortDay(d){ const s = String(d||"").trim(); return /^(mon|tue|wed|thu|fri|sat|sun)[a-z]*day$/i.test(s) ? s.slice(0,3) : s; }
+function classLabel(c){ if(!c) return ""; return [shortDay(c.Day), c.Time].filter(x=>String(x||"").trim()).join(" "); }
+function classById(id){ return S.classes.find(c=>c.ClassID===id); }
+function capOf(cid){ const c = classById(cid), n = num(c && c.Capacity); return n>0 ? n : 0; }
+function termDates(){ return APP.data && APP.data.termEnd ? {End: APP.data.termEnd} : null; }
+function isPhone(){ return window.matchMedia("(max-width:600px)").matches; }
+function openDialog(html){ const m = $("#modal"), layer = document.createElement("div"); layer.className = "overlay";
+  layer.innerHTML = `<div class="dialog" role="dialog" aria-modal="true">${html}</div>`;
+  layer.addEventListener("click", e=>{ if(e.target===layer) closeDialog(); }); m.appendChild(layer);
+  const f = layer.querySelector("button.primary, button"); f && f.focus({preventScroll:true}); }
+function closeDialog(){ const l = $("#modal").lastElementChild; if(l) l.remove(); }
+function closeAllDialogs(){ $("#modal").innerHTML = ""; }
+function toast(t){ document.querySelectorAll(".toast").forEach(x=>x.remove());
+  const d = document.createElement("div"); d.className = "banner info toast"; d.setAttribute("role","status");
+  d.style.cssText = "position:fixed;bottom:calc(16px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.2)";
+  d.textContent = t; document.body.appendChild(d); setTimeout(()=>d.remove(), 3200); }
+function render(){ $("#main").innerHTML = viewPortal(); }
+
+let S = { classes:[], settings:{}, term:"", parent:true, byRef:new Map(), enrol:[] };
+const APP = { data:null, state:"start", msg:"", installEvt:null };
+const STORE = "rrswaps-code";
+const store = { get(){ try{ return localStorage.getItem(STORE)||""; }catch(e){ return ""; } },
+  set(v){ try{ v ? localStorage.setItem(STORE, v) : localStorage.removeItem(STORE); }catch(e){} } };
+
+/* ----- talking to the bridge ----- */
+async function api(params){
+  const u = new URL(CONFIG.api); Object.entries(params).forEach(([k,v])=>u.searchParams.set(k, v));
+  const ctl = new AbortController(), t = setTimeout(()=>ctl.abort(), 25000);
+  try{ const r = await fetch(u, {signal:ctl.signal, redirect:"follow"}); if(!r.ok) throw new Error("HTTP "+r.status); return await r.json(); }
+  finally{ clearTimeout(t); }
+}
+function useData(d){
+  APP.data = d; S.classes = d.classes; S.settings = {CurrentTerm:d.term}; S.term = d.term;
+  PT = null; ptInit(); APP.state = "in";
+  store.set(d.code);
+  const u = new URL(location.href); if(u.searchParams.get("c")!==d.code){ u.searchParams.set("c", d.code); history.replaceState(null, "", u); } /* so "Add to Home Screen" keeps them logged in */
+}
+async function loadByCode(code){
+  APP.state = "loading"; render();
+  try{ const d = await api({action:"family", code});
+    if(d.ok){ useData(d); render(); return; }
+    forget(); APP.state = "out"; APP.msg = d.error==="badcode" ? "That link isn't working any more. Please type your email instead." : "Something went wrong. Please type your email to log in.";
+  }catch(e){ APP.state = "out"; APP.msg = "Couldn't connect. Please check your internet and try again."; APP.retry = code; }
+  render();
+}
+async function loginByEmail(email){
+  const b = $("#pt-go"); if(b){ b.disabled = true; b.textContent = "Logging in…"; }
+  try{ const d = await api({action:"family", email:ptEmailNorm(email)});
+    if(d.ok){ PT && (PT._err = ""); useData(d); render(); window.scrollTo(0,0); return; }
+    APP.msg = d.error==="busy" ? "Too many tries just now. Please wait a few minutes and try again."
+      : `We can't find <b>${esc(ptEmailNorm(email))}</b>. Please use the email address you gave on the registration form, or contact Carla.`;
+  }catch(e){ APP.msg = "Couldn't connect. Please check your internet and try again."; }
+  APP.state = "out"; render(); const i = $("#pt-q"); if(i) i.focus();
+}
+function forget(){ store.set(""); APP.data = null; PT = null; const u = new URL(location.href); u.searchParams.delete("c"); history.replaceState(null, "", u); }
+
+/* ----- the portal screens, fed from the bridge instead of the Rocker ----- */
+function ptInit(){
+  const d = APP.data || {family:{kids:[]}, swaps:[]};
+  PT = { fam:"me", sid:null, all:{}, seq:1, _more:false, _q:"", _err:"", swaps: d.swaps.map(w=>({...w})),
+    fams: [{key:"me", label:d.family.label, adult:d.family.adult, test:d.family.test, kids:d.family.kids}] };
+  APP.orig = d.swaps.map(w=>({...w}));
+}
+function ptSessions(cid){ return ((APP.data && APP.data.sessions[cid]) || []).slice(); }
+function ptTermEnd(){ return (APP.data && APP.data.termEnd) || ""; }
+function ptCount(cid, iso){ /* places on that date: the sheet's count (all families' swaps included), with this family's changes made here */
+  const base = ((APP.data && APP.data.counts[cid]) || {})[iso] || 0, test = APP.data && APP.data.family.test;
+  const part = list => list.reduce((n, w)=> n + (w.status==="booked" && w.to===cid && w.td===iso ? 1 : 0) - (!test && w.from===cid && w.fd===iso ? 1 : 0), 0);
+  return base - part(APP.orig || []) + part(PT.swaps);
+}
+function standalone(){ return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true; }
+function phoneKind(){ const ua = navigator.userAgent || "";
+  if(/iPhone|iPad|iPod/i.test(ua) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1)) return "ios";
+  if(/Android/i.test(ua)) return "android"; return "computer"; }
+function installBanner(){
+  if(standalone() || (()=>{ try{ return localStorage.getItem("rrswaps-noinstall"); }catch(e){ return 1; } })()) return "";
+  return `<div class="rrinst"><img src="icons/icon-192.png" alt="" width="44" height="44"><div><b>Put My Red Robin on your home screen</b><span>Then just tap the robin next time.</span></div>
+    <div class="rrinstb"><button type="button" class="btn primary small" data-rr="install">Show me how</button><button type="button" class="ptlink" data-rr="noinstall">Not now</button></div></div>`;
+}
+function installHelp(){
+  const k = phoneKind();
+  const SHARE = `<svg class="rrico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>`;
+  const DOTS = `<svg class="rrico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>`;
+  const PLUS = `<svg class="rrico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg>`;
+  const step = (n, html) => `<li><span class="rrn">${n}</span><span>${html}</span></li>`;
+  let body;
+  if(k==="ios") body = `<ol class="rrsteps">
+      ${step(1, `Tap the <b>Share</b> button ${SHARE} – at the bottom of the screen in Safari (or at the top, next to the address).`)}
+      ${step(2, `Scroll down and tap <b>Add to Home Screen</b> ${PLUS}.`)}
+      ${step(3, `Tap <b>Add</b> in the top corner. Done!`)}</ol>
+    <p class="small muted">Opened this from an email? First tap the compass or “Open in Safari” button, then follow the steps.</p>`;
+  else if(k==="android") body = APP.installEvt
+    ? `<p>Tap the button and then <b>Install</b>.</p><button type="button" class="btn primary ptbig" data-rr="doinstall">Add to home screen</button>`
+    : `<ol class="rrsteps">
+      ${step(1, `Tap the <b>menu</b> ${DOTS} in the top corner of Chrome.`)}
+      ${step(2, `Tap <b>Add to Home screen</b> (or <b>Install app</b>).`)}
+      ${step(3, `Tap <b>Add</b> or <b>Install</b>. Done!`)}</ol>
+    <p class="small muted">Opened this from an email? First tap ${DOTS} and “Open in Chrome”.</p>`;
+  else body = APP.installEvt
+    ? `<p>Click the button and then <b>Install</b>. You'll get a My Red Robin icon on your computer.</p><button type="button" class="btn primary ptbig" data-rr="doinstall">Install on this computer</button>`
+    : `<p>In Chrome or Edge, click the install icon at the right of the address bar. In Safari: <b>File › Add to Dock</b>. Or simply bookmark this page.</p><p class="small muted">The easiest way is on your phone: open the link from the email there.</p>`;
+  ptDialog(`<div class="rrhelp"><img src="icons/icon-192.png" alt="" width="64" height="64"><h2>Add to your home screen</h2>${body}
+    <button type="button" class="btn ptbig" data-close>Close</button></div>`);
+}
+
+/* login screen: the Rocker's, plus the app's own messages, a loading state and the version */
+const _ptLogin = ptLogin;
+ptLogin = function(){
+  if(PT) PT._err = APP.msg; else PT = {_q:"", _err:APP.msg};
+  let html = _ptLogin();
+  if(APP.retry) html = html.replace('<button type="button" id="pt-go"', `<button type="button" class="btn ptbig" data-rr="retry" style="margin-bottom:8px">Try again</button><button type="button" id="pt-go"`);
+  return html.replace(/<\/div>\s*$/, `<p class="rrver">Version ${esc(CONFIG.version)}</p></div>`);
+};
+function viewPortal(){
+  if(APP.state==="loading" || APP.state==="start") return `<div class="ptwrap"><div class="ptphone"><div class="ptlogin rrload">${ptLogo()}<h3>Red Robin Art Academy</h3><p class="small muted">Loading your classes…</p><div class="rrspin" aria-hidden="true"></div></div></div></div>`;
+  let screen = !APP.data ? ptLogin() : !PT.sid ? ptChildren() : ptStudent();
+  if(APP.data){
+    const top = (CONFIG.demo ? `<div class="rrdemo">Preview – swaps made here are not saved yet</div>` : "") + installBanner();
+    screen = screen.replace('<div class="ptbody">', '<div class="ptbody">' + top);
+  }
+  return `<div class="ptwrap"><div class="ptphone">${screen}</div></div>`;
+}
+function ptLogo(){ return `<img src="icons/icon-192.png" alt="" width="64" height="64" class="ptlogo">`; }
+
+const _ptClick = ptClick;
+ptClick = function(el){
+  const k = el.dataset.pt.split("|")[0];
+  if(k==="login"){ const i = $("#pt-q"); const v = i ? i.value : ""; if(PT) PT._q = v; APP.msg = ""; if(ptEmailOk(v)) loginByEmail(v); return; }
+  if(k==="logout"){ closeAllDialogs(); forget(); APP.state = "out"; APP.msg = ""; APP.retry = null; render(); return; }
+  if(k==="reset"||k==="parent"||k==="exit") return;
+  return _ptClick(el);
+};
+function rrClick(el){
+  const k = el.dataset.rr;
+  if(k==="install") installHelp();
+  if(k==="noinstall"){ try{ localStorage.setItem("rrswaps-noinstall", "1"); }catch(e){} render(); }
+  if(k==="doinstall" && APP.installEvt){ APP.installEvt.prompt(); APP.installEvt.userChoice.finally(()=>{ APP.installEvt = null; closeAllDialogs(); render(); }); }
+  if(k==="retry"){ const c = APP.retry; APP.retry = null; APP.msg = ""; loadByCode(c); }
+}
+
+document.addEventListener("click", ev=>{
+  const r = ev.target.closest("[data-rr]"); if(r){ ev.preventDefault(); rrClick(r); return; }
+  const p = ev.target.closest("[data-pt]"); if(p){ ev.preventDefault(); ptClick(p); return; }
+  if(ev.target.closest("[data-close]")){ ev.preventDefault(); closeDialog(); }
+});
+document.addEventListener("keydown", ev=>{ if(ev.key==="Escape") closeDialog(); });
+window.addEventListener("beforeinstallprompt", e=>{ e.preventDefault(); APP.installEvt = e; });
+window.addEventListener("appinstalled", ()=>{ APP.installEvt = null; try{ localStorage.setItem("rrswaps-noinstall", "1"); }catch(e){} render(); });
+/* coming back to the app after a while: fetch fresh numbers (only when nothing is open) */
+let hiddenAt = 0;
+document.addEventListener("visibilitychange", ()=>{ if(document.hidden){ hiddenAt = Date.now(); return; }
+  if(APP.data && hiddenAt && Date.now()-hiddenAt > 20*60e3 && !$("#modal").children.length) loadByCode(APP.data.code); });
+if("serviceWorker" in navigator && location.protocol==="https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
+
+(function start(){
+  const u = new URL(location.href), code = (u.searchParams.get("c") || store.get() || "").trim();
+  if(code) loadByCode(code); else { APP.state = "out"; render(); }
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+/* Portal prototype (24-Nov-2026) */
+.ptwrap{display:flex;justify-content:center;margin:6px 0 18px}
+.ptphone{width:100%;max-width:400px;min-height:640px;background:var(--surface);border:1px solid var(--line);border-radius:28px;box-shadow:0 14px 40px rgba(0,0,0,.10);overflow:hidden;display:flex;flex-direction:column}
+.pttop{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--accent);color:var(--accent-ink);padding:14px 18px;min-height:8px}
+.pttop:empty{padding:0;min-height:6px}
+.ptbrand{display:flex;flex-direction:column;line-height:1.2} .ptbrand span{font-size:.8rem;opacity:.85}
+.ptwho{display:flex;flex-direction:column;align-items:flex-end;font-size:.85rem;font-weight:600;line-height:1.3}
+.ptlink{background:none;border:0;padding:0;font:inherit;font-size:.85rem;font-weight:600;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:3px;text-decoration-color:transparent}
+.ptlink:hover{text-decoration-color:currentColor} .pttop .ptlink{color:var(--accent-ink);opacity:.9}
+.ptlogin{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:40px 28px 32px}
+.ptlogo{border-radius:50%;margin-bottom:12px} .ptlogin h3{margin:0;font-size:1.25rem} .ptlogin > p.small{margin:2px 0 26px}
+.ptlbl{align-self:flex-start;font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:6px}
+.ptsel{width:100%;font:inherit;font-size:16px;padding:12px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink)}
+.ptsel:focus{outline:2px solid var(--accent);outline-offset:1px}
+.ptdemo{font-size:.78rem;color:var(--warn);background:var(--warn-soft);border-radius:10px;padding:8px 10px;margin:12px 0 18px;text-align:left}
+.ptbig{width:100%;justify-content:center;padding:13px;font-size:1rem;border-radius:12px;margin-top:22px}
+.ptbody{padding:14px 16px 18px}
+.pth{margin:0;font-family:inherit;font-size:1.15rem;font-weight:700}
+.ptkids{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.ptkid{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.ptkid:hover{border-color:var(--accent)}
+.ptav{flex:none;width:40px;height:40px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;display:flex;align-items:center;justify-content:center;font-size:1.05rem}
+.ptkn{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.ptbadge{align-self:flex-start;font-size:.72rem;font-weight:700;color:var(--warn);background:var(--warn-soft);border-radius:999px;padding:1px 8px;margin-top:2px}
+.ptkid .ptused{align-self:flex-start;margin-top:3px} .ptchev{color:var(--muted);font-size:1.3rem}
+.ptback{display:inline-block;margin-bottom:10px}
+.ptsh{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px}
+.ptused{font-size:.75rem;font-weight:700;color:var(--good);white-space:nowrap} .ptused.full{color:var(--bad)}
+.ptintro{margin:4px 0 8px}
+.ptlist,.ptowed{display:flex;flex-direction:column;gap:6px}
+.ptowed{background:var(--warn-soft);border-radius:12px;padding:8px;margin-bottom:10px} .ptoh{font-size:.78rem;font-weight:700;color:var(--warn)}
+.ptrow{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+button.ptrow:hover{border-color:var(--muted)}
+.ptrow.dim{color:var(--muted);background:var(--bg);cursor:default}
+.ptrow.out .ptd{color:var(--muted)} .ptrow.in{border-color:var(--good);background:var(--good-soft)} .ptrow.owed{border-color:var(--warn)}
+.ptd{font-weight:600;white-space:nowrap} .ptgo{color:var(--accent);font-weight:700;white-space:nowrap}
+.ptst{font-size:.78rem;color:var(--muted);text-align:right} .ptst.good{color:var(--good);font-weight:700} .ptst.warn{color:var(--warn);font-weight:700}
+.ptmore{margin-top:10px}
+.ptdlg h2{margin:0}
+.ptrl{margin:10px 0;padding-left:18px} .ptrl li{margin:6px 0}
+.ptlater{width:100%;justify-content:center;border-color:var(--warn);color:var(--warn);font-weight:700}
+.ptor{text-align:center;margin:10px 0 4px}
+.ptopts{display:flex;flex-direction:column;gap:6px;max-height:52vh;overflow:auto}
+.ptday{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:8px 0 0}
+.ptopt{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+button.ptopt:hover{border-color:var(--accent)} .ptsp{font-size:.8rem;font-weight:700;color:var(--good);white-space:nowrap}
+.ptopt.full{color:var(--muted);background:var(--bg);cursor:default} .ptopt.full .ptsp{color:var(--bad)}
+.ptsum{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;padding:10px 12px;background:var(--bg);border-radius:10px}
+.ptbtns{display:flex;flex-direction:column;gap:8px;margin-top:10px} .ptbtns .btn{justify-content:center}
+.ptfoot{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+@media (max-width:600px){ .ptphone{border-radius:16px;min-height:0} .ptlogin{padding:28px 20px 24px} .ptbig{margin-top:18px} }
+.ptacts{display:flex;gap:14px;align-items:center;margin-top:4px} .ptrlink{margin-top:14px} .ptlogin h3{font-family:inherit;font-weight:700}
+.ptout{font:inherit;font-size:.9rem;font-weight:700;padding:7px 16px;border-radius:999px;border:1.5px solid var(--accent-ink);background:transparent;color:var(--accent-ink);cursor:pointer} .ptout:hover{background:var(--accent-ink);color:var(--accent)}
+.ptot{font-weight:600}
+/* full-screen parent view (#parent) */
+body.parentmode header.top, body.parentmode nav.tabs, body.parentmode #main > p.small.muted{display:none}
+body.parentmode #main{padding-top:24px;padding-bottom:72px}
+body.parentmode .ptwrap{margin:0}
+.ptexit{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:var(--ink);color:var(--bg);border-radius:999px;padding:7px 8px 7px 16px;font-size:.8rem;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:50;white-space:nowrap}
+.ptexit button,.ptexit a{font:inherit;font-weight:700;color:var(--bg);background:rgba(255,255,255,.14);border:0;border-radius:999px;padding:5px 12px;cursor:pointer;text-decoration:none}
+@media (max-width:600px){ body.parentmode #main{padding:0 0 64px} body.parentmode .ptphone{max-width:none;border:0;border-radius:0;box-shadow:none;min-height:100vh} }
+.ptlen{font-size:.78em;font-weight:500;color:var(--muted);white-space:nowrap}
+.ptrow.in .ptlen{color:inherit;opacity:.75}
+.ptsearch{position:relative;width:100%} .ptsearch .ptsel{padding-right:38px} .ptsel.picked{border-color:var(--good);background:var(--good-soft);font-weight:600}
+.pttick{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--good);font-weight:800}
+.ptresults{width:100%;display:flex;flex-direction:column;gap:6px;margin-top:8px;text-align:left}
+.ptres{display:flex;flex-direction:column;gap:1px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.ptres:hover,.ptres:focus{border-color:var(--accent);outline:none} .ptres span{font-size:.8rem;color:var(--muted)}
+.ptnone{font-size:.85rem;color:var(--muted);margin:4px 0 0}
+#pt-go:disabled{opacity:.45;cursor:default}
+.ptlogin p.ptlhint{margin:-4px 0 8px;text-align:left}
+
+/* "Swap confirmed!" pop-up (24-Nov 22:12) */
+.ptyay{text-align:center;padding:8px 4px 4px}
+.ptyay h2{font-size:1.5rem;margin:14px 0 6px;font-family:inherit;font-weight:700}
+.ptyayft{margin:4px 0 22px;display:flex;flex-direction:column;align-items:stretch;gap:2px}
+.ptyrow{display:flex;align-items:baseline;gap:10px;padding:10px 12px;border-radius:12px;text-align:left}
+.ptyrow:first-child{background:#f4f1ec}
+.ptyrow:last-child{background:#e7f4ec}
+.ptylbl{flex:0 0 50px;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:#7a746c;font-weight:700}
+.ptyfrom{color:#5f5a53;font-weight:600}
+.ptyto{font-size:1.1rem;font-weight:700;color:#1f6b43}
+.ptyarr{color:#2f8f5b;font-size:1.1rem;line-height:1;margin:-2px 0}
+.ptyay .ptbig{width:100%}
+.ptburst{position:relative;width:96px;height:96px;margin:6px auto 0}
+.pttickc{position:absolute;inset:0;border-radius:50%;background:#2f8f5b;display:flex;align-items:center;justify-content:center;animation:ptpop .5s cubic-bezier(.2,1.6,.4,1) both}
+.pttickc svg{width:60px;height:60px;fill:none;stroke:#fff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+.pttickc path{stroke-dasharray:40;stroke-dashoffset:40;animation:ptdraw .35s .35s ease-out forwards}
+.ptburst i{position:absolute;left:50%;top:50%;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:var(--accent,#c0532a);opacity:0;animation:ptfly .8s .15s ease-out forwards;transform:rotate(var(--a)) translateY(0)}
+.ptburst i:nth-child(3n+1){background:#f2b33d}.ptburst i:nth-child(3n+2){background:#2f8f5b}
+@keyframes ptpop{0%{transform:scale(0)}100%{transform:scale(1)}}
+@keyframes ptdraw{to{stroke-dashoffset:0}}
+@keyframes ptfly{0%{opacity:1;transform:rotate(var(--a)) translateY(0) scale(1)}100%{opacity:0;transform:rotate(var(--a)) translateY(calc(-62px - var(--d)*10px)) scale(.6)}}
+@media (prefers-reduced-motion:reduce){.pttickc,.pttickc path,.ptburst i{animation:none}.pttickc path{stroke-dashoffset:0}}
