@@ -102,7 +102,7 @@ function browserKind(){ /* which browser on the phone, so the home-screen steps 
 /* Straight after login, a screen of its own asking them to put the app on their home screen (Chris, 25-Nov 10:34).
    It keeps asking on every visit in the browser until they tap "Done – go to my classes" after the steps (10:43);
    "Not now" just goes through to their children this time. Never shown when opened from the home-screen icon. */
-const DONE = "rrswaps-homescreen-done";
+const DONE = "rrswaps-homescreen-done-2"; /* renamed 25-Nov 19:31 so every phone starts fresh (Chris testing) */
 function wantInstall(){ if(standalone()) return false;
   try{ return !localStorage.getItem(DONE); }catch(e){ return true; } }
 function installScreen(){
