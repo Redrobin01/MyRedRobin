@@ -38,7 +38,7 @@ const DB_ID         = '1U6ra-LmwQIFJKGtI0f1nuP6sAnjama4Zq36TQalptYk'; // Red Rob
 const FORM_ID       = '1rasCtoX6Ox8ZBqulykS8HJN6GjzygfbSYYgqSmfvKzA'; // Children's registration form responses
 const ADULT_FORM_ID = '13Wk9b8XW0j5F9cLkwK7_6pi06fcCl2TOfMuYc9AVBec'; // Adults' registration form responses
 const LINKS_TAB     = 'PortalLinks';                                   // Email | Code | Created | Note
-const VERSION       = 'bridge v3 (25-Nov-2026)';
+const VERSION       = 'bridge v4 (25-Nov-2026)';
 const TEST_DOMAIN   = '@redrobin.test';                                // test1@ … test4@ - made-up families for trying things out
 
 // ---------------- web entry points ----------------
@@ -162,6 +162,7 @@ function change_(p) {
     const checkTarget = function (kid, fromCid, fd, to, td) {   // can this child come to class `to` on `td` instead?
       const c = d.byId[to], own = d.byId[fromCid];
       if (!c || !own || groupOf_(c) !== groupOf_(own)) return 'That class isn\'t available.';
+      if (noSwapTo_(c)) return 'That class isn\'t available for swaps.';   // the children's Sunday 3pm GCSE class (Chris, 25-Nov 19:57)
       if (kid.enr.some(function (x) { return x.cid === to; })) return 'That\'s already one of their own classes.';
       if (!isSession(to, td) || started(to, td)) return 'That class has already started or isn\'t running.';
       if ((kid.terms || []).indexOf(c.Term) < 0 && Object.keys(d.termsByRef[kid.ref] || {}).indexOf(c.Term) < 0) return 'They aren\'t booked into that term.';
@@ -349,6 +350,9 @@ function objects_(rows) {
 function normEmail_(e) { return String(e || '').trim().toLowerCase(); }
 function norm_(s) { return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
 function num_(v) { const n = parseFloat(String(v == null ? '' : v).replace(/[£,\s]/g, '')); return isFinite(n) ? n : 0; }
+function noSwapTo_(c) {   // the children's Sunday 3pm class is the GCSE class: never a swap target
+  return !isAdultClass_(c) && /^sun/i.test(String(c.Day || '')) && /^(3([.:]00)?\s*pm|15[.:]00)$/i.test(String(c.Time || '').trim());
+}
 function isAdultClass_(c) { return /^adult/i.test(String((c || {}).Group || '')); }
 function groupOf_(c) { return isAdultClass_(c) ? 'Adults' : 'Children'; }
 function mins_(c) { if (isAdultClass_(c)) return 135; const f = num_(c.Fee), w = num_(c.Weeks), rate = w > 0 && f > 60 ? f / w : f; return rate >= 30 ? 120 : 90; }

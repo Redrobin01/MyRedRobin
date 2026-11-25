@@ -36,7 +36,9 @@ function ptSurname(name){ const p = String(name||"").replace(/\([^)]*\)/g, " ").
 
 /* every term class, its dates and the people in it (left and absent-this-term places don't count) */
 function ptClasses(){ return S.classes.filter(c=>c.Term===ptTerm() && !isWorkshop(c)); }
-function ptAnyClasses(){ return S.classes.filter(c=>!isWorkshop(c)); } /* make-ups can be in any term (Chris, 25-Nov 09:15) */
+function ptNoSwapTo(c){ /* the children's Sunday 3pm class is the GCSE class: never offered as a swap (Chris, 25-Nov 19:57) */
+  return !/^adult/i.test(String(c.Group||"")) && /^sun/i.test(String(c.Day||"")) && /^(3([.:]00)?\s*pm|15[.:]00)$/i.test(String(c.Time||"").trim()); }
+function ptAnyClasses(){ return S.classes.filter(c=>!isWorkshop(c) && !ptNoSwapTo(c)); } /* make-ups can be in any term (Chris, 25-Nov 09:15) */
 function ptYear(iso){ const d = isoDate(iso); if(!d) return ""; d.setFullYear(d.getFullYear()+1); return toIso(d); } /* a make-up lasts a year from the missed class */
 function ptToday(){ return toIso(new Date()); }
 function ptActiveTerms(kid){ /* terms this student is in a class (not Left/Absent): a swap can only go into one of those (Chris, 25-Nov 09:33) */
