@@ -652,7 +652,7 @@ body.parentmode #main{padding:0;max-width:none}
 <main id="main"></main>
 <div id="modal"></div>
 <script>
-const CONFIG = {"api": "https://script.google.com/macros/s/AKfycbwWruMZQLLSaN1fFWjAN5NN-YXZSFIfdl3qM4ykaevZYo2K5FrfEKEnfYzZbyKBJejx/exec", "version": "0.2.06", "demo": true};
+const CONFIG = {"api": "https://script.google.com/macros/s/AKfycbwWruMZQLLSaN1fFWjAN5NN-YXZSFIfdl3qM4ykaevZYo2K5FrfEKEnfYzZbyKBJejx/exec", "version": "0.2.07", "demo": true};
 </script>
 <script>
 
@@ -1047,14 +1047,17 @@ function installBanner(){
 function installHelp(){
   const k = phoneKind();
   const SHARE = `<svg class="rrico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>`;
+  const LINES = `<svg class="rrico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/></svg>`;
   const DOTS = `<svg class="rrico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>`;
   const PLUS = `<svg class="rrico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg>`;
   const step = (n, html) => `<li><span class="rrn">${n}</span><span>${html}</span></li>`;
   let body;
   if(k==="ios") body = `<ol class="rrsteps">
-      ${step(1, `Tap the <b>Share</b> button ${SHARE} – at the bottom of the screen in Safari (or at the top, next to the address).`)}
-      ${step(2, `Scroll down and tap <b>Add to Home Screen</b> ${PLUS}.`)}
-      ${step(3, `Tap <b>Add</b> in the top corner. Done!`)}</ol>
+      ${step(1, `Tap the <b>menu button</b> ${LINES} at the bottom of Safari, next to the web address.`)}
+      ${step(2, `Tap <b>Share</b> ${SHARE}.`)}
+      ${step(3, `Scroll down and tap <b>Add to Home Screen</b> ${PLUS}. (Can't see it? Tap <b>View More</b> first.)`)}
+      ${step(4, `Tap <b>Add</b>. Done!`)}</ol>
+    <p class="small muted">If you can already see the Share button ${SHARE} at the bottom of the screen, just tap that and skip step 1.</p>
     <p class="small muted">Opened this from an email? First tap the compass or “Open in Safari” button, then follow the steps.</p>`;
   else if(k==="android") body = APP.installEvt
     ? `<p>Tap the button and then <b>Install</b>.</p><button type="button" class="btn primary ptbig" data-rr="doinstall">Add to home screen</button>`
