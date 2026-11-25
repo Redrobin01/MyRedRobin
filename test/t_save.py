@@ -20,6 +20,7 @@ async def main():
     # cancel it
     await pg.locator('button.ptrow.in').first.click(); await pg.wait_for_timeout(200); await pg.locator('.dialog [data-pt^="undo|"]').click(); await pg.wait_for_timeout(200); await pg.locator('.dialog button.primary').click(); await pg.wait_for_timeout(1500)
     s=swaps(); print('2 cancel:', s[-1][9], s[-1][10])
+    print('   cancel popup:', (await pg.inner_text('.dialog')).replace('\n',' / ')[:160]); await pg.screenshot(path='/tmp/cancelpop.png'); await pg.click('.dialog [data-close]'); await pg.wait_for_timeout(300)
     # owed, then book, then change, then back to owed
     await pg.locator('button.ptrow[data-pt^="swap|"]').first.click(); await pg.wait_for_timeout(200); await pg.locator('.dialog [data-pt^="later|"]').click(); await pg.wait_for_timeout(200); await pg.locator('.dialog button.primary').click(); await pg.wait_for_timeout(1500)
     s=swaps(); print('3 owed:', s[-1][7:11])

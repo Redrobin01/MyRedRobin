@@ -77,7 +77,7 @@ body.parentmode .ptwrap{margin:0}
 .ptyrow{display:flex;align-items:baseline;gap:10px;padding:10px 12px;border-radius:12px;text-align:left}
 .ptyrow:first-child{background:#f4f1ec}
 .ptyrow:last-child{background:#e7f4ec}
-.ptylbl{flex:0 0 50px;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:#7a746c;font-weight:700}
+.ptylbl{flex:0 0 auto;min-width:50px;white-space:nowrap;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:#7a746c;font-weight:700}
 .ptyfrom{color:#5f5a53;font-weight:600}
 .ptyto{font-size:1.1rem;font-weight:700;color:#1f6b43}
 .ptyarr{color:#2f8f5b;font-size:1.1rem;line-height:1;margin:-2px 0}

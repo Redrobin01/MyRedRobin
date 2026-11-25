@@ -189,8 +189,8 @@ async function saveChange(el, k, p){
     const w = mode==="swap" ? null : PT.swaps.find(x=>x.id===ref), fromH = mode==="swap" ? ptWhenH(own, ref) : (w && w.fd ? ptWhenH(w.from, w.fd) : "The missed class"), toH = ptWhenH(cid, iso);
     done = ()=>ptCelebrate(fromH, toH); }
   if(k==="dolater"){ const kid = ptKid(p[1]); req = {op:"later", eid:(kid.enr.find(x=>x.cid===p[2])||{}).eid, from:p[2], fd:p[3]}; done = ()=>toast(`Saved as an owed swap for ${ptFirst(kid.name)}.`); }
-  if(k==="doundo"){ req = {op:"cancel", id:p[1]}; done = ()=>toast("Swap cancelled."); }
-  if(k==="dotoowed"){ req = {op:"toowed", id:p[1]}; done = ()=>toast("Class cancelled – saved as an owed swap."); }
+  if(k==="doundo"){ const w = Object.assign({}, PT.swaps.find(x=>x.id===p[1])); req = {op:"cancel", id:p[1]}; done = ()=>ptCancelPop(w); }
+  if(k==="dotoowed"){ const w = Object.assign({}, PT.swaps.find(x=>x.id===p[1])); req = {op:"toowed", id:p[1]}; done = ()=>ptToOwedPop(w); }
   const btns = [...document.querySelectorAll("#modal button")], label = el.textContent;
   btns.forEach(b=>b.disabled = true); el.textContent = "Saving…";
   const undoBusy = ()=>{ btns.forEach(b=>b.disabled = false); el.textContent = label; };

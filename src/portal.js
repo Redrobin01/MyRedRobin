@@ -216,15 +216,23 @@ function ptDing(){ /* a soft two-note chime, made in the browser (no sound file)
       o.connect(g); g.connect(ac.destination); o.start(t0); o.stop(t0+0.95); });
   }catch(e){}
 }
-function ptCelebrate(fromH, toH){ /* from + to (Chris, 22:14) */
+function ptCelebrate(fromH, toH, o){ /* from + to (Chris, 22:14); o = {title, fromLbl, toLbl, strike} for the cancel pop-ups (Chris, 25-Nov 12:29) */
+  o = o || {};
   const dots = Array.from({length:14}, (_,i)=>`<i style="--a:${i*360/14}deg;--d:${i%3}"></i>`).join("");
   ptDialog(`<div class="ptyay"><div class="ptburst">${dots}<div class="pttickc"><svg viewBox="0 0 52 52" aria-hidden="true"><path d="M14 27 l8 8 l16 -18"/></svg></div></div>
-    <h2>Swap confirmed!</h2>
-    <div class="ptyayft"><div class="ptyrow"><span class="ptylbl">From</span><span class="ptyfrom">${fromH}</span></div>
+    <h2>${o.title||"Swap confirmed!"}</h2>
+    <div class="ptyayft"><div class="ptyrow"><span class="ptylbl">${o.fromLbl||"From"}</span><span class="ptyfrom">${o.strike?`<s>${fromH}</s>`:fromH}</span></div>
       <div class="ptyarr" aria-hidden="true">↓</div>
-      <div class="ptyrow"><span class="ptylbl">To</span><span class="ptyto">${toH}</span></div></div>
+      <div class="ptyrow"><span class="ptylbl">${o.toLbl||"To"}</span><span class="ptyto">${toH}</span></div></div>
     <button type="button" class="btn primary ptbig" data-close>Done</button></div>`);
   ptDing();
+}
+function ptCancelPop(w){ /* cancel a swap: what was cancelled, and the class they're back to */
+  const kid = ptKid(w.sid), nm = kid ? ptFirst(kid.name) : "";
+  ptCelebrate(w.status==="booked" && w.td ? ptWhenH(w.to, w.td) : "Owed swap", ptWhenH(w.from, w.fd), {title:nm?`${esc(nm)}'s swap cancelled`:"Swap cancelled", fromLbl:"Cancelled", toLbl:"Back to", strike:true});
+}
+function ptToOwedPop(w){ /* cancel the swapped-to class: it goes back to an owed swap */
+  ptCelebrate(ptWhenH(w.to, w.td), "Owed swap – book another class later", {title:"Class cancelled", fromLbl:"Cancelled", toLbl:"Now", strike:true});
 }
 function ptDialog(html){ closeAllDialogs(); openDialog(`<div class="ptdlg">${html}</div>`); }
 function ptConfirm(text, btn, action, back){ ptDialog(`<h2>Check and confirm</h2><p>${text}</p><div class="ptfoot"><button type="button" class="btn" ${back?`data-pt="${esc(back)}"`:"data-close"}>Back</button><button type="button" class="btn primary" data-pt="${esc(action)}">${esc(btn)}</button></div>`); }
@@ -282,7 +290,7 @@ function ptClick(el){
   if(k==="dolater"){ const kid = ptKid(p[1]); PT.swaps.push({id:"D"+PT.seq++, sid:kid.ref, eid:(kid.enr.find(x=>x.cid===p[2])||{}).eid, from:p[2], fd:p[3], to:"", td:"", status:"owed"});
     closeAllDialogs(); render(); toast(`Saved as an owed swap for ${ptFirst(kid.name)}.`); return; }
   if(k==="undo"){ const w = PT.swaps.find(x=>x.id===p[1]), kid = ptKid(w.sid); ptConfirm(`Cancel this swap? <b>${esc(ptFirst(kid.name))}</b> will come to <b>${ptWhenH(w.from, w.fd)}</b> as usual, and gets the swap back.`, "Cancel swap", `doundo|${w.id}`, `manage|${w.id}`); return; }
-  if(k==="doundo"){ PT.swaps = PT.swaps.filter(x=>x.id!==p[1]); closeAllDialogs(); render(); toast("Swap cancelled."); return; }
+  if(k==="doundo"){ const w = PT.swaps.find(x=>x.id===p[1]); PT.swaps = PT.swaps.filter(x=>x.id!==p[1]); closeAllDialogs(); render(); if(w) ptCancelPop(w); return; }
   if(k==="toowed"){ const w = PT.swaps.find(x=>x.id===p[1]); ptConfirm(`Cancel the class on <b>${ptWhenH(w.to, w.td)}</b>? It goes back to an owed swap you can book later.`, "Cancel class", `dotoowed|${w.id}`, `manage|${w.id}`); return; }
-  if(k==="dotoowed"){ const w = PT.swaps.find(x=>x.id===p[1]); Object.assign(w, {to:"", td:"", status:"owed"}); closeAllDialogs(); render(); toast("Class cancelled – saved as an owed swap."); return; }
+  if(k==="dotoowed"){ const w = PT.swaps.find(x=>x.id===p[1]), was = Object.assign({}, w); Object.assign(w, {to:"", td:"", status:"owed"}); closeAllDialogs(); render(); ptToOwedPop(was); return; }
 }
