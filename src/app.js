@@ -100,10 +100,11 @@ function browserKind(){ /* which browser on the phone, so the home-screen steps 
   return phoneKind()==="ios" ? "safari" : "chrome";
 }
 /* Straight after login, a screen of its own asking them to put the app on their home screen (Chris, 25-Nov 10:34).
-   "Not now" goes through to their children and asks again in a week; it never shows once the app is on the home screen. */
-const SNOOZE = "rrswaps-noinstall";
+   It keeps asking on every visit in the browser until they tap "Done – go to my classes" after the steps (10:43);
+   "Not now" just goes through to their children this time. Never shown when opened from the home-screen icon. */
+const DONE = "rrswaps-homescreen-done";
 function wantInstall(){ if(standalone()) return false;
-  try{ const t = Number(localStorage.getItem(SNOOZE) || 0); return !(t && Date.now() < t); }catch(e){ return false; } }
+  try{ return !localStorage.getItem(DONE); }catch(e){ return true; } }
 function installScreen(){
   return ptTop("Class swaps") + `<div class="ptbody rrask">
     <img src="icons/icon-192.png" alt="" width="96" height="96">
@@ -175,8 +176,8 @@ ptClick = function(el){
 function rrClick(el){
   const k = el.dataset.rr;
   if(k==="install") installHelp();
-  if(k==="noinstall"){ try{ localStorage.setItem(SNOOZE, String(Date.now() + 7*864e5)); }catch(e){} APP.ask = false; render(); window.scrollTo(0,0); }
-  if(k==="helpdone"){ closeAllDialogs(); if(APP.ask){ APP.ask = false; render(); window.scrollTo(0,0); } }
+  if(k==="noinstall"){ APP.ask = false; render(); window.scrollTo(0,0); }   /* this visit only – asks again next time */
+  if(k==="helpdone"){ try{ localStorage.setItem(DONE, new Date().toISOString()); }catch(e){} closeAllDialogs(); if(APP.ask){ APP.ask = false; render(); window.scrollTo(0,0); } }
   if(k==="doinstall" && APP.installEvt){ APP.installEvt.prompt(); APP.installEvt.userChoice.finally(()=>{ APP.installEvt = null; APP.ask = false; closeAllDialogs(); render(); }); }
   if(k==="retry"){ const c = APP.retry; APP.retry = null; APP.msg = ""; loadByCode(c); }
 }
@@ -188,7 +189,7 @@ document.addEventListener("click", ev=>{
 });
 document.addEventListener("keydown", ev=>{ if(ev.key==="Escape") closeDialog(); });
 window.addEventListener("beforeinstallprompt", e=>{ e.preventDefault(); APP.installEvt = e; });
-window.addEventListener("appinstalled", ()=>{ APP.installEvt = null; APP.ask = false; closeAllDialogs(); render(); });
+window.addEventListener("appinstalled", ()=>{ APP.installEvt = null; APP.ask = false; try{ localStorage.setItem(DONE, new Date().toISOString()); }catch(e){} closeAllDialogs(); render(); });
 /* coming back to the app after a while: fetch fresh numbers (only when nothing is open) */
 let hiddenAt = 0;
 document.addEventListener("visibilitychange", ()=>{ if(document.hidden){ hiddenAt = Date.now(); return; }
