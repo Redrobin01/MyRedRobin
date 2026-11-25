@@ -186,7 +186,7 @@ function ptRules(){
     <li>If you can't attend a class you may swap to <b>any other class</b>, provided there is space and you are still an active Red Robin student at the time of the new class.</li>
     <li>Children can go to <b>any other children's class</b>. Adults can go to <b>any other adult class</b>.</li>
     <!-- class maximums (16 children / 15 adults) are not shown to families, only the spaces left (Chris, 25-Nov 09:25) -->
-    <li>Can't come and don't know when you can swap to? Choose <b>"book the swap later"</b>. It stays as an owed swap for a year.</li></ul>
+    <li>If you can't attend a class but don't know when you can swap to, then choose <b>"book the swap later"</b>. It stays as an owed swap for up to a year.</li></ul>
     <div class="ptfoot"><button type="button" class="btn" data-close>Close</button></div>`);
 }
 function ptPicker(kid, mode, cid, ref){ /* mode "swap" (ref = own date), "book" / "change" (ref = swap id) */
