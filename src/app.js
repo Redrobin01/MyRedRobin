@@ -127,17 +127,17 @@ function installHelp(){
     + ol(`Tap the menu (${LINES}, ${DOTS} or ⋯) in a top or bottom corner.`, `Choose <b>Open in ${here}</b> (or Open in browser).`, `Then tap <b>Show me how</b> again.`);
   else if(k==="ios" && br==="chrome") body = ol(`Tap the <b>Share</b> button ${SHARE} at the top, next to the web address. (Or tap ⋯ at the bottom, then <b>Share</b>.)`,
       `Scroll down and tap <b>Add to Home Screen</b> ${PLUS}. (Can't see it? Tap <b>View More</b> first.)`, `Tap <b>Add</b>. Done!`);
-  else if(k==="ios" && br!=="safari") body = ol(`Tap the <b>menu</b> (${LINES} or ⋯) at the bottom of the screen.`, `Tap <b>Share</b> ${SHARE}.`,
+  else if(k==="ios" && br!=="safari") body = ol(`Tap the <b>menu button</b> (${LINES} or ⋯) at the bottom of the screen, next to the web address.`, `Tap <b>Share</b> ${SHARE}.`,
       `Tap <b>Add to Home Screen</b> ${PLUS}, then <b>Add</b>.`) + `<p class="small muted">If you can't find it, open this page in <b>Safari</b> instead – it's easiest there.</p>`;
-  else if(k==="ios") body = ol(`Tap the <b>menu button</b> ${LINES} at the bottom of Safari, next to the web address.`, `Tap <b>Share</b> ${SHARE}.`,
+  else if(k==="ios") body = ol(`Tap the <b>menu button</b> ${LINES} at the bottom of the screen, next to the web address.`, `Tap <b>Share</b> ${SHARE}.`,
       `Scroll down and tap <b>Add to Home Screen</b> ${PLUS}. (Can't see it? Tap <b>View More</b> first.)`, `Tap <b>Add</b>. Done!`)
     + `<p class="small muted">If you can already see the Share button ${SHARE} at the bottom of the screen, just tap that and skip step 1.</p>`
     + `<p class="small muted">Opened this from an email or WhatsApp? First tap the compass or “Open in Safari” button, then follow the steps.</p>`;
   else if(k==="android" && APP.installEvt) body = `<p>Tap the button and then <b>Install</b>.</p><button type="button" class="btn primary ptbig" data-rr="doinstall">Add to home screen</button>`;
-  else if(k==="android" && br==="samsung") body = ol(`Tap the <b>menu</b> ${LINES} at the bottom right.`, `Tap <b>Add page to</b>, then <b>Home screen</b>.`, `Tap <b>Add</b>. Done!`);
-  else if(k==="android" && br==="firefox") body = ol(`Tap the <b>menu</b> ${DOTS} (top or bottom right).`, `Tap <b>Add to Home screen</b> (or <b>Install</b>).`, `Tap <b>Add</b>. Done!`);
-  else if(k==="android" && br==="edge") body = ol(`Tap the <b>menu</b> ⋯ at the bottom.`, `Tap <b>Add to phone</b> (or <b>Add to Home screen</b>).`, `Tap <b>Add</b> or <b>Install</b>. Done!`);
-  else if(k==="android") body = ol(`Tap the <b>menu</b> ${DOTS} in the top corner of Chrome.`, `Tap <b>Add to Home screen</b> (or <b>Install app</b>).`, `Tap <b>Add</b> or <b>Install</b>. Done!`)
+  else if(k==="android" && br==="samsung") body = ol(`Tap the <b>menu button</b> ${LINES} at the bottom of the screen.`, `Tap <b>Add page to</b>, then <b>Home screen</b>.`, `Tap <b>Add</b>. Done!`);
+  else if(k==="android" && br==="firefox") body = ol(`Tap the <b>menu button</b> ${DOTS} in the corner of the screen, next to the web address.`, `Tap <b>Add to Home screen</b> (or <b>Install</b>).`, `Tap <b>Add</b>. Done!`);
+  else if(k==="android" && br==="edge") body = ol(`Tap the <b>menu button</b> ⋯ at the bottom of the screen.`, `Tap <b>Add to phone</b> (or <b>Add to Home screen</b>).`, `Tap <b>Add</b> or <b>Install</b>. Done!`);
+  else if(k==="android") body = ol(`Tap the <b>menu button</b> ${DOTS} at the top of the screen, next to the web address.`, `Tap <b>Add to Home screen</b> (or <b>Install app</b>).`, `Tap <b>Add</b> or <b>Install</b>. Done!`)
     + `<p class="small muted">Opened this from an email or WhatsApp? First tap ${DOTS} and “Open in Chrome”.</p>`;
   else body = APP.installEvt
     ? `<p>Click the button and then <b>Install</b>. You'll get a My Red Robin icon on your computer.</p><button type="button" class="btn primary ptbig" data-rr="doinstall">Install on this computer</button>`
