@@ -649,7 +649,7 @@ body.parentmode #main{padding:0;max-width:none}
 <main id="main"></main>
 <div id="modal"></div>
 <script>
-const CONFIG = {"api": "https://script.google.com/macros/s/AKfycbwWruMZQLLSaN1fFWjAN5NN-YXZSFIfdl3qM4ykaevZYo2K5FrfEKEnfYzZbyKBJejx/exec", "version": "0.2.01", "demo": true};
+const CONFIG = {"api": "https://script.google.com/macros/s/AKfycbwWruMZQLLSaN1fFWjAN5NN-YXZSFIfdl3qM4ykaevZYo2K5FrfEKEnfYzZbyKBJejx/exec", "version": "0.2.02", "demo": true};
 </script>
 <script>
 
@@ -800,13 +800,13 @@ function ptStudent(){
       const w = PT.swaps.find(w=>w.sid===k.ref && w.from===cid && w.fd===iso), when = ptWhenH(cid, iso);
       rows.push({dt:ptDt(cid, iso), own:true, html: w ? (w.status==="booked"
         ? `<button type="button" class="ptrow out" data-pt="manage|${w.id}"><span class="ptd"><s>${when}</s></span><span class="ptst">Swapped to ${esc(ptD(w.td))}</span></button>`
-        : `<button type="button" class="ptrow out" data-pt="manage|${w.id}"><span class="ptd"><s>${when}</s></span><span class="ptst warn">Not coming · make-up to book</span></button>`)
+        : `<button type="button" class="ptrow out" data-pt="manage|${w.id}"><span class="ptd"><s>${when}</s></span><span class="ptst warn">Not coming · swap to book</span></button>`)
         : ptOpen(cid, iso) ? `<button type="button" class="ptrow" data-pt="swap|${esc(k.ref)}|${esc(cid)}|${iso}"><span class="ptd">${when}</span><span class="ptgo">Swap ›</span></button>`
         : `<div class="ptrow dim"><span class="ptd">${when}</span><span class="ptst">Too late to swap</span></div>`});
     });
   });
   PT.swaps.filter(w=>w.sid===k.ref && w.status==="booked" && w.to && classById(w.to) && ptDt(w.to, w.td) + ptMins(classById(w.to))*60e3 > now).forEach(w=>{
-    rows.push({dt:ptDt(w.to, w.td), html:`<button type="button" class="ptrow in" data-pt="manage|${w.id}"><span class="ptd">${ptWhenH(w.to, w.td)}</span><span class="ptst good">Make-up${w.fd?` for ${esc(ptD(w.fd))}`:""}</span></button>`});
+    rows.push({dt:ptDt(w.to, w.td), html:`<button type="button" class="ptrow in" data-pt="manage|${w.id}"><span class="ptd">${ptWhenH(w.to, w.td)}</span><span class="ptst good">${w.fd?`Swapped from ${esc(ptD(w.fd))}`:"Swapped"}</span></button>`});
   });
   rows.sort((a,b)=>a.dt-b.dt);
   const ownRows = rows.filter(r=>r.own), cut = ownRows.length>4 ? ownRows[3].dt : Infinity, first = rows.filter(r=>r.dt<=cut),
@@ -815,7 +815,7 @@ function ptStudent(){
   return ptTop("Class swaps") + `<div class="ptbody">
     <button type="button" class="ptlink ptback" data-pt="kids">‹ ${f.kids.length>1?"All children":"Back"}</button>
     <div class="ptsh"><div><h3 class="pth">${esc(k.adult?k.name:ptFirst(k.name))}</h3><span class="small muted">${k.enr.map(x=>ptLblH(x.cid)).join(" · ")}</span></div>${ptUsedHtml(k.ref)}</div>
-    ${owed.length?`<div class="ptowed"><div class="ptoh">Owed swap${owed.length>1?"s":""} to book</div>${owed.map(w=>`<button type="button" class="ptrow owed" data-pt="manage|${w.id}"><span class="ptd">Missed ${w.fd?esc(ptD(w.fd)):"a class"}${w.fd?`<br><span class="small muted">Book by ${esc(ptD(ptYear(w.fd), true))}</span>`:""}</span><span class="ptgo">Book make-up ›</span></button>`).join("")}</div>`:""}
+    ${owed.length?`<div class="ptowed"><div class="ptoh">Owed swap${owed.length>1?"s":""} to book</div>${owed.map(w=>`<button type="button" class="ptrow owed" data-pt="manage|${w.id}"><span class="ptd">Missed ${w.fd?esc(ptD(w.fd)):"a class"}${w.fd?`<br><span class="small muted">Book by ${esc(ptD(ptYear(w.fd), true))}</span>`:""}</span><span class="ptgo">Book swap ›</span></button>`).join("")}</div>`:""}
     <p class="small muted ptintro">Tap a class to swap it.</p>
     <div class="ptlist">${shown.map(r=>r.html).join("")||'<p class="small muted">No more classes this term.</p>'}</div>
     ${more>1?`<button type="button" class="ptlink ptmore" data-pt="all|${esc(k.ref)}">${showAll?"Show fewer":`Show all dates this term (${more} more)`}</button>`:""}</div>`;
@@ -833,10 +833,10 @@ function ptRules(){
   ptDialog(`<h2>How it works</h2><ul class="ptrl">
     <li>Up to <b>${PT_LIMIT} swaps</b> per student each term. A swap counts as soon as a class is unbooked; cancelling gives it back.</li>
     <li>You can swap, book or cancel <b>right up until the class starts</b>.</li>
-    <li>The make-up can be <b>any time within a year</b> of the missed class – it doesn't have to be this term.</li>
+    <li>The new class can be <b>any time within a year</b> of the missed class – it doesn't have to be this term.</li>
     <li>Children can go to <b>any other children's class</b>. Adults can go to the other adult class.</li>
     <!-- class maximums (16 children / 15 adults) are not shown to families, only the spaces left (Chris, 25-Nov 09:25) -->
-    <li>Can't come and don't know when you can make up? Choose <b>"book the make-up later"</b>. It stays as an owed swap for a year.</li></ul>
+    <li>Can't come and don't know when you can swap to? Choose <b>"book the swap later"</b>. It stays as an owed swap for a year.</li></ul>
     <div class="ptfoot"><button type="button" class="btn" data-close>Close</button></div>`);
 }
 function ptPicker(kid, mode, cid, ref){ /* mode "swap" (ref = own date), "book" / "change" (ref = swap id) */
@@ -851,10 +851,10 @@ function ptPicker(kid, mode, cid, ref){ /* mode "swap" (ref = own date), "book" 
       ? `<button type="button" class="ptopt" data-pt="pick|${mode}|${esc(kid.ref)}|${esc(own)}|${esc(ref)}|${esc(o.cid)}|${o.iso}">${lbl}<span class="ptsp">${o.spaces} space${o.spaces>1?"s":""}</span></button>`
       : `<div class="ptopt full">${lbl}<span class="ptsp">Full</span></div>`); }).join("");
   const nm = ptFirst(kid.name);
-  const title = mode==="swap" ? `Swap ${nm}'s class on ${ptD(ref)}` : mode==="book" ? `Book ${nm}'s make-up` : `Change ${nm}'s make-up`;
+  const title = mode==="swap" ? `Swap ${nm}'s class on ${ptD(ref)}` : mode==="book" ? `Book ${nm}'s swap` : `Change ${nm}'s swap`;
   const sub = mode==="swap" ? `${ptUsed(kid.ref)} of ${PT_LIMIT} swaps used this term` : `Instead of ${w.fd?ptWhen(w.from, w.fd):"a missed class"}`;
   ptDialog(`<h2>${esc(title)}</h2><p class="small muted" style="margin:2px 0 10px">${esc(sub)}</p>
-    ${mode==="swap"?`<button type="button" class="btn ptlater" data-pt="later|${esc(kid.ref)}|${esc(cid)}|${ref}">Can't come – I'll book the make-up later</button><div class="ptor small muted">or choose a class to come to instead</div>`:""}
+    ${mode==="swap"?`<button type="button" class="btn ptlater" data-pt="later|${esc(kid.ref)}|${esc(cid)}|${ref}">Can't come – I'll book the swap later</button><div class="ptor small muted">or choose a class to come to instead</div>`:""}
     <div class="ptopts">${list||'<p class="muted">No classes with space in the next year.</p>'}</div>
     ${opts.length>limit?`<button type="button" class="ptlink" data-pt="more|${mode}|${esc(kid.ref)}|${esc(cid||"")}|${esc(ref)}" style="margin-top:8px">Show later dates (${opts.length-limit} more)</button>`:""}
     <div class="ptfoot"><button type="button" class="btn" data-close>Close</button></div>`);
@@ -881,18 +881,18 @@ function ptConfirm(text, btn, action, back){ ptDialog(`<h2>Check and confirm</h2
 function ptManage(w){
   const k = ptKid(w.sid), nm = k ? ptFirst(k.name) : "", fromOpen = w.fd && ptOpen(w.from, w.fd), toOpen = w.status==="booked" && w.td && ptOpen(w.to, w.td), btns = [];
   if(w.status==="owed"){
-    btns.push(`<button type="button" class="btn primary" data-pt="book|${w.id}">Book make-up</button>`);
+    btns.push(`<button type="button" class="btn primary" data-pt="book|${w.id}">Book swap</button>`);
     if(fromOpen) btns.push(`<button type="button" class="btn" data-pt="undo|${w.id}">Cancel – ${esc(nm)} will come on ${esc(ptD(w.fd))}</button>`);
   } else {
-    if(toOpen) btns.push(`<button type="button" class="btn" data-pt="change|${w.id}">Change make-up</button>`);
+    if(toOpen) btns.push(`<button type="button" class="btn" data-pt="change|${w.id}">Change class</button>`);
     if(fromOpen && toOpen) btns.push(`<button type="button" class="btn" data-pt="undo|${w.id}">Cancel swap – back to ${esc(ptD(w.fd))}</button>`);
-    else if(toOpen) btns.push(`<button type="button" class="btn" data-pt="toowed|${w.id}">Cancel make-up (book another later)</button>`);
+    else if(toOpen) btns.push(`<button type="button" class="btn" data-pt="toowed|${w.id}">Cancel this class (book another later)</button>`);
   }
   const toC = w.to && classById(w.to);
   ptDialog(`<h2>${esc(nm)}'s swap</h2>
     <div class="ptsum"><div><span class="small muted">Not coming</span><br><b>${w.fd?ptWhenH(w.from, w.fd):"A missed class"}</b></div>
       <div><span class="small muted">Coming instead</span><br><b>${w.status==="booked"&&toC?ptWhenH(w.to, w.td):'<span style="color:var(--warn)">Not booked yet</span>'}</b></div></div>
-    ${w.status==="owed"?`<p class="small muted">Book the make-up any time ${w.fd?`up to ${esc(ptD(ptYear(w.fd), true))}`:"within a year"}.</p>`:""}
+    ${w.status==="owed"?`<p class="small muted">Book the swap any time ${w.fd?`up to ${esc(ptD(ptYear(w.fd), true))}`:"within a year"}.</p>`:""}
     ${btns.length?`<div class="ptbtns">${btns.join("")}</div>`:'<p class="small muted">It is too late to change this swap.</p>'}
     <div class="ptfoot"><button type="button" class="btn" data-close>Close</button></div>`);
 }
@@ -918,7 +918,7 @@ function ptClick(el){
   if(k==="more"){ PT._more = true; ptPicker(ptKid(p[2]), p[1], p[3], p[4]); return; }
   if(k==="manage"){ ptManage(PT.swaps.find(w=>w.id===p[1])); return; }
   if(k==="book"||k==="change"){ const w = PT.swaps.find(x=>x.id===p[1]); PT._more = false; ptPicker(ptKid(w.sid), k, w.from, w.id); return; }
-  if(k==="later"){ const kid = ptKid(p[1]); ptConfirm(`<b>${esc(ptFirst(kid.name))}</b> won't come on <b>${ptWhenH(p[2], p[3])}</b>. You can book the make-up any time up to ${esc(ptD(ptYear(p[3]), true))}.<br><span class="small muted">This uses ${ptUsed(kid.ref)+1} of ${PT_LIMIT} swaps this term.</span>`, "Confirm", `dolater|${kid.ref}|${p[2]}|${p[3]}`, `swap|${kid.ref}|${p[2]}|${p[3]}`); return; }
+  if(k==="later"){ const kid = ptKid(p[1]); ptConfirm(`<b>${esc(ptFirst(kid.name))}</b> won't come on <b>${ptWhenH(p[2], p[3])}</b>. You can book the swap any time up to ${esc(ptD(ptYear(p[3]), true))}.<br><span class="small muted">This uses ${ptUsed(kid.ref)+1} of ${PT_LIMIT} swaps this term.</span>`, "Confirm", `dolater|${kid.ref}|${p[2]}|${p[3]}`, `swap|${kid.ref}|${p[2]}|${p[3]}`); return; }
   if(k==="pick"){ const [ , mode, sid, own, ref, cid, iso] = p, kid = ptKid(sid), w = mode==="swap" ? null : PT.swaps.find(x=>x.id===ref);
     const from = mode==="swap" ? ptWhen(own, ref) : (w.fd ? ptWhen(w.from, w.fd) : "the missed class");
     ptConfirm(`<b>${esc(ptFirst(kid.name))}</b> will come to <b>${ptWhenH(cid, iso)}</b> instead of <b>${esc(from)}</b>.${mode==="swap"?`<br><span class="small muted">This uses ${ptUsed(kid.ref)+1} of ${PT_LIMIT} swaps this term.</span>`:""}`,
@@ -933,8 +933,8 @@ function ptClick(el){
     closeAllDialogs(); render(); toast(`Saved as an owed swap for ${ptFirst(kid.name)}.`); return; }
   if(k==="undo"){ const w = PT.swaps.find(x=>x.id===p[1]), kid = ptKid(w.sid); ptConfirm(`Cancel this swap? <b>${esc(ptFirst(kid.name))}</b> will come to <b>${ptWhenH(w.from, w.fd)}</b> as usual, and gets the swap back.`, "Cancel swap", `doundo|${w.id}`, `manage|${w.id}`); return; }
   if(k==="doundo"){ PT.swaps = PT.swaps.filter(x=>x.id!==p[1]); closeAllDialogs(); render(); toast("Swap cancelled."); return; }
-  if(k==="toowed"){ const w = PT.swaps.find(x=>x.id===p[1]); ptConfirm(`Cancel the make-up on <b>${ptWhenH(w.to, w.td)}</b>? It goes back to an owed swap you can book later.`, "Cancel make-up", `dotoowed|${w.id}`, `manage|${w.id}`); return; }
-  if(k==="dotoowed"){ const w = PT.swaps.find(x=>x.id===p[1]); Object.assign(w, {to:"", td:"", status:"owed"}); closeAllDialogs(); render(); toast("Make-up cancelled – saved as owed."); return; }
+  if(k==="toowed"){ const w = PT.swaps.find(x=>x.id===p[1]); ptConfirm(`Cancel the class on <b>${ptWhenH(w.to, w.td)}</b>? It goes back to an owed swap you can book later.`, "Cancel class", `dotoowed|${w.id}`, `manage|${w.id}`); return; }
+  if(k==="dotoowed"){ const w = PT.swaps.find(x=>x.id===p[1]); Object.assign(w, {to:"", td:"", status:"owed"}); closeAllDialogs(); render(); toast("Class cancelled – saved as an owed swap."); return; }
 }
 
 </script>
