@@ -1,6 +1,6 @@
 # My Red Robin
 
-The Red Robin Art Academy app for families (home-screen name "My Red Robin"). Version 0.1: class swaps. Netlify publishes the `site/` folder on every push to `main`.
+The Red Robin Art Academy app for families (home-screen name "My Red Robin"). Version 0.1: class swaps. GitHub Pages publishes the `site/` folder on every push to `main` (.github/workflows/pages.yml), at https://app.redrobinart.co.uk (site/CNAME; DNS: GoDaddy CNAME app → redrobin01.github.io). Until then: https://redrobin01.github.io/MyRedRobin/. (Netlify was used first, until its free plan's monthly publish allowance ran out on 25-Nov-2026.)
 
 - `site/` – what Netlify publishes: `index.html` (built), `manifest.webmanifest`, `sw.js`, `icons/`.
 - `src/` – the parts: `app.js` (login, personal links, remember-me, add-to-home-screen help), `portal.js` + `portal.css`
