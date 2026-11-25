@@ -26,3 +26,5 @@ body.parentmode #main{padding:0;max-width:none}
 /* login screen sits nearer the middle; version clear of the "Powered by Netlify" badge (Chris, 25-Nov 09:40) */
 .ptphone .ptlogin{padding-top:max(14vh, 48px);padding-bottom:calc(84px + env(safe-area-inset-bottom))}
 .ptphone .ptlogin.rrload{padding-top:max(14vh, 48px)}
+/* Carla, 25-Nov 10:04: a vibrant cadmium red instead of the brownish rust */
+:root{ --accent:#d7202b; --accent-soft:#fde6e6; --s1:#d7202b; }
