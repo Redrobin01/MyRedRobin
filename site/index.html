@@ -649,7 +649,7 @@ body.parentmode #main{padding:0;max-width:none}
 <main id="main"></main>
 <div id="modal"></div>
 <script>
-const CONFIG = {"api": "https://script.google.com/macros/s/AKfycbwWruMZQLLSaN1fFWjAN5NN-YXZSFIfdl3qM4ykaevZYo2K5FrfEKEnfYzZbyKBJejx/exec", "version": "0.2", "demo": true};
+const CONFIG = {"api": "https://script.google.com/macros/s/AKfycbwWruMZQLLSaN1fFWjAN5NN-YXZSFIfdl3qM4ykaevZYo2K5FrfEKEnfYzZbyKBJejx/exec", "version": "0.2.01", "demo": true};
 </script>
 <script>
 
@@ -751,7 +751,7 @@ function ptByWhen(){ const e = ptTermEnd(); return e ? ptD(e, true) : "the end o
 /* ----- screens ----- */
 function ptLogo(){ const img = document.querySelector("header .logo"); return img ? `<img src="${img.src}" alt="" width="56" height="56" class="ptlogo">` : ""; }
 function ptTop(sub){ const f = PT.fam && ptFam();
-  return `<div class="pttop">${PT.fam?`<div class="ptbrand"><b>Red Robin</b><span>${esc(sub||"Class swaps")}</span></div><div class="ptwho"><span>${esc(f?f.label:"")}</span><span class="ptacts"><button type="button" class="ptlink" data-pt="rules">Rules</button><button type="button" class="ptout" data-pt="logout">Log out</button></span></div>`:""}</div>`; }
+  return `<div class="pttop">${PT.fam?`<div class="ptbrand"><b>Red Robin</b><span>${esc(sub||"Class swaps")}</span></div><div class="ptwho"><span>${esc(f?f.label:"")}</span><span class="ptacts"><button type="button" class="ptlink" data-pt="rules">How it works</button><button type="button" class="ptout" data-pt="logout">Log out</button></span></div>`:""}</div>`; }
 function ptEmailNorm(e){ return String(e||"").trim().toLowerCase(); }
 function ptEmailOk(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(ptEmailNorm(e)); }
 function ptStEmails(ref){ /* the emails on a student's registration form row */
@@ -774,7 +774,7 @@ function ptLogin(){
     <p class="small muted ptlhint" style="text-align:left;margin:-4px 0 8px;align-self:stretch">The one you gave on the registration form</p>
     <div class="ptsearch"><input id="pt-q" class="ptsel" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="name@example.com" value="${esc(PT._q||"")}"></div>
     ${PT._err?`<p class="ptnone">${PT._err}</p>`:""}
-    <button type="button" id="pt-go" class="btn primary ptbig" data-pt="login"${ptEmailOk(PT._q)?"":" disabled"}>Log in</button><button type="button" class="ptlink ptrlink" data-pt="rules">Swap rules</button></div>`;
+    <button type="button" id="pt-go" class="btn primary ptbig" data-pt="login"${ptEmailOk(PT._q)?"":" disabled"}>Log in</button><button type="button" class="ptlink ptrlink" data-pt="rules">How it works</button></div>`;
 }
 function ptSearch(){ /* typing in the email box: just enable the button, so the box keeps focus */
   const inp = $("#pt-q"); if(!inp) return; PT._q = inp.value;
@@ -830,12 +830,12 @@ function viewPortal(){
   return (S.parent ? "" : head) + `<div class="ptwrap"><div class="ptphone">${screen}</div></div>` + bar;
 }
 function ptRules(){
-  ptDialog(`<h2>Swap rules</h2><ul class="ptrl">
+  ptDialog(`<h2>How it works</h2><ul class="ptrl">
     <li>Up to <b>${PT_LIMIT} swaps</b> per student each term. A swap counts as soon as a class is unbooked; cancelling gives it back.</li>
     <li>You can swap, book or cancel <b>right up until the class starts</b>.</li>
     <li>The make-up can be <b>any time within a year</b> of the missed class – it doesn't have to be this term.</li>
     <li>Children can go to <b>any other children's class</b>. Adults can go to the other adult class.</li>
-    <li>Classes take up to <b>${PT_MAX.Children} children</b> or <b>${PT_MAX.Adults} adults</b>.</li>
+    <!-- class maximums (16 children / 15 adults) are not shown to families, only the spaces left (Chris, 25-Nov 09:25) -->
     <li>Can't come and don't know when you can make up? Choose <b>"book the make-up later"</b>. It stays as an owed swap for a year.</li></ul>
     <div class="ptfoot"><button type="button" class="btn" data-close>Close</button></div>`);
 }
