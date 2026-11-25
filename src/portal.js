@@ -12,7 +12,7 @@
    term within a year of the missed class; 2 swaps per term per student; "owed" = unbook a class now, book the make-up later (for a year); cancel up
    to the deadline. Absent-this-term students don't count towards the max. */
 const PT_DAY = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-const PT_MAX = {Children:16, Adults:15}, PT_LIMIT = 2, PT_NOTICE_H = 0; /* Chris 25-Nov 09:15: swap right up to the start; adults 15 */
+const PT_MAX = {Children:16, Adults:15}, PT_LIMIT = Infinity, PT_NOTICE_H = 0; /* Chris 25-Nov: swap right up to the start; adults 15; NO limit on swaps per term (09:59) – only the class maximums matter */
 let PT = null;
 window.__portal = ()=>PT; /* for testing */
 function ptTerm(){ return (S.settings && S.settings.CurrentTerm) || S.term; }
@@ -86,7 +86,7 @@ function ptInit(){
 function ptFam(){ return PT.fams.find(f=>f.key===PT.fam); }
 function ptKid(sid){ const f = ptFam(); return f && f.kids.find(k=>k.ref===sid); }
 function ptUsed(sid){ return PT.swaps.filter(w=>w.sid===sid && w.cur!==false).length; } /* 2 per term: older terms' swaps don't count */
-function ptUsedHtml(sid){ const u = ptUsed(sid); return `<span class="ptused${u>=PT_LIMIT?" full":""}">${u>PT_LIMIT?`${u} swaps (limit ${PT_LIMIT})`:`${u} of ${PT_LIMIT} swaps used`}</span>`; }
+function ptUsedHtml(sid){ return isFinite(PT_LIMIT) ? (u=>`<span class="ptused${u>=PT_LIMIT?" full":""}">${u>PT_LIMIT?`${u} swaps (limit ${PT_LIMIT})`:`${u} of ${PT_LIMIT} swaps used`}</span>`)(ptUsed(sid)) : ""; } /* nothing shown when there's no limit */
 function ptOptions(kid, cid, skip){ /* classes this student could go to instead of a date in class cid */
   const own = classById(cid), mine = new Set(PT.swaps.filter(w=>w.sid===kid.ref && w.status==="booked").map(w=>w.to+"|"+w.td)), myCls = new Set(kid.enr.map(x=>x.cid));
   const until = ptYear(ptMissedOf(cid, skip)) || ptYear(ptToday());
@@ -183,7 +183,6 @@ function viewPortal(){
 }
 function ptRules(){
   ptDialog(`<h2>How it works</h2><ul class="ptrl">
-    <li>Up to <b>${PT_LIMIT} swaps</b> per student each term.</li>
     <li>The new class can be <b>any time within a year</b> of the missed class, provided there is space and you are still an active Red Robin student at that time.</li>
     <li>Children can go to <b>any other children's class</b>. Adults can go to <b>any other adult class</b>.</li>
     <!-- class maximums (16 children / 15 adults) are not shown to families, only the spaces left (Chris, 25-Nov 09:25) -->
@@ -203,8 +202,8 @@ function ptPicker(kid, mode, cid, ref){ /* mode "swap" (ref = own date), "book" 
       : `<div class="ptopt full">${lbl}<span class="ptsp">Full</span></div>`); }).join("");
   const nm = ptFirst(kid.name);
   const title = mode==="swap" ? `Swap ${nm}'s class on ${ptD(ref)}` : mode==="book" ? `Book ${nm}'s swap` : `Change ${nm}'s swap`;
-  const sub = mode==="swap" ? `${ptUsed(kid.ref)} of ${PT_LIMIT} swaps used this term` : `Instead of ${w.fd?ptWhen(w.from, w.fd):"a missed class"}`;
-  ptDialog(`<h2>${esc(title)}</h2><p class="small muted" style="margin:2px 0 10px">${esc(sub)}</p>
+  const sub = mode==="swap" ? (isFinite(PT_LIMIT) ? `${ptUsed(kid.ref)} of ${PT_LIMIT} swaps used this term` : "") : `Instead of ${w.fd?ptWhen(w.from, w.fd):"a missed class"}`;
+  ptDialog(`<h2>${esc(title)}</h2>${sub?`<p class="small muted" style="margin:2px 0 10px">${esc(sub)}</p>`:""}
     ${mode==="swap"?`<button type="button" class="btn ptlater" data-pt="later|${esc(kid.ref)}|${esc(cid)}|${ref}">Can't come – I'll book the swap later</button><div class="ptor small muted">or choose a class to come to instead</div>`:""}
     <div class="ptopts">${list||'<p class="muted">No classes with space in the next year.</p>'}</div>
     ${opts.length>limit?`<button type="button" class="ptlink" data-pt="more|${mode}|${esc(kid.ref)}|${esc(cid||"")}|${esc(ref)}" style="margin-top:8px">Show later dates (${opts.length-limit} more)</button>`:""}
@@ -269,10 +268,10 @@ function ptClick(el){
   if(k==="more"){ PT._more = true; ptPicker(ptKid(p[2]), p[1], p[3], p[4]); return; }
   if(k==="manage"){ ptManage(PT.swaps.find(w=>w.id===p[1])); return; }
   if(k==="book"||k==="change"){ const w = PT.swaps.find(x=>x.id===p[1]); PT._more = false; ptPicker(ptKid(w.sid), k, w.from, w.id); return; }
-  if(k==="later"){ const kid = ptKid(p[1]); ptConfirm(`<b>${esc(ptFirst(kid.name))}</b> won't come on <b>${ptWhenH(p[2], p[3])}</b>. You can book the swap any time up to ${esc(ptD(ptYear(p[3]), true))}.<br><span class="small muted">This uses ${ptUsed(kid.ref)+1} of ${PT_LIMIT} swaps this term.</span>`, "Confirm", `dolater|${kid.ref}|${p[2]}|${p[3]}`, `swap|${kid.ref}|${p[2]}|${p[3]}`); return; }
+  if(k==="later"){ const kid = ptKid(p[1]); ptConfirm(`<b>${esc(ptFirst(kid.name))}</b> won't come on <b>${ptWhenH(p[2], p[3])}</b>. You can book the swap any time up to ${esc(ptD(ptYear(p[3]), true))}.${isFinite(PT_LIMIT)?`<br><span class="small muted">This uses ${ptUsed(kid.ref)+1} of ${PT_LIMIT} swaps this term.</span>`:""}`, "Confirm", `dolater|${kid.ref}|${p[2]}|${p[3]}`, `swap|${kid.ref}|${p[2]}|${p[3]}`); return; }
   if(k==="pick"){ const [ , mode, sid, own, ref, cid, iso] = p, kid = ptKid(sid), w = mode==="swap" ? null : PT.swaps.find(x=>x.id===ref);
     const from = mode==="swap" ? ptWhen(own, ref) : (w.fd ? ptWhen(w.from, w.fd) : "the missed class");
-    ptConfirm(`<b>${esc(ptFirst(kid.name))}</b> will come to <b>${ptWhenH(cid, iso)}</b> instead of <b>${esc(from)}</b>.${mode==="swap"?`<br><span class="small muted">This uses ${ptUsed(kid.ref)+1} of ${PT_LIMIT} swaps this term.</span>`:""}`,
+    ptConfirm(`<b>${esc(ptFirst(kid.name))}</b> will come to <b>${ptWhenH(cid, iso)}</b> instead of <b>${esc(from)}</b>.${mode==="swap" && isFinite(PT_LIMIT)?`<br><span class="small muted">This uses ${ptUsed(kid.ref)+1} of ${PT_LIMIT} swaps this term.</span>`:""}`,
       "Confirm swap", `do|${mode}|${sid}|${own}|${ref}|${cid}|${iso}`, mode==="swap" ? `swap|${sid}|${own}|${ref}` : `${mode}|${ref}`); return; }
   if(k==="do"){ const [ , mode, sid, own, ref, cid, iso] = p, kid = ptKid(sid);
     if(ptCount(cid, iso) >= ptMax(classById(cid)) || !ptOpen(cid, iso)){ toast("Sorry – that class is no longer available."); ptPicker(kid, mode, own, ref); return; }
