@@ -100,11 +100,9 @@ function browserKind(){ /* which browser on the phone, so the home-screen steps 
   return phoneKind()==="ios" ? "safari" : "chrome";
 }
 /* Straight after login, a screen of its own asking them to put the app on their home screen (Chris, 25-Nov 10:34).
-   It keeps asking on every visit in the browser until they tap "Done – go to my classes" after the steps (10:43);
-   "Not now" just goes through to their children this time. Never shown when opened from the home-screen icon. */
-const DONE = "rrswaps-homescreen-done-2"; /* renamed 25-Nov 19:31 so every phone starts fresh (Chris testing) */
-function wantInstall(){ if(standalone()) return false;
-  try{ return !localStorage.getItem(DONE); }catch(e){ return true; } }
+   Simple rule (Chris, 25-Nov 19:52): opened from the home-screen icon → never; opened any other way on a phone → every visit,
+   nothing remembered. "Not now" goes through to their children for this visit. Never on a computer (no home screen). */
+function wantInstall(){ return !standalone() && phoneKind()!=="computer"; }
 function installScreen(){
   return ptTop("Class swaps") + `<div class="ptbody rrask">
     <img src="icons/icon-192.png" alt="" width="96" height="96">
@@ -141,8 +139,7 @@ function installHelp(){
     ? `<p>Click the button and then <b>Install</b>. You'll get a My Red Robin icon on your computer.</p><button type="button" class="btn primary ptbig" data-rr="doinstall">Install on this computer</button>`
     : `<p>In Chrome or Edge, click the install icon at the right of the address bar. In Safari: <b>File › Add to Dock</b>. Or simply bookmark this page.</p><p class="small muted">The easiest way is on your phone: open the link from the email there.</p>`;
   ptDialog(`<div class="rrhelp"><img src="icons/icon-192.png" alt="" width="64" height="64"><h2>Add to your home screen</h2>${body}
-    <button type="button" class="btn ptbig" data-rr="helpdone">${APP.ask ? "Done – go to my classes" : "Close"}</button>
-    ${APP.ask ? `<button type="button" class="ptlink rrnot" data-rr="noinstall">Not now</button>` : ""}</div>`);
+    <button type="button" class="btn ptbig" data-rr="helpdone">Close</button></div>`);
 }
 
 /* login screen: the Rocker's, plus the app's own messages, a loading state and the version */
@@ -206,7 +203,7 @@ function rrClick(el){
   const k = el.dataset.rr;
   if(k==="install") installHelp();
   if(k==="noinstall"){ closeAllDialogs(); APP.ask = false; render(); window.scrollTo(0,0); }   /* this visit only – asks again next time */
-  if(k==="helpdone"){ try{ localStorage.setItem(DONE, new Date().toISOString()); }catch(e){} closeAllDialogs(); if(APP.ask){ APP.ask = false; render(); window.scrollTo(0,0); } }
+  if(k==="helpdone"){ closeAllDialogs(); if(APP.ask){ APP.ask = false; render(); window.scrollTo(0,0); } }
   if(k==="doinstall" && APP.installEvt){ APP.installEvt.prompt(); APP.installEvt.userChoice.finally(()=>{ APP.installEvt = null; APP.ask = false; closeAllDialogs(); render(); }); }
   if(k==="retry"){ const c = APP.retry; APP.retry = null; APP.msg = ""; loadByCode(c); }
 }
@@ -218,7 +215,7 @@ document.addEventListener("click", ev=>{
 });
 document.addEventListener("keydown", ev=>{ if(ev.key==="Escape") closeDialog(); });
 window.addEventListener("beforeinstallprompt", e=>{ e.preventDefault(); APP.installEvt = e; });
-window.addEventListener("appinstalled", ()=>{ APP.installEvt = null; APP.ask = false; try{ localStorage.setItem(DONE, new Date().toISOString()); }catch(e){} closeAllDialogs(); render(); });
+window.addEventListener("appinstalled", ()=>{ APP.installEvt = null; APP.ask = false; closeAllDialogs(); render(); });
 /* coming back to the app after a while: fetch fresh numbers (only when nothing is open) */
 let hiddenAt = 0;
 document.addEventListener("visibilitychange", ()=>{ if(document.hidden){ hiddenAt = Date.now(); return; }
