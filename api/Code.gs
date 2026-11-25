@@ -38,7 +38,7 @@ const DB_ID         = '1U6ra-LmwQIFJKGtI0f1nuP6sAnjama4Zq36TQalptYk'; // Red Rob
 const FORM_ID       = '1rasCtoX6Ox8ZBqulykS8HJN6GjzygfbSYYgqSmfvKzA'; // Children's registration form responses
 const ADULT_FORM_ID = '13Wk9b8XW0j5F9cLkwK7_6pi06fcCl2TOfMuYc9AVBec'; // Adults' registration form responses
 const LINKS_TAB     = 'PortalLinks';                                   // Email | Code | Created | Note
-const VERSION       = 'bridge v4 (25-Nov-2026)';
+const VERSION       = 'bridge v5 (25-Nov-2026)';
 const TEST_DOMAIN   = '@redrobin.test';                                // test1@ … test4@ - made-up families for trying things out
 
 // ---------------- web entry points ----------------
@@ -243,8 +243,9 @@ function data_() {
   tab('Enrolments').forEach(function (e) {
     if (!byId[e.ClassID]) return;
     enrolById[e.EnrolmentID] = e;
-    if (/^(left|absent)/i.test(e.Status)) return;
-    base[e.ClassID] = (base[e.ClassID] || 0) + 1;                                         // places taken, any term
+    if (/^left/i.test(e.Status)) return;
+    base[e.ClassID] = (base[e.ClassID] || 0) + 1;                                         // places taken, any term – Absent students still hold their place, like the Rocker (Chris, 25-Nov 20:03)
+    if (/^absent/i.test(e.Status)) return;                                                // …but they can't swap
     const ref = String(e.Ref || '').trim(); if (!ref) return;
     (termsByRef[ref] = termsByRef[ref] || {})[e.Term] = 1;                                   // terms they're active in: swaps can only go there
     if (e.Term !== term) return;
