@@ -140,16 +140,16 @@ document.addEventListener("keydown", ev=>{ if(ev.key!=="Enter" || !ev.target || 
   if(PT && ptEmailOk(PT._q)) ptClick({dataset:{pt:"login"}}); });
 function ptChildren(){
   const f = ptFam();
-  /* a big "n banked swaps – book a class" button for each student with banked swaps, first thing on opening the app (Chris, 26-Nov 09:50) */
-  const banks = f.kids.map(k=>({k, n:PT.swaps.filter(w=>w.sid===k.ref && w.status==="owed").length})).filter(x=>x.n);
-  const by = ptTermEnd() ? ptD(ptTermEnd()) : "the end of term";
-  const bankH = banks.length ? `<div class="ptbanks">${banks.map(({k,n})=>`<button type="button" class="ptbank" data-pt="bankgo|${esc(k.ref)}"><span class="ptbt"><b>${n} banked swap${n>1?"s":""} – book a class</b><span>${f.kids.length>1?esc(ptFirst(k.name))+" · ":""}Book by ${esc(by)}</span></span><span class="ptbgo">›</span></button>`).join("")}</div>`
-    : `<div class="ptbanks"><div class="ptbank zero"><span class="ptbt"><b>0 banked swaps</b><span>Nothing to book right now</span></span></div></div>`; /* banner stays with 0 (Chris, 09:52) */
-  return ptTop("Class swaps") + `<div class="ptbody">${bankH}<h3 class="pth">${f.adult?"Select student":"Select child"}</h3>
+  return ptTop("Class swaps") + `<div class="ptbody"><h3 class="pth">${f.adult?"Select student":"Select child"}</h3>
     <div class="ptkids">${f.kids.map(k=>{ const owed = PT.swaps.filter(w=>w.sid===k.ref && w.status==="owed").length;
       return `<button type="button" class="ptkid" data-pt="kid|${esc(k.ref)}"><span class="ptav">${esc(ptFirst(k.name).slice(0,1))}</span>
         <span class="ptkn"><b>${esc(k.adult?k.name:ptFirst(k.name))}</b><span class="small muted">${k.enr.map(x=>ptLblH(x.cid)).join(" · ")}</span>
         ${owed?`<span class="ptbadge">${owed} banked swap${owed>1?"s":""} to book</span>`:""}</span>${ptUsedHtml(k.ref)}<span class="ptchev">›</span></button>`; }).join("")}</div></div>`;
+}
+function ptBankH(k){ /* "n banked swaps – book a class" on each child's own page (Chris, 26-Nov 09:50; moved from the first screen 10:20); stays with 0 */
+  const n = PT.swaps.filter(w=>w.sid===k.ref && w.status==="owed").length, by = ptTermEnd() ? ptD(ptTermEnd()) : "the end of term";
+  return n ? `<div class="ptbanks"><button type="button" class="ptbank" data-pt="bankgo|${esc(k.ref)}"><span class="ptbt"><b>${n} banked swap${n>1?"s":""} – book a class</b><span>Book by ${esc(by)}</span></span><span class="ptbgo">›</span></button></div>`
+    : `<div class="ptbanks"><div class="ptbank zero"><span class="ptbt"><b>0 banked swaps</b><span>Nothing to book right now</span></span></div></div>`;
 }
 function ptStudent(){
   const f = ptFam(), k = ptKid(PT.sid); if(!k){ PT.sid = null; return ptChildren(); }
@@ -174,7 +174,7 @@ function ptStudent(){
   return ptTop("Class swaps") + `<div class="ptbody">
     <button type="button" class="ptlink ptback" data-pt="kids">‹ ${f.kids.length>1?"All children":"Back"}</button>
     <div class="ptsh"><div><h3 class="pth">${esc(k.adult?k.name:ptFirst(k.name))}</h3><span class="small muted">${k.enr.map(x=>ptLblH(x.cid)).join(" · ")}</span></div>${ptUsedHtml(k.ref)}</div>
-    ${owed.length?`<div class="ptowed"><div class="ptoh">Banked swap${owed.length>1?"s":""} to book</div>${owed.map(w=>`<button type="button" class="ptrow owed" data-pt="manage|${w.id}"><span class="ptd">Missed ${w.fd?esc(ptD(w.fd)):"a class"}${w.fd?`<br><span class="small muted">Book by ${esc(ptByWhen())}</span>`:""}</span><span class="ptgo">Book swap ›</span></button>`).join("")}</div>`:""}
+    ${ptBankH(k)}
     <p class="small muted ptintro">Tap a class to swap it.</p>
     <div class="ptlist">${shown.map(r=>r.html).join("")||'<p class="small muted">No more classes this term.</p>'}</div>
     ${more>1?`<button type="button" class="ptlink ptmore" data-pt="all|${esc(k.ref)}">${showAll?"Show fewer":`Show all dates this term (${more} more)`}</button>`:""}</div>`;
