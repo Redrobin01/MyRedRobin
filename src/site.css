@@ -27,7 +27,7 @@ body.parentmode #main{padding:0;max-width:none}
 .ptphone .ptlogin{padding-top:max(14vh, 48px);padding-bottom:calc(84px + env(safe-area-inset-bottom))}
 .ptphone .ptlogin.rrload{padding-top:max(14vh, 48px)}
 /* Carla, 25-Nov 10:04: a cadmium red instead of the brownish rust; 10:37 toned down slightly from #d7202b */
-:root{ --accent:#a8161f; --accent-soft:#f8dcdd; --s1:#a8161f; } /* 26-Nov 09:56: a shade deeper (was #c01f28) */
+:root{ --accent:#c0353b; --accent-soft:#f9e2e2; --s1:#c0353b; } /* 26-Nov 10:05: softened (09:56 was #a8161f; before that #c01f28) */
 /* the "Put My Red Robin on your home screen" screen after login */
 .rrask{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:max(8vh, 28px)}
 .rrask img{border-radius:22px;box-shadow:0 8px 24px rgba(0,0,0,.15);margin-bottom:18px}
