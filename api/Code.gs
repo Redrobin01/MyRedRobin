@@ -11,8 +11,10 @@
 // email on their registration form. Too many wrong emails from anywhere = a short pause.
 //
 // v7 (26-Nov-2026): FASTER. The sheets that rarely change (Settings, Classes, TermDates, Sessions, Enrolments and the
-//   two registration forms) are remembered for 5 minutes; the Swaps tab is always read fresh. Logging in with an email
-//   that isn't found reads the forms again, so a brand-new registration still works straight away.
+//   two registration forms) are remembered, and only read again when Google Drive says one of the three spreadsheets
+//   has changed since (the Drive advanced service, "see file details" only). The Swaps tab is always read fresh.
+//   If the Drive check isn't available it falls back to remembering for 5 minutes. Needs, in appsscript.json:
+//   "oauthScopes": [".../auth/spreadsheets", ".../auth/drive.metadata.readonly"] and the Drive (v3) advanced service.
 // v6 (26-Nov-2026): SWAPS LAST ONE TERM (Chris): the new class must be in the same term as the missed class, and
 //   banked (owed) swaps from an earlier term are no longer sent to the app - they're cleared when a new term starts.
 // v3 (25-Nov-2026): SWAPS ARE SAVED for real families (action=change): a new swap, "book later" (owed), booking or
@@ -211,6 +213,7 @@ function change_(p) {
       }
     } else return fail('bad', 'Unknown change.');
     SpreadsheetApp.flush();
+    restamp_();
   } finally { lock.releaseLock(); }
   const fresh = family_({ code: code });
   return { ok: true, data: fresh };
@@ -305,18 +308,29 @@ function students_() {
 // ---------------- personal links ----------------
 
 // v7: the sheets that rarely change, kept for 5 minutes (CacheService, split into pieces under the 100 KB limit)
-const STATIC_SECS = 300, STATIC_TABS = ['Settings', 'Classes', 'TermDates', 'Sessions', 'Enrolments'];
+const STATIC_SECS = 300, STATIC_LONG = 21600, STATIC_TABS = ['Settings', 'Classes', 'TermDates', 'Sessions', 'Enrolments'];
 let DB_ = null, STATIC_ = null;
 function db_() { return DB_ || (DB_ = SpreadsheetApp.openById(DB_ID)); }
+function stamp_() {   // when the three spreadsheets were last changed (Drive), or '' if that can't be checked
+  try {
+    return [DB_ID, FORM_ID, ADULT_FORM_ID].map(function (id) { return Drive.Files.get(id, { fields: 'modifiedTime' }).modifiedTime; }).join('|');
+  } catch (e) { return ''; }
+}
 function static_(fresh) {
   if (STATIC_ && !fresh) return STATIC_;
-  const cache = CacheService.getScriptCache();
-  if (!fresh) { const got = cacheGet_(cache, 'static'); if (got) return (STATIC_ = got); }
-  const st = {};
+  const cache = CacheService.getScriptCache(), stamp = stamp_();
+  if (!fresh) {
+    const got = cacheGet_(cache, 'static');
+    if (got && (stamp ? got.stamp === stamp : got.stamp === '')) return (STATIC_ = got);   // unchanged since it was read
+  }
+  const st = { stamp: stamp };
   STATIC_TABS.forEach(function (name) { const sh = db_().getSheetByName(name); st[name] = sh ? objects_(sh.getDataRange().getDisplayValues()) : []; });
   st.students = students_();
-  cachePut_(cache, 'static', st, STATIC_SECS);
+  cachePut_(cache, 'static', st, stamp ? STATIC_LONG : STATIC_SECS);
   return (STATIC_ = st);
+}
+function restamp_() {   // after the app writes the Swaps tab: the database file changed, but not the remembered sheets
+  try { if (!STATIC_ || !STATIC_.stamp) return; const s = stamp_(); if (s && s.split('|')[1] === STATIC_.stamp.split('|')[1] && s.split('|')[2] === STATIC_.stamp.split('|')[2]) { STATIC_.stamp = s; cachePut_(CacheService.getScriptCache(), 'static', STATIC_, STATIC_LONG); } } catch (e) {}
 }
 function cacheGet_(cache, key) {
   try {
