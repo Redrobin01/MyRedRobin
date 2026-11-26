@@ -59,3 +59,12 @@ button.ptopt:active{transform:scale(.98)}
 /* "Bank swap for future use" button in Red Robin red (Chris, 26-Nov 09:38) */
 .ptdlg .ptlater{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
 .ptdlg .ptlater:hover{background:var(--accent);color:#fff}
+/* "n banked swaps – book a class" button on the first screen (Chris, 26-Nov 09:50) */
+.ptbanks{display:flex;flex-direction:column;gap:8px;margin:2px 0 18px}
+.ptbank{display:flex;align-items:center;gap:12px;width:100%;padding:14px 18px;border:0;border-radius:16px;background:var(--accent);color:#fff;font:inherit;font-family:"Nunito", var(--body);text-align:left;cursor:pointer;box-shadow:0 6px 16px rgba(192,31,40,.25)}
+.ptbank:active{transform:scale(.98)}
+.ptbn{flex:0 0 38px;height:38px;border-radius:50%;background:#fff;color:var(--accent);font-weight:800;font-size:1.15rem;display:flex;align-items:center;justify-content:center}
+.ptbt{flex:1;display:flex;flex-direction:column;line-height:1.25}
+.ptbt b{font-size:1.05rem;font-weight:800}
+.ptbt span{font-size:.88rem;opacity:.92;margin-top:2px}
+.ptbgo{font-weight:800;font-size:1.6rem;line-height:1;opacity:.9}

@@ -140,7 +140,11 @@ document.addEventListener("keydown", ev=>{ if(ev.key!=="Enter" || !ev.target || 
   if(PT && ptEmailOk(PT._q)) ptClick({dataset:{pt:"login"}}); });
 function ptChildren(){
   const f = ptFam();
-  return ptTop("Class swaps") + `<div class="ptbody"><h3 class="pth">${f.adult?"Select student":"Select child"}</h3>
+  /* a big "n banked swaps – book a class" button for each student with banked swaps, first thing on opening the app (Chris, 26-Nov 09:50) */
+  const banks = f.kids.map(k=>({k, n:PT.swaps.filter(w=>w.sid===k.ref && w.status==="owed").length})).filter(x=>x.n);
+  const by = ptTermEnd() ? ptD(ptTermEnd()) : "the end of term";
+  const bankH = banks.length ? `<div class="ptbanks">${banks.map(({k,n})=>`<button type="button" class="ptbank" data-pt="bankgo|${esc(k.ref)}"><span class="ptbt"><b>${n} banked swap${n>1?"s":""} – book a class</b><span>${f.kids.length>1?esc(ptFirst(k.name))+" · ":""}Book by ${esc(by)}</span></span><span class="ptbgo">›</span></button>`).join("")}</div>` : "";
+  return ptTop("Class swaps") + `<div class="ptbody">${bankH}<h3 class="pth">${f.adult?"Select student":"Select child"}</h3>
     <div class="ptkids">${f.kids.map(k=>{ const owed = PT.swaps.filter(w=>w.sid===k.ref && w.status==="owed").length;
       return `<button type="button" class="ptkid" data-pt="kid|${esc(k.ref)}"><span class="ptav">${esc(ptFirst(k.name).slice(0,1))}</span>
         <span class="ptkn"><b>${esc(k.adult?k.name:ptFirst(k.name))}</b><span class="small muted">${k.enr.map(x=>ptLblH(x.cid)).join(" · ")}</span>
@@ -277,6 +281,8 @@ function ptClick(el){
     ptPicker(kid, "swap", p[2], p[3]); return; }
   if(k==="more"){ PT._more = true; ptPicker(ptKid(p[2]), p[1], p[3], p[4]); return; }
   if(k==="manage"){ ptManage(PT.swaps.find(w=>w.id===p[1])); return; }
+  if(k==="bankgo"){ const ws = PT.swaps.filter(w=>w.sid===p[1] && w.status==="owed").sort((a,b)=>String(a.fd).localeCompare(String(b.fd)));
+    if(!ws.length) return; PT.sid = p[1]; render(); PT._more = false; ptPicker(ptKid(p[1]), "book", ws[0].from, ws[0].id); return; } /* oldest banked swap first */
   if(k==="book"||k==="change"){ const w = PT.swaps.find(x=>x.id===p[1]); PT._more = false; ptPicker(ptKid(w.sid), k, w.from, w.id); return; }
   if(k==="later"){ const kid = ptKid(p[1]); ptConfirm(`<b>${esc(ptFirst(kid.name))}</b> won't come on <b>${ptWhenH(p[2], p[3])}</b>. The swap will be banked – book a class for it any time up to ${esc(ptByWhen())}.${isFinite(PT_LIMIT)?`<br><span class="small muted">This uses ${ptUsed(kid.ref)+1} of ${PT_LIMIT} swaps this term.</span>`:""}`, "Confirm", `dolater|${kid.ref}|${p[2]}|${p[3]}`, `swap|${kid.ref}|${p[2]}|${p[3]}`); return; }
   if(k==="pick"){ const [ , mode, sid, own, ref, cid, iso] = p, kid = ptKid(sid), w = mode==="swap" ? null : PT.swaps.find(x=>x.id===ref);
