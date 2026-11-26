@@ -75,6 +75,8 @@ function forget(){ store.set(""); APP.data = null; PT = null; const u = new URL(
 /* ----- the portal screens, fed from the bridge instead of the Rocker ----- */
 function ptInit(){
   const d = APP.data || {family:{kids:[]}, swaps:[]};
+  /* swaps last one term (Chris, 26-Nov 09:42): last term's banked (owed) swaps are cleared, so don't show them */
+  d.swaps = (d.swaps||[]).filter(w=>!(w.status==="owed" && w.cur===false));
   PT = { fam:"me", sid:null, all:{}, seq:1, _more:false, _q:"", _err:"", swaps: d.swaps.map(w=>({...w})),
     fams: [{key:"me", label:d.family.label, adult:d.family.adult, test:d.family.test, kids:d.family.kids}] };
   APP.orig = d.swaps.map(w=>({...w}));
@@ -183,7 +185,7 @@ async function saveChange(el, k, p){
     else req = {op:"book", id:ref, to:cid, td:iso};
     const w = mode==="swap" ? null : PT.swaps.find(x=>x.id===ref), fromH = mode==="swap" ? ptWhenH(own, ref) : (w && w.fd ? ptWhenH(w.from, w.fd) : "The missed class"), toH = ptWhenH(cid, iso);
     done = ()=>ptCelebrate(fromH, toH); }
-  if(k==="dolater"){ const kid = ptKid(p[1]); req = {op:"later", eid:(kid.enr.find(x=>x.cid===p[2])||{}).eid, from:p[2], fd:p[3]}; done = ()=>toast(`Saved as an owed swap for ${ptFirst(kid.name)}.`); }
+  if(k==="dolater"){ const kid = ptKid(p[1]); req = {op:"later", eid:(kid.enr.find(x=>x.cid===p[2])||{}).eid, from:p[2], fd:p[3]}; done = ()=>toast(`Swap banked for ${ptFirst(kid.name)}.`); }
   if(k==="doundo"){ const w = Object.assign({}, PT.swaps.find(x=>x.id===p[1])); req = {op:"cancel", id:p[1]}; done = ()=>ptCancelPop(w); }
   if(k==="dotoowed"){ const w = Object.assign({}, PT.swaps.find(x=>x.id===p[1])); req = {op:"toowed", id:p[1]}; done = ()=>ptToOwedPop(w); }
   const btns = [...document.querySelectorAll("#modal button")], label = el.textContent;
@@ -227,12 +229,11 @@ if("serviceWorker" in navigator && location.protocol==="https:") navigator.servi
   if(code) loadByCode(code); else { APP.state = "out"; render(); }
 })();
 
-/* Class picker: tag each date heading and its classes with the weekday, so site.css can colour them (26-Nov) */
+/* Class picker: tag each date heading and its classes with the weekday, and show just the time on each class (26-Nov) */
 (function(){
   if(typeof ptDialog!=="function") return;
   const orig = ptDialog;
-  ptDialog = function(html){ orig(html); try{ document.querySelectorAll(".ptdlg .ptlater").forEach(b=>{ b.textContent = "Bank swap"; }); /* Chris, 26-Nov 09:38; shortened 09:40 */
-document.querySelectorAll(".ptopts").forEach(box=>{ let dow = "";
+  ptDialog = function(html){ orig(html); try{ document.querySelectorAll(".ptopts").forEach(box=>{ let dow = "";
     for(const el of box.children){ if(el.classList.contains("ptday")) dow = el.textContent.trim().slice(0,3); if(dow) el.dataset.dow = dow;
       /* the date is in the heading, so each class shows just its time (Chris, 26-Nov) */
       const t = el.querySelector(".ptot"), n = t && t.firstChild; if(n && n.nodeType===3) n.textContent = n.textContent.replace(/^.*·\s*/, ""); } }); }catch(e){} };

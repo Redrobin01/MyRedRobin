@@ -686,7 +686,7 @@ button.ptopt:active{transform:scale(.98)}
 <main id="main"></main>
 <div id="modal"></div>
 <script>
-const CONFIG = {"api": "https://script.google.com/macros/s/AKfycbwWruMZQLLSaN1fFWjAN5NN-YXZSFIfdl3qM4ykaevZYo2K5FrfEKEnfYzZbyKBJejx/exec", "version": "0.9.09", "demo": false};
+const CONFIG = {"api": "https://script.google.com/macros/s/AKfycbwWruMZQLLSaN1fFWjAN5NN-YXZSFIfdl3qM4ykaevZYo2K5FrfEKEnfYzZbyKBJejx/exec", "version": "0.10", "demo": false};
 </script>
 <script>
 
@@ -770,7 +770,7 @@ function ptInit(){
   /* this term's swaps, plus older ones still open: an owed swap lasts a year, a booked make-up until it happens (Chris, 25-Nov 09:15) */
   const keep = r=>{ const e = eids.get(r.EnrolmentID), booked = /^booked/i.test(r.Status), owed = /^owed/i.test(r.Status);
     if(!e || !classById(r.FromClass) || !(booked||owed) || (booked && !classById(r.ToClass))) return false;
-    return e.Term===term || (owed && r.fd && ptYear(r.fd)>=today) || (booked && r.td && r.td>=today); };
+    return e.Term===term || (booked && r.td && r.td>=today); }; /* banked swaps last one term (26-Nov) */
   PT = { fam:null, sid:null, all:{}, seq:1, _more:false, _q:"", _pick:null, _err:"",
     swaps: swapsAll().filter(keep)
       .map(r=>({id:"R"+r.SwapID, eid:r.EnrolmentID, sid:String(eids.get(r.EnrolmentID).Ref), from:r.FromClass, fd:r.fd||"", to:/^booked/i.test(r.Status)?r.ToClass:"", td:/^booked/i.test(r.Status)?r.td:"", status:/^booked/i.test(r.Status)?"booked":"owed", real:true, cur:eids.get(r.EnrolmentID).Term===term})) };
@@ -782,9 +782,9 @@ function ptUsed(sid){ return PT.swaps.filter(w=>w.sid===sid && w.cur!==false).le
 function ptUsedHtml(sid){ return isFinite(PT_LIMIT) ? (u=>`<span class="ptused${u>=PT_LIMIT?" full":""}">${u>PT_LIMIT?`${u} swaps (limit ${PT_LIMIT})`:`${u} of ${PT_LIMIT} swaps used`}</span>`)(ptUsed(sid)) : ""; } /* nothing shown when there's no limit */
 function ptOptions(kid, cid, skip){ /* classes this student could go to instead of a date in class cid */
   const own = classById(cid), mine = new Set(PT.swaps.filter(w=>w.sid===kid.ref && w.status==="booked").map(w=>w.to+"|"+w.td)), myCls = new Set(kid.enr.map(x=>x.cid));
-  const until = ptYear(ptMissedOf(cid, skip)) || ptYear(ptToday());
+  const until = ptTermEnd() || ptYear(ptMissedOf(cid, skip)) || ptYear(ptToday()); /* swaps last one term (Chris, 26-Nov 09:42) */
   const terms = ptActiveTerms(kid);
-  return ptAnyClasses().filter(c=>ptGrp(c)===ptGrp(own) && !myCls.has(c.ClassID) && terms.has(c.Term)) /* any children's class in a term they're enrolled in; adults: adult classes */
+  return ptAnyClasses().filter(c=>ptGrp(c)===ptGrp(own) && !myCls.has(c.ClassID) && terms.has(c.Term) && String(c.Term)===String(own.Term)) /* any children's class in a term they're enrolled in; adults: adult classes */
     .flatMap(c=>ptSessions(c.ClassID).map(iso=>({cid:c.ClassID, iso, dt:ptDt(c.ClassID, iso)})))
     .filter(x=>x.iso<=until && ptOpen(x.cid, x.iso) && !mine.has(x.cid+"|"+x.iso) && skip!==x.cid+"|"+x.iso)
     .map(x=>({...x, spaces: ptMax(classById(x.cid)) - ptCount(x.cid, x.iso)})).sort((a,b)=>a.dt-b.dt);
@@ -835,7 +835,7 @@ function ptChildren(){
     <div class="ptkids">${f.kids.map(k=>{ const owed = PT.swaps.filter(w=>w.sid===k.ref && w.status==="owed").length;
       return `<button type="button" class="ptkid" data-pt="kid|${esc(k.ref)}"><span class="ptav">${esc(ptFirst(k.name).slice(0,1))}</span>
         <span class="ptkn"><b>${esc(k.adult?k.name:ptFirst(k.name))}</b><span class="small muted">${k.enr.map(x=>ptLblH(x.cid)).join(" · ")}</span>
-        ${owed?`<span class="ptbadge">${owed} owed swap${owed>1?"s":""} to book</span>`:""}</span>${ptUsedHtml(k.ref)}<span class="ptchev">›</span></button>`; }).join("")}</div></div>`;
+        ${owed?`<span class="ptbadge">${owed} banked swap${owed>1?"s":""} to book</span>`:""}</span>${ptUsedHtml(k.ref)}<span class="ptchev">›</span></button>`; }).join("")}</div></div>`;
 }
 function ptStudent(){
   const f = ptFam(), k = ptKid(PT.sid); if(!k){ PT.sid = null; return ptChildren(); }
@@ -860,7 +860,7 @@ function ptStudent(){
   return ptTop("Class swaps") + `<div class="ptbody">
     <button type="button" class="ptlink ptback" data-pt="kids">‹ ${f.kids.length>1?"All children":"Back"}</button>
     <div class="ptsh"><div><h3 class="pth">${esc(k.adult?k.name:ptFirst(k.name))}</h3><span class="small muted">${k.enr.map(x=>ptLblH(x.cid)).join(" · ")}</span></div>${ptUsedHtml(k.ref)}</div>
-    ${owed.length?`<div class="ptowed"><div class="ptoh">Owed swap${owed.length>1?"s":""} to book</div>${owed.map(w=>`<button type="button" class="ptrow owed" data-pt="manage|${w.id}"><span class="ptd">Missed ${w.fd?esc(ptD(w.fd)):"a class"}${w.fd?`<br><span class="small muted">Book by ${esc(ptD(ptYear(w.fd), true))}</span>`:""}</span><span class="ptgo">Book swap ›</span></button>`).join("")}</div>`:""}
+    ${owed.length?`<div class="ptowed"><div class="ptoh">Banked swap${owed.length>1?"s":""} to book</div>${owed.map(w=>`<button type="button" class="ptrow owed" data-pt="manage|${w.id}"><span class="ptd">Missed ${w.fd?esc(ptD(w.fd)):"a class"}${w.fd?`<br><span class="small muted">Book by ${esc(ptByWhen())}</span>`:""}</span><span class="ptgo">Book swap ›</span></button>`).join("")}</div>`:""}
     <p class="small muted ptintro">Tap a class to swap it.</p>
     <div class="ptlist">${shown.map(r=>r.html).join("")||'<p class="small muted">No more classes this term.</p>'}</div>
     ${more>1?`<button type="button" class="ptlink ptmore" data-pt="all|${esc(k.ref)}">${showAll?"Show fewer":`Show all dates this term (${more} more)`}</button>`:""}</div>`;
@@ -876,10 +876,10 @@ function viewPortal(){
 }
 function ptRules(){
   ptDialog(`<h2>How it works</h2><ul class="ptrl">
-    <li>If you can't attend a class you may swap to <b>any other class</b>, provided there is space and you are still an active Red Robin student at the time of the new class.</li>
+    <li>Can't make a class? Swap to any other class <b>this term</b>, as long as there's space.</li>
     <li>Children can go to <b>any other children's class</b>. Adults can go to <b>any other adult class</b>.</li>
     <!-- class maximums (16 children / 15 adults) are not shown to families, only the spaces left (Chris, 25-Nov 09:25) -->
-    <li>If you can't attend a class but don't know when you can swap to, then choose <b>"book the swap later"</b>. It stays as an owed swap for up to a year.</li></ul>
+    <li>Not sure when you can come? Tap <b>Bank swap</b>. Banked swaps last until the end of term and are cleared when the new term starts.</li></ul>
     <div class="ptfoot"><button type="button" class="btn" data-close>Close</button></div>`);
 }
 function ptPicker(kid, mode, cid, ref){ /* mode "swap" (ref = own date), "book" / "change" (ref = swap id) */
@@ -897,8 +897,8 @@ function ptPicker(kid, mode, cid, ref){ /* mode "swap" (ref = own date), "book" 
   const title = mode==="swap" ? `Swap ${nm}'s class on ${ptD(ref)}` : mode==="book" ? `Book ${nm}'s swap` : `Change ${nm}'s swap`;
   const sub = mode==="swap" ? (isFinite(PT_LIMIT) ? `${ptUsed(kid.ref)} of ${PT_LIMIT} swaps used this term` : "") : `Instead of ${w.fd?ptWhen(w.from, w.fd):"a missed class"}`;
   ptDialog(`<h2>${esc(title)}</h2>${sub?`<p class="small muted" style="margin:2px 0 10px">${esc(sub)}</p>`:""}
-    ${mode==="swap"?`<button type="button" class="btn ptlater" data-pt="later|${esc(kid.ref)}|${esc(cid)}|${ref}">Can't come – I'll book the swap later</button><div class="ptor small muted">or choose a class to come to instead</div>`:""}
-    <div class="ptopts">${list||'<p class="muted">No classes with space in the next year.</p>'}</div>
+    ${mode==="swap"?`<button type="button" class="btn ptlater" data-pt="later|${esc(kid.ref)}|${esc(cid)}|${ref}">Bank swap</button><div class="ptor small muted">or choose a class to come to instead</div>`:""}
+    <div class="ptopts">${list||'<p class="muted">No classes with space left this term.</p>'}</div>
     ${opts.length>limit?`<button type="button" class="ptlink" data-pt="more|${mode}|${esc(kid.ref)}|${esc(cid||"")}|${esc(ref)}" style="margin-top:8px">Show later dates (${opts.length-limit} more)</button>`:""}
     <div class="ptfoot"><button type="button" class="btn" data-close>Close</button></div>`);
 }
@@ -922,10 +922,10 @@ function ptCelebrate(fromH, toH, o){ /* from + to (Chris, 22:14); o = {title, fr
 }
 function ptCancelPop(w){ /* cancel a swap: what was cancelled, and the class they're back to */
   const kid = ptKid(w.sid), nm = kid ? ptFirst(kid.name) : "";
-  ptCelebrate(w.status==="booked" && w.td ? ptWhenH(w.to, w.td) : "Owed swap", ptWhenH(w.from, w.fd), {title:nm?`${esc(nm)}'s swap cancelled`:"Swap cancelled", fromLbl:"Cancelled", toLbl:"Back to", strike:true});
+  ptCelebrate(w.status==="booked" && w.td ? ptWhenH(w.to, w.td) : "Banked swap", ptWhenH(w.from, w.fd), {title:nm?`${esc(nm)}'s swap cancelled`:"Swap cancelled", fromLbl:"Cancelled", toLbl:"Back to", strike:true});
 }
 function ptToOwedPop(w){ /* cancel the swapped-to class: it goes back to an owed swap */
-  ptCelebrate(ptWhenH(w.to, w.td), "Owed swap – book another class later", {title:"Class cancelled", fromLbl:"Cancelled", toLbl:"Now", strike:true});
+  ptCelebrate(ptWhenH(w.to, w.td), "Banked swap – book another class later", {title:"Class cancelled", fromLbl:"Cancelled", toLbl:"Now", strike:true});
 }
 function ptDialog(html){ closeAllDialogs(); openDialog(`<div class="ptdlg">${html}</div>`); }
 function ptConfirm(text, btn, action, back){ ptDialog(`<h2>Check and confirm</h2><p>${text}</p><div class="ptfoot"><button type="button" class="btn" ${back?`data-pt="${esc(back)}"`:"data-close"}>Back</button><button type="button" class="btn primary" data-pt="${esc(action)}">${esc(btn)}</button></div>`); }
@@ -943,7 +943,7 @@ function ptManage(w){
   ptDialog(`<h2>${esc(nm)}'s swap</h2>
     <div class="ptsum"><div><span class="small muted">Not coming</span><br><b>${w.fd?ptWhenH(w.from, w.fd):"A missed class"}</b></div>
       <div><span class="small muted">Coming instead</span><br><b>${w.status==="booked"&&toC?ptWhenH(w.to, w.td):'<span style="color:var(--warn)">Not booked yet</span>'}</b></div></div>
-    ${w.status==="owed"?`<p class="small muted">Book the swap any time ${w.fd?`up to ${esc(ptD(ptYear(w.fd), true))}`:"within a year"}.</p>`:""}
+    ${w.status==="owed"?`<p class="small muted">Book the swap any time up to ${esc(ptByWhen())}.</p>`:""}
     ${btns.length?`<div class="ptbtns">${btns.join("")}</div>`:'<p class="small muted">It is too late to change this swap.</p>'}
     <div class="ptfoot"><button type="button" class="btn" data-close>Close</button></div>`);
 }
@@ -969,7 +969,7 @@ function ptClick(el){
   if(k==="more"){ PT._more = true; ptPicker(ptKid(p[2]), p[1], p[3], p[4]); return; }
   if(k==="manage"){ ptManage(PT.swaps.find(w=>w.id===p[1])); return; }
   if(k==="book"||k==="change"){ const w = PT.swaps.find(x=>x.id===p[1]); PT._more = false; ptPicker(ptKid(w.sid), k, w.from, w.id); return; }
-  if(k==="later"){ const kid = ptKid(p[1]); ptConfirm(`<b>${esc(ptFirst(kid.name))}</b> won't come on <b>${ptWhenH(p[2], p[3])}</b>. You can book the swap any time up to ${esc(ptD(ptYear(p[3]), true))}.${isFinite(PT_LIMIT)?`<br><span class="small muted">This uses ${ptUsed(kid.ref)+1} of ${PT_LIMIT} swaps this term.</span>`:""}`, "Confirm", `dolater|${kid.ref}|${p[2]}|${p[3]}`, `swap|${kid.ref}|${p[2]}|${p[3]}`); return; }
+  if(k==="later"){ const kid = ptKid(p[1]); ptConfirm(`<b>${esc(ptFirst(kid.name))}</b> won't come on <b>${ptWhenH(p[2], p[3])}</b>. The swap will be banked – book a class for it any time up to ${esc(ptByWhen())}.${isFinite(PT_LIMIT)?`<br><span class="small muted">This uses ${ptUsed(kid.ref)+1} of ${PT_LIMIT} swaps this term.</span>`:""}`, "Confirm", `dolater|${kid.ref}|${p[2]}|${p[3]}`, `swap|${kid.ref}|${p[2]}|${p[3]}`); return; }
   if(k==="pick"){ const [ , mode, sid, own, ref, cid, iso] = p, kid = ptKid(sid), w = mode==="swap" ? null : PT.swaps.find(x=>x.id===ref);
     const from = mode==="swap" ? ptWhen(own, ref) : (w.fd ? ptWhen(w.from, w.fd) : "the missed class");
     ptConfirm(`<b>${esc(ptFirst(kid.name))}</b> will come to <b>${ptWhenH(cid, iso)}</b> instead of <b>${esc(from)}</b>.${mode==="swap" && isFinite(PT_LIMIT)?`<br><span class="small muted">This uses ${ptUsed(kid.ref)+1} of ${PT_LIMIT} swaps this term.</span>`:""}`,
@@ -981,10 +981,10 @@ function ptClick(el){
     const w = mode==="swap" ? null : PT.swaps.find(x=>x.id===ref), fromH = mode==="swap" ? ptWhenH(own, ref) : (w && w.fd ? ptWhenH(w.from, w.fd) : "The missed class");
     closeAllDialogs(); render(); ptCelebrate(fromH, ptWhenH(cid, iso)); return; } /* Chris, 24-Nov 22:12: a fun "Swap confirmed" pop-up + ding, then back to the child's classes */
   if(k==="dolater"){ const kid = ptKid(p[1]); PT.swaps.push({id:"D"+PT.seq++, sid:kid.ref, eid:(kid.enr.find(x=>x.cid===p[2])||{}).eid, from:p[2], fd:p[3], to:"", td:"", status:"owed"});
-    closeAllDialogs(); render(); toast(`Saved as an owed swap for ${ptFirst(kid.name)}.`); return; }
+    closeAllDialogs(); render(); toast(`Swap banked for ${ptFirst(kid.name)}.`); return; }
   if(k==="undo"){ const w = PT.swaps.find(x=>x.id===p[1]), kid = ptKid(w.sid); ptConfirm(`Cancel this swap? <b>${esc(ptFirst(kid.name))}</b> will come to <b>${ptWhenH(w.from, w.fd)}</b> as usual.`, "Cancel swap", `doundo|${w.id}`, `manage|${w.id}`); return; }
   if(k==="doundo"){ const w = PT.swaps.find(x=>x.id===p[1]); PT.swaps = PT.swaps.filter(x=>x.id!==p[1]); closeAllDialogs(); render(); if(w) ptCancelPop(w); return; }
-  if(k==="toowed"){ const w = PT.swaps.find(x=>x.id===p[1]); ptConfirm(`Cancel the class on <b>${ptWhenH(w.to, w.td)}</b>? It goes back to an owed swap you can book later.`, "Cancel class", `dotoowed|${w.id}`, `manage|${w.id}`); return; }
+  if(k==="toowed"){ const w = PT.swaps.find(x=>x.id===p[1]); ptConfirm(`Cancel the class on <b>${ptWhenH(w.to, w.td)}</b>? It goes back to a banked swap you can book later this term.`, "Cancel class", `dotoowed|${w.id}`, `manage|${w.id}`); return; }
   if(k==="dotoowed"){ const w = PT.swaps.find(x=>x.id===p[1]), was = Object.assign({}, w); Object.assign(w, {to:"", td:"", status:"owed"}); closeAllDialogs(); render(); ptToOwedPop(was); return; }
 }
 
@@ -1067,6 +1067,8 @@ function forget(){ store.set(""); APP.data = null; PT = null; const u = new URL(
 /* ----- the portal screens, fed from the bridge instead of the Rocker ----- */
 function ptInit(){
   const d = APP.data || {family:{kids:[]}, swaps:[]};
+  /* swaps last one term (Chris, 26-Nov 09:42): last term's banked (owed) swaps are cleared, so don't show them */
+  d.swaps = (d.swaps||[]).filter(w=>!(w.status==="owed" && w.cur===false));
   PT = { fam:"me", sid:null, all:{}, seq:1, _more:false, _q:"", _err:"", swaps: d.swaps.map(w=>({...w})),
     fams: [{key:"me", label:d.family.label, adult:d.family.adult, test:d.family.test, kids:d.family.kids}] };
   APP.orig = d.swaps.map(w=>({...w}));
@@ -1175,7 +1177,7 @@ async function saveChange(el, k, p){
     else req = {op:"book", id:ref, to:cid, td:iso};
     const w = mode==="swap" ? null : PT.swaps.find(x=>x.id===ref), fromH = mode==="swap" ? ptWhenH(own, ref) : (w && w.fd ? ptWhenH(w.from, w.fd) : "The missed class"), toH = ptWhenH(cid, iso);
     done = ()=>ptCelebrate(fromH, toH); }
-  if(k==="dolater"){ const kid = ptKid(p[1]); req = {op:"later", eid:(kid.enr.find(x=>x.cid===p[2])||{}).eid, from:p[2], fd:p[3]}; done = ()=>toast(`Saved as an owed swap for ${ptFirst(kid.name)}.`); }
+  if(k==="dolater"){ const kid = ptKid(p[1]); req = {op:"later", eid:(kid.enr.find(x=>x.cid===p[2])||{}).eid, from:p[2], fd:p[3]}; done = ()=>toast(`Swap banked for ${ptFirst(kid.name)}.`); }
   if(k==="doundo"){ const w = Object.assign({}, PT.swaps.find(x=>x.id===p[1])); req = {op:"cancel", id:p[1]}; done = ()=>ptCancelPop(w); }
   if(k==="dotoowed"){ const w = Object.assign({}, PT.swaps.find(x=>x.id===p[1])); req = {op:"toowed", id:p[1]}; done = ()=>ptToOwedPop(w); }
   const btns = [...document.querySelectorAll("#modal button")], label = el.textContent;
@@ -1219,12 +1221,11 @@ if("serviceWorker" in navigator && location.protocol==="https:") navigator.servi
   if(code) loadByCode(code); else { APP.state = "out"; render(); }
 })();
 
-/* Class picker: tag each date heading and its classes with the weekday, so site.css can colour them (26-Nov) */
+/* Class picker: tag each date heading and its classes with the weekday, and show just the time on each class (26-Nov) */
 (function(){
   if(typeof ptDialog!=="function") return;
   const orig = ptDialog;
-  ptDialog = function(html){ orig(html); try{ document.querySelectorAll(".ptdlg .ptlater").forEach(b=>{ b.textContent = "Bank swap"; }); /* Chris, 26-Nov 09:38; shortened 09:40 */
-document.querySelectorAll(".ptopts").forEach(box=>{ let dow = "";
+  ptDialog = function(html){ orig(html); try{ document.querySelectorAll(".ptopts").forEach(box=>{ let dow = "";
     for(const el of box.children){ if(el.classList.contains("ptday")) dow = el.textContent.trim().slice(0,3); if(dow) el.dataset.dow = dow;
       /* the date is in the heading, so each class shows just its time (Chris, 26-Nov) */
       const t = el.querySelector(".ptot"), n = t && t.firstChild; if(n && n.nodeType===3) n.textContent = n.textContent.replace(/^.*·\s*/, ""); } }); }catch(e){} };

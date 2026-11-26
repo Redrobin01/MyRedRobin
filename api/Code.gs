@@ -10,6 +10,8 @@
 // Families are found by their PERSONAL LINK (a random code in the PortalLinks tab) or by typing the
 // email on their registration form. Too many wrong emails from anywhere = a short pause.
 //
+// v6 (26-Nov-2026): SWAPS LAST ONE TERM (Chris): the new class must be in the same term as the missed class, and
+//   banked (owed) swaps from an earlier term are no longer sent to the app - they're cleared when a new term starts.
 // v3 (25-Nov-2026): SWAPS ARE SAVED for real families (action=change): a new swap, "book later" (owed), booking or
 //   changing the class for an owed/booked swap, cancelling a swap, or turning a booked one back into owed. Every change
 //   is checked again here (the family's own child and class, the date hasn't started, space in the class, a term the
@@ -38,7 +40,7 @@ const DB_ID         = '1U6ra-LmwQIFJKGtI0f1nuP6sAnjama4Zq36TQalptYk'; // Red Rob
 const FORM_ID       = '1rasCtoX6Ox8ZBqulykS8HJN6GjzygfbSYYgqSmfvKzA'; // Children's registration form responses
 const ADULT_FORM_ID = '13Wk9b8XW0j5F9cLkwK7_6pi06fcCl2TOfMuYc9AVBec'; // Adults' registration form responses
 const LINKS_TAB     = 'PortalLinks';                                   // Email | Code | Created | Note
-const VERSION       = 'bridge v5 (25-Nov-2026)';
+const VERSION       = 'bridge v6 (26-Nov-2026)';
 const TEST_DOMAIN   = '@redrobin.test';                                // test1@ … test4@ - made-up families for trying things out
 
 // ---------------- web entry points ----------------
@@ -86,12 +88,11 @@ function family_(p) {
   const refs = {}; fam.kids.forEach(function (k) { refs[k.ref] = 1; });
   const swaps = d.swaps.filter(function (w) { return refs[w.sid]; });
   swaps.forEach(function (w) { used[w.from] = 1; if (w.to) used[w.to] = 1; });
-  // classes they could swap into: any term, same group, with a date between today and a year (plus a bit) ahead
-  const until = yearOn_(yearOn_(d.today));   // a missed date later this term + a year is still inside this
+  // classes they could swap into: this term only (v6), same group, with a date still to come
   const classes = d.all.filter(function (c) {
     if (used[c.ClassID]) return true;
-    if (!groups[groupOf_(c)]) return false;
-    return (d.sessions[c.ClassID] || []).some(function (x) { return x >= d.today && x <= until; });
+    if (!groups[groupOf_(c)] || String(c.Term) !== String(d.term)) return false;
+    return (d.sessions[c.ClassID] || []).some(function (x) { return x >= d.today; });
   });
   const sessions = {}, counts = {};
   classes.forEach(function (c) {
@@ -166,7 +167,7 @@ function change_(p) {
       if (kid.enr.some(function (x) { return x.cid === to; })) return 'That\'s already one of their own classes.';
       if (!isSession(to, td) || started(to, td)) return 'That class has already started or isn\'t running.';
       if ((kid.terms || []).indexOf(c.Term) < 0 && Object.keys(d.termsByRef[kid.ref] || {}).indexOf(c.Term) < 0) return 'They aren\'t booked into that term.';
-      if (fd && td > yearOn_(fd)) return 'The new class has to be within a year of the missed class.';
+      if (String(c.Term) !== String(own.Term)) return 'The new class has to be in the same term as the missed class.';   // v6: swaps last one term
       if (places(to, td) >= maxOf(c)) return 'full';
       return '';
     };
@@ -264,7 +265,7 @@ function data_() {
     allSwaps.push(w);
     if (booked) swapDelta[w.to + '|' + w.td] = (swapDelta[w.to + '|' + w.td] || 0) + 1;
     swapDelta[w.from + '|' + w.fd] = (swapDelta[w.from + '|' + w.fd] || 0) - 1;
-    if (w.cur || (owed && w.fd && yearOn_(w.fd) >= today) || (booked && w.td >= today)) swaps.push(w);
+    if (w.cur || (booked && w.td >= today)) swaps.push(w);   // v6: last term's banked swaps are cleared
   });
   return { term: term, termEnd: termEnd, today: today, classes: classes, all: all, byId: byId, sessions: sessions, base: base, enrolByRef: enrolByRef, termsByRef: termsByRef, swaps: swaps, allSwaps: allSwaps, swapDelta: swapDelta, students: students_() };
 }
