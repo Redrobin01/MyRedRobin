@@ -118,3 +118,5 @@ button.ptopt:active{transform:scale(.98)}
 /* 11:17 (Chris): "Bank swap for future use" a bit smaller, with more space around it */
 .ptdlg .ptlater{width:auto;align-self:center;display:block;margin:16px auto 6px;padding:9px 22px;font-size:.95rem;border-width:1.5px}
 .ptdlg .ptor{margin:12px 0 6px}
+/* 11:19: a little smaller still, more space above */
+.ptdlg .ptlater{margin:26px auto 6px;padding:7px 18px;font-size:.88rem}
