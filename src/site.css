@@ -70,7 +70,7 @@ button.ptopt:active{transform:scale(.98)}
 .ptbgo{font-weight:800;font-size:1.6rem;line-height:1;opacity:.9}
 .ptbank.zero{background:var(--accent-soft);color:var(--accent);box-shadow:none;cursor:default}
 /* Turquoise accent from the robin's wing, brightened (Chris, 26-Nov 09:54) – red stays the main colour */
-:root{ --teal:#6b9ab3; --teal-ink:#2c6580; --teal-soft:#cfe2ec; } /* dustier, like the logo (09:55) */
+:root{ --teal:#4f8fb0; --teal-ink:#1f5f7e; --teal-soft:#b9d8e8; } /* dustier, like the logo (09:55) */
 .ptday{--dc:var(--teal-ink);--ds:var(--teal-soft)}
 .ptopt .ptsp{color:var(--teal-ink);background:var(--teal-soft)}
 .ptav{background:var(--teal-soft);color:var(--teal-ink)}
