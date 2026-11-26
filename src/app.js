@@ -231,7 +231,7 @@ if("serviceWorker" in navigator && location.protocol==="https:") navigator.servi
 (function(){
   if(typeof ptDialog!=="function") return;
   const orig = ptDialog;
-  ptDialog = function(html){ orig(html); try{ document.querySelectorAll(".ptdlg .ptlater").forEach(b=>{ b.textContent = "Bank swap for future use"; }); /* Chris, 26-Nov 09:38 */
+  ptDialog = function(html){ orig(html); try{ document.querySelectorAll(".ptdlg .ptlater").forEach(b=>{ b.textContent = "Bank swap"; }); /* Chris, 26-Nov 09:38; shortened 09:40 */
 document.querySelectorAll(".ptopts").forEach(box=>{ let dow = "";
     for(const el of box.children){ if(el.classList.contains("ptday")) dow = el.textContent.trim().slice(0,3); if(dow) el.dataset.dow = dow;
       /* the date is in the heading, so each class shows just its time (Chris, 26-Nov) */
