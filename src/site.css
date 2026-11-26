@@ -61,5 +61,5 @@ button.ptopt:active{transform:scale(.98)}
 [data-dow="Fri"]{--dc:#c8336e;--ds:#fce6ef}
 [data-dow="Sat"]{--dc:#4b9a2b;--ds:#e8f5e0}
 [data-dow="Sun"]{--dc:#c79a0a;--ds:#fcf4d9}
-.ptopt .ptlen{display:block;margin-top:3px;font-size:.82em}
+.ptopt .ptlen{margin-left:4px;font-size:.82em}
 .ptdlg:has(.ptopts) .ptfoot .btn{font-family:inherit;font-weight:700}

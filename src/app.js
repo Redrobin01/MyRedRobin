@@ -232,5 +232,7 @@ if("serviceWorker" in navigator && location.protocol==="https:") navigator.servi
   if(typeof ptDialog!=="function") return;
   const orig = ptDialog;
   ptDialog = function(html){ orig(html); try{ document.querySelectorAll(".ptopts").forEach(box=>{ let dow = "";
-    for(const el of box.children){ if(el.classList.contains("ptday")) dow = el.textContent.trim().slice(0,3); if(dow) el.dataset.dow = dow; } }); }catch(e){} };
+    for(const el of box.children){ if(el.classList.contains("ptday")) dow = el.textContent.trim().slice(0,3); if(dow) el.dataset.dow = dow;
+      /* the date is in the heading, so each class shows just its time (Chris, 26-Nov) */
+      const t = el.querySelector(".ptot"), n = t && t.firstChild; if(n && n.nodeType===3) n.textContent = n.textContent.replace(/^.*·\s*/, ""); } }); }catch(e){} };
 })();
