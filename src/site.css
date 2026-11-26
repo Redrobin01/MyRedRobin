@@ -120,3 +120,5 @@ button.ptopt:active{transform:scale(.98)}
 .ptdlg .ptor{margin:12px 0 6px}
 /* 11:19: a little smaller still, more space above */
 .ptdlg .ptlater{margin:26px auto 6px;padding:7px 18px;font-size:.88rem}
+/* 11:22: even more space between the heading and "Bank swap for future use" */
+.ptdlg h2 + .ptlater, .ptdlg .ptlater{margin-top:36px}
