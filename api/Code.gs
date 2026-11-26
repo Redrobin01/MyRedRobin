@@ -10,6 +10,8 @@
 // Families are found by their PERSONAL LINK (a random code in the PortalLinks tab) or by typing the
 // email on their registration form. Too many wrong emails from anywhere = a short pause.
 //
+// v9 (26-Nov-2026): students marked Absent can log in and swap like everyone else (Carla). They already held their
+//   place in the class numbers, so nothing else changes.
 // v8 (26-Nov-2026): sends the term dates (this term and later ones, from the TermDates tab) for the app's
 //   "Term dates" button: start, end, half term and any days off.
 // v7 (26-Nov-2026): FASTER. The sheets that rarely change (Settings, Classes, TermDates, Sessions, Enrolments and the
@@ -47,7 +49,7 @@ const DB_ID         = '1U6ra-LmwQIFJKGtI0f1nuP6sAnjama4Zq36TQalptYk'; // Red Rob
 const FORM_ID       = '1rasCtoX6Ox8ZBqulykS8HJN6GjzygfbSYYgqSmfvKzA'; // Children's registration form responses
 const ADULT_FORM_ID = '13Wk9b8XW0j5F9cLkwK7_6pi06fcCl2TOfMuYc9AVBec'; // Adults' registration form responses
 const LINKS_TAB     = 'PortalLinks';                                   // Email | Code | Created | Note
-const VERSION       = 'bridge v8 (26-Nov-2026)';
+const VERSION       = 'bridge v9 (26-Nov-2026)';
 const TEST_DOMAIN   = '@redrobin.test';                                // test1@ … test4@ - made-up families for trying things out
 
 // ---------------- web entry points ----------------
@@ -263,7 +265,6 @@ function data_(fresh) {
     enrolById[e.EnrolmentID] = e;
     if (/^left/i.test(e.Status)) return;
     base[e.ClassID] = (base[e.ClassID] || 0) + 1;                                         // places taken, any term – Absent students still hold their place, like the Rocker (Chris, 25-Nov 20:03)
-    if (/^absent/i.test(e.Status)) return;                                                // …but they can't swap
     const ref = String(e.Ref || '').trim(); if (!ref) return;
     (termsByRef[ref] = termsByRef[ref] || {})[e.Term] = 1;                                   // terms they're active in: swaps can only go there
     if (e.Term !== term) return;
