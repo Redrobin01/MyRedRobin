@@ -79,7 +79,7 @@ button.ptopt:active{transform:scale(.98)}
 /* thicker borders round the children's cards (Chris, 09:55) */
 .ptkid{border:2px solid #dcd5ca}
 /* Buttermilk yellow (Chris, 26-Nov 10:00; trimmed 10:02): kept only for the warm page background and the "n banked swaps to book" label */
-:root{ --butter:#fbe39a; --butter-ink:#7a5200; --page:#e9e3da; } /* 10:29: a light tint of the warm grey behind the robin in the logo (logo itself ~#a39b8e) */
+:root{ --butter:#fbe39a; --butter-ink:#7a5200; --page:#f4efe5; } /* 10:31: halfway between the pale cream #fffbf0 and the logo-grey tint #e9e3da */
 .ptphone{background:var(--page)}
 .ptbadge{background:var(--butter);color:var(--butter-ink)}
 /* the "Banked swaps to book" box on a child's page: plain, no yellow */
