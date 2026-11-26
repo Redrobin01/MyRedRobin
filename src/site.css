@@ -107,6 +107,7 @@ button.ptopt:active{transform:scale(.98)}
 .pttop .ptout{font-size:.8rem;padding:5px 12px;border-width:1.5px}
 /* 10:36 (Chris): no family name in the top bar; turquoise banners with white writing and a black border */
 .pttop .ptwho > span:first-child{display:none}
-.pthow{background:var(--teal);color:#fff;border:2px solid #1d1d1b;border-left:0;border-right:0}
-.pthi{background:#fff;color:var(--teal)}
-.ptbank.zero{background:var(--teal);color:#fff;border:2px solid #1d1d1b}
+:root{ --lum:#5fd4df; } /* 10:37: a more luminous turquoise with black writing, for the banners */
+.pthow{background:var(--lum);color:#1d1d1b;border:2px solid #1d1d1b;border-left:0;border-right:0}
+.pthi{background:#1d1d1b;color:var(--lum)}
+.ptbank.zero{background:var(--lum);color:#1d1d1b;border:2px solid #1d1d1b}
