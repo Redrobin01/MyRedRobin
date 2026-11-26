@@ -111,3 +111,7 @@ button.ptopt:active{transform:scale(.98)}
 .pthow{background:var(--lum);color:#58534c;border:2px solid #1d1d1b;border-left:0;border-right:0}
 .pthi{background:#58534c;color:var(--lum)}
 .ptbank.zero{background:var(--lum);color:#58534c;border:2px solid #1d1d1b}
+/* 10:45 (Chris): banners back to white (border and grey writing kept); the little "i" circle turquoise like the initials */
+.pthow{background:#fff}
+.ptbank.zero{background:#fff}
+.pthi{background:var(--teal-soft);color:var(--teal-ink)}
