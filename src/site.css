@@ -89,3 +89,6 @@ button.ptopt:active{transform:scale(.98)}
 .dialog:has(.ptopts){background:var(--page)}
 .ptdlg .ptlater{background:#fff}
 .ptdlg .ptlater:hover{background:var(--accent);color:#fff}
+/* the robin logo in the red bar (Chris, 26-Nov 10:05) */
+.ptbrand{padding-left:58px;min-height:48px;justify-content:center;background:url(icons/logo-round.png) left center/48px 48px no-repeat}
+.ptbrand b{font-family:"Nunito", var(--body);font-weight:800;font-size:1.15rem}
