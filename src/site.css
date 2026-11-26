@@ -56,3 +56,6 @@ button.ptopt:active{transform:scale(.98)}
 .ptdlg .ptlink{font-family:inherit;font-weight:800;font-size:1rem}
 .ptopt .ptlen{margin-left:4px;font-size:.82em}
 .ptdlg:has(.ptopts) .ptfoot .btn{font-family:inherit;font-weight:700}
+/* "Bank swap for future use" button in Red Robin red (Chris, 26-Nov 09:38) */
+.ptdlg .ptlater{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.ptdlg .ptlater:hover{background:var(--accent);color:#fff}

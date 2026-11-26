@@ -676,6 +676,9 @@ button.ptopt:active{transform:scale(.98)}
 .ptdlg .ptlink{font-family:inherit;font-weight:800;font-size:1rem}
 .ptopt .ptlen{margin-left:4px;font-size:.82em}
 .ptdlg:has(.ptopts) .ptfoot .btn{font-family:inherit;font-weight:700}
+/* "Bank swap for future use" button in Red Robin red (Chris, 26-Nov 09:38) */
+.ptdlg .ptlater{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.ptdlg .ptlater:hover{background:var(--accent);color:#fff}
 
 </style>
 </head>
@@ -1220,7 +1223,8 @@ if("serviceWorker" in navigator && location.protocol==="https:") navigator.servi
 (function(){
   if(typeof ptDialog!=="function") return;
   const orig = ptDialog;
-  ptDialog = function(html){ orig(html); try{ document.querySelectorAll(".ptopts").forEach(box=>{ let dow = "";
+  ptDialog = function(html){ orig(html); try{ document.querySelectorAll(".ptdlg .ptlater").forEach(b=>{ b.textContent = "Bank swap for future use"; }); /* Chris, 26-Nov 09:38 */
+document.querySelectorAll(".ptopts").forEach(box=>{ let dow = "";
     for(const el of box.children){ if(el.classList.contains("ptday")) dow = el.textContent.trim().slice(0,3); if(dow) el.dataset.dow = dow;
       /* the date is in the heading, so each class shows just its time (Chris, 26-Nov) */
       const t = el.querySelector(".ptot"), n = t && t.firstChild; if(n && n.nodeType===3) n.textContent = n.textContent.replace(/^.*·\s*/, ""); } }); }catch(e){} };
