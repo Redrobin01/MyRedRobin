@@ -712,6 +712,13 @@ button.ptopt:active{transform:scale(.98)}
 /* the robin logo in the red bar (Chris, 26-Nov 10:05) */
 .ptbrand{padding-left:58px;min-height:48px;justify-content:center;background:url(icons/logo-round.png) left center/48px 48px no-repeat}
 .ptbrand b{font-family:"Nunito", var(--body);font-weight:800;font-size:1.15rem}
+/* top bar: logo + family name + Log out; "How it works" on its own strip underneath (Chris, 10:07) */
+.ptbrand{padding-left:0;width:52px;height:52px;min-height:0;background-size:52px 52px}
+.ptwho{display:flex;flex-direction:row;align-items:center;gap:14px}
+.ptwho > span:first-child{font-family:"Nunito", var(--body);font-weight:800;font-size:1.05rem}
+.pthow{display:flex;align-items:center;gap:10px;width:100%;padding:10px 18px;border:0;border-bottom:1px solid #d9e8ef;background:var(--teal-soft);color:var(--teal-ink);font:inherit;font-family:"Nunito", var(--body);font-weight:800;font-size:.98rem;text-align:left;cursor:pointer}
+.pthi{flex:0 0 22px;height:22px;border-radius:50%;background:var(--teal-ink);color:#fff;font-size:.8rem;font-weight:800;font-style:italic;font-family:Georgia,serif;display:flex;align-items:center;justify-content:center}
+.pthc{margin-left:auto;font-size:1.3rem;line-height:1}
 
 </style>
 </head>
@@ -829,7 +836,7 @@ function ptByWhen(){ const e = ptTermEnd(); return e ? ptD(e, true) : "the end o
 /* ----- screens ----- */
 function ptLogo(){ const img = document.querySelector("header .logo"); return img ? `<img src="${img.src}" alt="" width="56" height="56" class="ptlogo">` : ""; }
 function ptTop(sub){ const f = PT.fam && ptFam();
-  return `<div class="pttop">${PT.fam?`<div class="ptbrand"><b>Red Robin</b><span>${esc(sub||"Class swaps")}</span></div><div class="ptwho"><span>${esc(f?f.label:"")}</span><span class="ptacts"><button type="button" class="ptlink" data-pt="rules">How it works</button><button type="button" class="ptout" data-pt="logout">Log out</button></span></div>`:""}</div>`; }
+  return `<div class="pttop">${PT.fam?`<div class="ptbrand" aria-label="Red Robin"></div><div class="ptwho"><span>${esc(f?f.label:"")}</span><span class="ptacts"><button type="button" class="ptout" data-pt="logout">Log out</button></span></div>`:""}</div>${PT.fam?`<button type="button" class="pthow" data-pt="rules"><span class="pthi">i</span>How it works<span class="pthc">›</span></button>`:""}`; } /* logo only in the bar; How it works on its own strip (Chris, 26-Nov 10:07) */
 function ptEmailNorm(e){ return String(e||"").trim().toLowerCase(); }
 function ptEmailOk(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(ptEmailNorm(e)); }
 function ptStEmails(ref){ /* the emails on a student's registration form row */

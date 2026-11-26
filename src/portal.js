@@ -105,7 +105,7 @@ function ptByWhen(){ const e = ptTermEnd(); return e ? ptD(e, true) : "the end o
 /* ----- screens ----- */
 function ptLogo(){ const img = document.querySelector("header .logo"); return img ? `<img src="${img.src}" alt="" width="56" height="56" class="ptlogo">` : ""; }
 function ptTop(sub){ const f = PT.fam && ptFam();
-  return `<div class="pttop">${PT.fam?`<div class="ptbrand"><b>Red Robin</b><span>${esc(sub||"Class swaps")}</span></div><div class="ptwho"><span>${esc(f?f.label:"")}</span><span class="ptacts"><button type="button" class="ptlink" data-pt="rules">How it works</button><button type="button" class="ptout" data-pt="logout">Log out</button></span></div>`:""}</div>`; }
+  return `<div class="pttop">${PT.fam?`<div class="ptbrand" aria-label="Red Robin"></div><div class="ptwho"><span>${esc(f?f.label:"")}</span><span class="ptacts"><button type="button" class="ptout" data-pt="logout">Log out</button></span></div>`:""}</div>${PT.fam?`<button type="button" class="pthow" data-pt="rules"><span class="pthi">i</span>How it works<span class="pthc">›</span></button>`:""}`; } /* logo only in the bar; How it works on its own strip (Chris, 26-Nov 10:07) */
 function ptEmailNorm(e){ return String(e||"").trim().toLowerCase(); }
 function ptEmailOk(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(ptEmailNorm(e)); }
 function ptStEmails(ref){ /* the emails on a student's registration form row */
