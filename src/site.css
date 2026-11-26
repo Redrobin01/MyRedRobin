@@ -99,3 +99,9 @@ button.ptopt:active{transform:scale(.98)}
 .pthow{display:flex;align-items:center;gap:10px;width:100%;padding:10px 18px;border:0;border-bottom:1px solid #d9e8ef;background:var(--teal-soft);color:var(--teal-ink);font:inherit;font-family:"Nunito", var(--body);font-weight:800;font-size:.98rem;text-align:left;cursor:pointer}
 .pthi{flex:0 0 22px;height:22px;border-radius:50%;background:var(--teal-ink);color:#fff;font-size:.8rem;font-weight:800;font-style:italic;font-family:Georgia,serif;display:flex;align-items:center;justify-content:center}
 .pthc{margin-left:auto;font-size:1.3rem;line-height:1}
+/* family name in the middle, smaller Log out on the right (Chris, 10:08) */
+.pttop{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.pttop .ptwho{display:contents}
+.pttop .ptwho > span:first-child{grid-column:2;text-align:center;max-width:52vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pttop .ptacts{grid-column:3;justify-self:end}
+.pttop .ptout{font-size:.8rem;padding:5px 12px;border-width:1.5px}
