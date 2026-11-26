@@ -742,7 +742,7 @@ button.ptopt:active{transform:scale(.98)}
 <main id="main"></main>
 <div id="modal"></div>
 <script>
-const CONFIG = {"api": "https://script.google.com/macros/s/AKfycbwWruMZQLLSaN1fFWjAN5NN-YXZSFIfdl3qM4ykaevZYo2K5FrfEKEnfYzZbyKBJejx/exec", "version": "0.10.07", "demo": false};
+const CONFIG = {"api": "https://script.google.com/macros/s/AKfycbwWruMZQLLSaN1fFWjAN5NN-YXZSFIfdl3qM4ykaevZYo2K5FrfEKEnfYzZbyKBJejx/exec", "version": "0.10.08", "demo": false};
 </script>
 <script>
 
@@ -940,7 +940,7 @@ function ptRules(){
     <li>Can't make a class? Swap to any other class <b>this term</b>, as long as there's space.</li>
     <li>Children can go to <b>any other children's class</b>. Adults can go to <b>any other adult class</b>.</li>
     <!-- class maximums (16 children / 15 adults) are not shown to families, only the spaces left (Chris, 25-Nov 09:25) -->
-    <li>Not sure when you can come? Tap <b>Bank swap</b>. Banked swaps last until the end of term and are cleared when the new term starts.</li></ul>
+    <li>Not sure when you can come? Tap <b>Bank swap for future use</b>. Banked swaps last until the end of term and are cleared when the new term starts.</li></ul>
     <div class="ptfoot"><button type="button" class="btn" data-close>Close</button></div>`);
 }
 function ptPicker(kid, mode, cid, ref){ /* mode "swap" (ref = own date), "book" / "change" (ref = swap id) */
@@ -958,7 +958,7 @@ function ptPicker(kid, mode, cid, ref){ /* mode "swap" (ref = own date), "book" 
   const title = mode==="swap" ? `Swap ${nm}'s class on ${ptD(ref)}` : mode==="book" ? `Book ${nm}'s swap` : `Change ${nm}'s swap`;
   const sub = mode==="swap" ? (isFinite(PT_LIMIT) ? `${ptUsed(kid.ref)} of ${PT_LIMIT} swaps used this term` : "") : `Instead of ${w.fd?ptWhen(w.from, w.fd):"a missed class"}`;
   ptDialog(`<h2>${esc(title)}</h2>${sub?`<p class="small muted" style="margin:2px 0 10px">${esc(sub)}</p>`:""}
-    ${mode==="swap"?`<button type="button" class="btn ptlater" data-pt="later|${esc(kid.ref)}|${esc(cid)}|${ref}">Bank swap</button><div class="ptor small muted">or choose a class to come to instead</div>`:""}
+    ${mode==="swap"?`<button type="button" class="btn ptlater" data-pt="later|${esc(kid.ref)}|${esc(cid)}|${ref}">Bank swap for future use</button><div class="ptor small muted">or choose a class to come to instead</div>`:""}
     <div class="ptopts">${list||'<p class="muted">No classes with space left this term.</p>'}</div>
     ${opts.length>limit?`<button type="button" class="ptlink" data-pt="more|${mode}|${esc(kid.ref)}|${esc(cid||"")}|${esc(ref)}" style="margin-top:8px">Show later dates (${opts.length-limit} more)</button>`:""}
     <div class="ptfoot"><button type="button" class="btn" data-close>Close</button></div>`);

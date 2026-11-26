@@ -10,6 +10,9 @@
 // Families are found by their PERSONAL LINK (a random code in the PortalLinks tab) or by typing the
 // email on their registration form. Too many wrong emails from anywhere = a short pause.
 //
+// v7 (26-Nov-2026): FASTER. The sheets that rarely change (Settings, Classes, TermDates, Sessions, Enrolments and the
+//   two registration forms) are remembered for 5 minutes; the Swaps tab is always read fresh. Logging in with an email
+//   that isn't found reads the forms again, so a brand-new registration still works straight away.
 // v6 (26-Nov-2026): SWAPS LAST ONE TERM (Chris): the new class must be in the same term as the missed class, and
 //   banked (owed) swaps from an earlier term are no longer sent to the app - they're cleared when a new term starts.
 // v3 (25-Nov-2026): SWAPS ARE SAVED for real families (action=change): a new swap, "book later" (owed), booking or
@@ -40,7 +43,7 @@ const DB_ID         = '1U6ra-LmwQIFJKGtI0f1nuP6sAnjama4Zq36TQalptYk'; // Red Rob
 const FORM_ID       = '1rasCtoX6Ox8ZBqulykS8HJN6GjzygfbSYYgqSmfvKzA'; // Children's registration form responses
 const ADULT_FORM_ID = '13Wk9b8XW0j5F9cLkwK7_6pi06fcCl2TOfMuYc9AVBec'; // Adults' registration form responses
 const LINKS_TAB     = 'PortalLinks';                                   // Email | Code | Created | Note
-const VERSION       = 'bridge v6 (26-Nov-2026)';
+const VERSION       = 'bridge v7 (26-Nov-2026)';
 const TEST_DOMAIN   = '@redrobin.test';                                // test1@ … test4@ - made-up families for trying things out
 
 // ---------------- web entry points ----------------
@@ -79,8 +82,10 @@ function family_(p) {
     if (!row) return { ok: false, error: 'badcode' };
     who = row.email;
   }
-  const d = data_();
-  const fam = who.slice(-TEST_DOMAIN.length) === TEST_DOMAIN ? testFamily_(d, who) : realFamily_(d, who);
+  let d = data_();
+  const isTest = who.slice(-TEST_DOMAIN.length) === TEST_DOMAIN;
+  let fam = isTest ? testFamily_(d, who) : realFamily_(d, who);
+  if (!fam && !isTest && email) { d = data_(true); fam = realFamily_(d, who); }   // v7: a new registration since the 5-minute store was made
   if (!fam) { if (email) failed_(); return { ok: false, error: code ? 'badcode' : 'notfound' }; }
   const myCode = code || codeFor_(who);
   const used = {}; fam.kids.forEach(function (k) { k.enr.forEach(function (x) { used[x.cid] = 1; }); });
@@ -152,7 +157,7 @@ function change_(p) {
     const d = data_(), fam = realFamily_(d, row.email);
     if (!fam) return { ok: false, error: 'badcode' };
     const kids = {}; fam.kids.forEach(function (k) { kids[k.ref] = k; });
-    const sh = SpreadsheetApp.openById(DB_ID).getSheetByName('Swaps');
+    const sh = db_().getSheetByName('Swaps');
     if (!sh) throw new Error('No Swaps tab in the database.');
     const op = String(p.op || '');
     const fail = function (error, message) { return { ok: false, error: error, message: message }; };
@@ -224,9 +229,12 @@ function noteAdd_(note, more) { note = String(note || '').trim(); return note ? 
 
 // ---------------- reading the sheets ----------------
 
-function data_() {
-  const db = SpreadsheetApp.openById(DB_ID);
-  const tab = function (name) { const sh = db.getSheetByName(name); return sh ? objects_(sh.getDataRange().getDisplayValues()) : []; };
+function data_(fresh) {
+  const st = static_(fresh);
+  const tab = function (name) {   // v7: everything but the Swaps tab comes from the 5-minute store
+    if (name !== 'Swaps' && st[name]) return st[name];
+    const sh = db_().getSheetByName(name); return sh ? objects_(sh.getDataRange().getDisplayValues()) : [];
+  };
   const settings = {}; tab('Settings').forEach(function (r) { settings[r.Setting] = r.Value; });
   const term = String(settings.CurrentTerm || '').trim(), today = today_();
   const all = tab('Classes').filter(function (c) { return c.ClassID && !/^workshop/i.test(c.Type); });   // every term: make-ups can be in a later term
@@ -267,7 +275,7 @@ function data_() {
     swapDelta[w.from + '|' + w.fd] = (swapDelta[w.from + '|' + w.fd] || 0) - 1;
     if (w.cur || (booked && w.td >= today)) swaps.push(w);   // v6: last term's banked swaps are cleared
   });
-  return { term: term, termEnd: termEnd, today: today, classes: classes, all: all, byId: byId, sessions: sessions, base: base, enrolByRef: enrolByRef, termsByRef: termsByRef, swaps: swaps, allSwaps: allSwaps, swapDelta: swapDelta, students: students_() };
+  return { term: term, termEnd: termEnd, today: today, classes: classes, all: all, byId: byId, sessions: sessions, base: base, enrolByRef: enrolByRef, termsByRef: termsByRef, swaps: swaps, allSwaps: allSwaps, swapDelta: swapDelta, students: st.students };
 }
 
 // Every student on the two registration forms, with the emails on their row. Columns are found by their heading.
@@ -296,8 +304,40 @@ function students_() {
 
 // ---------------- personal links ----------------
 
+// v7: the sheets that rarely change, kept for 5 minutes (CacheService, split into pieces under the 100 KB limit)
+const STATIC_SECS = 300, STATIC_TABS = ['Settings', 'Classes', 'TermDates', 'Sessions', 'Enrolments'];
+let DB_ = null, STATIC_ = null;
+function db_() { return DB_ || (DB_ = SpreadsheetApp.openById(DB_ID)); }
+function static_(fresh) {
+  if (STATIC_ && !fresh) return STATIC_;
+  const cache = CacheService.getScriptCache();
+  if (!fresh) { const got = cacheGet_(cache, 'static'); if (got) return (STATIC_ = got); }
+  const st = {};
+  STATIC_TABS.forEach(function (name) { const sh = db_().getSheetByName(name); st[name] = sh ? objects_(sh.getDataRange().getDisplayValues()) : []; });
+  st.students = students_();
+  cachePut_(cache, 'static', st, STATIC_SECS);
+  return (STATIC_ = st);
+}
+function cacheGet_(cache, key) {
+  try {
+    const n = Number(cache.get(key + ':n') || 0); if (!n) return null;
+    const keys = []; for (let i = 0; i < n; i++) keys.push(key + ':' + i);
+    const parts = cache.getAll(keys); let txt = '';
+    for (let i = 0; i < n; i++) { if (parts[keys[i]] == null) return null; txt += parts[keys[i]]; }
+    return JSON.parse(txt);
+  } catch (e) { return null; }
+}
+function cachePut_(cache, key, obj, secs) {
+  try {
+    const txt = JSON.stringify(obj), size = 90000, put = {};
+    let n = 0; for (let i = 0; i < txt.length; i += size) put[key + ':' + (n++)] = txt.slice(i, i + size);
+    put[key + ':n'] = String(n); cache.putAll(put, secs);
+  } catch (e) { /* too big or cache busy: just read the sheets next time */ }
+}
+function refreshCache() { static_(true); Logger.log('Refreshed. ' + VERSION); }   // run by hand after big changes, if ever needed
+
 function links_() {
-  const db = SpreadsheetApp.openById(DB_ID);
+  const db = db_();
   let sh = db.getSheetByName(LINKS_TAB);
   if (!sh) { sh = db.insertSheet(LINKS_TAB); sh.appendRow(['Email', 'Code', 'Created', 'Note']); sh.setFrozenRows(1); }
   return objects_(sh.getDataRange().getDisplayValues()).map(function (r) { return { email: normEmail_(r.Email), code: String(r.Code || '').trim() }; })
