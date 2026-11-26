@@ -105,3 +105,8 @@ button.ptopt:active{transform:scale(.98)}
 .pttop .ptwho > span:first-child{grid-column:2;text-align:center;max-width:52vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pttop .ptacts{grid-column:3;justify-self:end}
 .pttop .ptout{font-size:.8rem;padding:5px 12px;border-width:1.5px}
+/* 10:36 (Chris): no family name in the top bar; turquoise banners with white writing and a black border */
+.pttop .ptwho > span:first-child{display:none}
+.pthow{background:var(--teal);color:#fff;border:2px solid #1d1d1b;border-left:0;border-right:0}
+.pthi{background:#fff;color:var(--teal)}
+.ptbank.zero{background:var(--teal);color:#fff;border:2px solid #1d1d1b}
