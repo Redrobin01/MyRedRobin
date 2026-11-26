@@ -36,15 +36,15 @@ body.parentmode #main{padding:0;max-width:none}
 .rrask .ptbig{width:100%;max-width:340px}
 .rrask .rrnot{margin-top:14px;font-size:1rem;padding:10px 18px}
 .rrhelp .rrnot{display:block;margin:12px auto 0;font-size:1rem;padding:8px 18px}
-/* Class picker: friendlier font, more space, a colour per weekday (Chris, 26-Nov) */
+/* Class picker: friendlier font, more space (Chris, 26-Nov); all in Red Robin red, a little tighter (09:37) */
 .ptdlg:has(.ptopts){font-family:"Nunito", var(--body)}
 .ptdlg:has(.ptopts) h2{font-family:"Nunito", var(--body);font-weight:800;font-size:1.3rem;line-height:1.25}
 .ptdlg .ptlater{font-family:inherit;font-weight:800;border-radius:999px;padding:12px 16px;border-width:2px}
 .ptdlg .ptor{font-size:.95rem;margin:14px 0 2px}
-.ptopts{gap:10px;max-height:58vh;padding:2px 4px 6px 2px}
-.ptday{--dc:#8a7f72;--ds:#f1eee9;align-self:flex-start;font-size:.85rem;font-weight:800;letter-spacing:.04em;text-transform:none;color:var(--dc);background:var(--ds);padding:5px 14px;border-radius:999px;margin:16px 0 0}
-.ptday:first-child{margin-top:4px}
-.ptopt{--dc:#8a7f72;--ds:#f1eee9;font-family:inherit;padding:15px 16px 15px 18px;border:2px solid var(--ds);border-left:6px solid var(--dc);border-radius:16px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.05);font-size:1.05rem;line-height:1.3;transition:transform .08s, box-shadow .15s}
+.ptopts{gap:7px;max-height:60vh;padding:2px 4px 6px 2px}
+.ptday{--dc:var(--accent);--ds:var(--accent-soft);align-self:flex-start;font-size:.85rem;font-weight:800;letter-spacing:.04em;text-transform:none;color:var(--dc);background:var(--ds);padding:4px 13px;border-radius:999px;margin:10px 0 0}
+.ptday:first-child{margin-top:2px}
+.ptopt{--dc:var(--accent);--ds:var(--accent-soft);font-family:inherit;padding:11px 14px 11px 16px;border:2px solid var(--ds);border-left:6px solid var(--dc);border-radius:14px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.05);font-size:1.05rem;line-height:1.3;transition:transform .08s, box-shadow .15s}
 button.ptopt:hover{border-color:var(--dc);box-shadow:0 4px 12px rgba(0,0,0,.08)}
 button.ptopt:active{transform:scale(.98)}
 .ptopt .ptot{font-weight:700}
@@ -54,12 +54,5 @@ button.ptopt:active{transform:scale(.98)}
 .ptopt.full .ptot{font-weight:600}
 .ptopt.full .ptsp{color:var(--muted);background:#e9e6e0}
 .ptdlg .ptlink{font-family:inherit;font-weight:800;font-size:1rem}
-[data-dow="Mon"]{--dc:#2f7fc1;--ds:#e3f0fb}
-[data-dow="Tue"]{--dc:#8a4fc4;--ds:#f1e8fb}
-[data-dow="Wed"]{--dc:#1f9a8a;--ds:#dff5f1}
-[data-dow="Thu"]{--dc:#d4691c;--ds:#fdeedf}
-[data-dow="Fri"]{--dc:#c8336e;--ds:#fce6ef}
-[data-dow="Sat"]{--dc:#4b9a2b;--ds:#e8f5e0}
-[data-dow="Sun"]{--dc:#c79a0a;--ds:#fcf4d9}
 .ptopt .ptlen{margin-left:4px;font-size:.82em}
 .ptdlg:has(.ptopts) .ptfoot .btn{font-family:inherit;font-weight:700}
