@@ -123,7 +123,7 @@ function ptByEmail(email){ /* everyone this term registered with this email -> o
   return {key:"email|"+e, email:e, adult, test, label: label || (st0 && st0.p1) || e, kids:uniq};
 }
 function ptLogin(){
-  return `<div class="ptlogin">${ptLogo()}<h3>Red Robin Art Academy</h3><p class="small muted">Class swaps</p>
+  return `<div class="ptlogin">${ptLogo()}<h3>Red Robin Art Academy</h3><p class="small muted">Class Swaps And Term Dates</p>
     <label class="ptlbl" for="pt-q">Your email address</label>
     <p class="small muted ptlhint" style="text-align:left;margin:-4px 0 8px;align-self:stretch">The one you gave on the registration form</p>
     <div class="ptsearch"><input id="pt-q" class="ptsel" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="name@example.com" value="${esc(PT._q||"")}"></div>
