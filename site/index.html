@@ -698,15 +698,13 @@ button.ptopt:active{transform:scale(.98)}
 .ptbadge{background:var(--teal-soft);color:var(--teal-ink)}
 /* thicker borders round the children's cards (Chris, 09:55) */
 .ptkid{border:2px solid #dcd5ca}
-/* Buttermilk / Naples yellow to brighten things up (Chris, 26-Nov 10:00) – used for everything "banked", and a warm page background */
-:root{ --butter:#fbe39a; --butter-soft:#fff4cf; --butter-ink:#7a5200; --page:#fffbf0; }
+/* Buttermilk yellow (Chris, 26-Nov 10:00; trimmed 10:02): kept only for the warm page background and the "n banked swaps to book" label */
+:root{ --butter:#fbe39a; --butter-ink:#7a5200; --page:#fffbf0; }
 .ptphone{background:var(--page)}
-.ptdlg .ptlater{background:var(--butter);border-color:var(--accent);color:var(--accent)}
-.ptdlg .ptlater:hover{background:#f8d978;color:var(--accent)}
 .ptbadge{background:var(--butter);color:var(--butter-ink)}
-.ptbank.zero{background:var(--butter-soft);color:var(--butter-ink);border:2px solid var(--butter)}
-.ptowed{background:var(--butter-soft);border:2px solid var(--butter)} .ptoh{color:var(--butter-ink)}
-.ptrow.owed{border-color:#e9c766;background:#fff}
+/* the "Banked swaps to book" box on a child's page: plain, no yellow */
+.ptowed{background:var(--surface);border:2px solid var(--line)} .ptoh{color:var(--ink)}
+.ptrow.owed{border-color:var(--line)}
 
 </style>
 </head>
