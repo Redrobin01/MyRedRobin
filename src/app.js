@@ -226,3 +226,11 @@ if("serviceWorker" in navigator && location.protocol==="https:") navigator.servi
   const u = new URL(location.href), code = (u.searchParams.get("c") || store.get() || "").trim();
   if(code) loadByCode(code); else { APP.state = "out"; render(); }
 })();
+
+/* Class picker: tag each date heading and its classes with the weekday, so site.css can colour them (26-Nov) */
+(function(){
+  if(typeof ptDialog!=="function") return;
+  const orig = ptDialog;
+  ptDialog = function(html){ orig(html); try{ document.querySelectorAll(".ptopts").forEach(box=>{ let dow = "";
+    for(const el of box.children){ if(el.classList.contains("ptday")) dow = el.textContent.trim().slice(0,3); if(dow) el.dataset.dow = dow; } }); }catch(e){} };
+})();
