@@ -122,3 +122,21 @@ button.ptopt:active{transform:scale(.98)}
 .ptdlg .ptlater{margin:26px auto 6px;padding:7px 18px;font-size:.88rem}
 /* 11:22: even more space between the heading and "Bank swap for future use" */
 .ptdlg h2 + .ptlater, .ptdlg .ptlater{margin-top:36px}
+/* "Term dates" button in the top bar and its pop-up (Chris, 26-Nov 11:27) */
+.pttop .ptacts{display:flex;gap:8px}
+.ptdlg:has(.tdterm){font-family:"Nunito", var(--body)}
+.ptdlg:has(.tdterm) h2{font-family:"Nunito", var(--body);font-weight:800}
+.tdterm{background:#fff;border:2px solid #dcd5ca;border-radius:14px;padding:12px 14px;margin-top:10px}
+.tdterm h3{margin:-12px -14px 8px;padding:8px 14px;border-radius:12px 12px 0 0;font-family:inherit;font-weight:800;font-size:1.05rem;color:#fff;background:var(--accent)}
+.tdrow{display:flex;justify-content:space-between;gap:12px;padding:4px 0;border-top:1px solid #f0ece5;font-size:.95rem}
+.tdrow:first-of-type{border-top:0}
+.tdrow span{color:var(--muted)}
+.tdnote{margin:10px 0 0}
+.dialog:has(.tdterm){background:var(--page)}
+.tdrow{display:block;padding:6px 0}
+.tdrow > span{display:block;font-size:.82rem;font-weight:800;color:var(--accent)}
+.tdrow b{font-weight:700}
+.tdw{font-weight:600;color:var(--muted)}
+.pttop{grid-template-columns:auto 1fr}
+.pttop .ptacts{grid-column:2;justify-self:end}
+.pttop .ptout{white-space:nowrap}

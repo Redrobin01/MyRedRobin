@@ -105,7 +105,7 @@ function ptByWhen(){ const e = ptTermEnd(); return e ? ptD(e, true) : "the end o
 /* ----- screens ----- */
 function ptLogo(){ const img = document.querySelector("header .logo"); return img ? `<img src="${img.src}" alt="" width="56" height="56" class="ptlogo">` : ""; }
 function ptTop(sub){ const f = PT.fam && ptFam();
-  return `<div class="pttop">${PT.fam?`<div class="ptbrand" aria-label="Red Robin"></div><div class="ptwho"><span>${esc(f?f.label:"")}</span><span class="ptacts"><button type="button" class="ptout" data-pt="logout">Log out</button></span></div>`:""}</div>${PT.fam?`<button type="button" class="pthow" data-pt="rules"><span class="pthi">i</span>How it works<span class="pthc">›</span></button>`:""}`; } /* logo only in the bar; How it works on its own strip (Chris, 26-Nov 10:07) */
+  return `<div class="pttop">${PT.fam?`<div class="ptbrand" aria-label="Red Robin"></div><div class="ptwho"><span>${esc(f?f.label:"")}</span><span class="ptacts"><button type="button" class="ptout pttd" data-pt="termdates">Term dates</button><button type="button" class="ptout" data-pt="logout">Log out</button></span></div>`:""}</div>${PT.fam?`<button type="button" class="pthow" data-pt="rules"><span class="pthi">i</span>How it works<span class="pthc">›</span></button>`:""}`; } /* logo only in the bar; How it works on its own strip (Chris, 26-Nov 10:07) */
 function ptEmailNorm(e){ return String(e||"").trim().toLowerCase(); }
 function ptEmailOk(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(ptEmailNorm(e)); }
 function ptStEmails(ref){ /* the emails on a student's registration form row */
@@ -188,6 +188,26 @@ function viewPortal(){
   const bar = S.parent ? `<div class="ptexit"><span>Parent view · preview</span><button type="button" data-pt="reset">Reset</button><a href="#portal" data-pt="exit">Exit</a></div>` : "";
   return (S.parent ? "" : head) + `<div class="ptwrap"><div class="ptphone">${screen}</div></div>` + bar;
 }
+function ptTermDates(){ /* term dates from the TermDates tab (sent by the bridge, v8), laid out like Carla's term dates sheet */
+  const list = (typeof APP!=="undefined" && APP.data && APP.data.termDates) || [];
+  const add = (iso, n)=>{ const d = isoDate(iso); d.setDate(d.getDate()+n); return toIso(d); };
+  const weeks = (a, b)=>{ const n = Math.round(((isoDate(b) - isoDate(a)) / 864e5 + 1) / 7); return ` <span class="tdw">(${n} week${n===1?"":"s"})</span>`; };
+  const long = iso=>{ const d = isoDate(iso); const n = d.getDate(), th = (n%10===1&&n!==11)?"st":(n%10===2&&n!==12)?"nd":(n%10===3&&n!==13)?"rd":"th"; return `${["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][d.getDay()]} ${n}${th} ${["January","February","March","April","May","June","July","August","September","October","November","December"][d.getMonth()]}`; };
+  const name = t=>{ const m = String(t.term).match(/(Autumn|Spring|Summer)/i); return m ? `${m[1]} Term ${isoDate(t.start).getFullYear()}` : t.term; };
+  const row = (lbl, val)=>`<div class="tdrow"><span>${lbl}</span><b>${val}</b></div>`;
+  const body = list.length ? list.map(t=>{ const rows = [];
+      if(t.halfStart && t.halfEnd){
+        const end1 = add(t.halfStart, -1), start2 = add(t.halfEnd, 1);
+        rows.push(row("Block One", `${long(t.start)} – ${long(end1)}${weeks(t.start, end1)}`));
+        (t.daysOff||[]).filter(d=>d<t.halfStart).forEach(d=>rows.push(row("Bank Holiday Closure", long(d))));
+        rows.push(row("Half Term", `${long(t.halfStart)} – ${long(t.halfEnd)}`));
+        rows.push(row("Block Two", `${long(start2)} – ${long(t.end)}${weeks(start2, t.end)}`));
+        (t.daysOff||[]).filter(d=>d>t.halfEnd).forEach(d=>rows.push(row("Bank Holiday Closure", long(d))));
+      } else { rows.push(row("Term", `${long(t.start)} – ${long(t.end)}`)); (t.daysOff||[]).forEach(d=>rows.push(row("Bank Holiday Closure", long(d)))); }
+      return `<div class="tdterm"><h3>${esc(name(t))}</h3>${rows.join("")}</div>`; }).join("")
+    : `<p class="muted">The term dates aren't available just now – please ask Carla.</p>`;
+  ptDialog(`<h2>Term dates</h2>${body}<div class="ptfoot"><button type="button" class="btn" data-close>Close</button></div>`);
+}
 function ptRules(){
   ptDialog(`<h2>How it works</h2><ul class="ptrl">
     <li>Can't make a class? Swap to any other class <b>this term</b>, as long as there's space.</li>
@@ -268,6 +288,7 @@ function ptClick(el){
   const p = el.dataset.pt.split("|"), k = p[0];
   if(k==="reset"){ PT = null; closeAllDialogs(); render(); toast("Demo reset – back to what's in the sheet."); return; }
   if(k==="rules"){ ptRules(); return; }
+  if(k==="termdates"){ ptTermDates(); return; } /* Chris, 26-Nov 11:27 */
   if(k==="parent"||k==="exit"){ ptOuterHash(k==="parent" ? "parent" : "portal"); return; } /* the link's own href changes the hash */
   if(k==="login"){ const inp = $("#pt-q"); if(inp) PT._q = inp.value; const f = ptByEmail(PT._q);
     if(!f){ PT._err = `We can't find <b>${esc(ptEmailNorm(PT._q))}</b>. Please use the email address you gave on the registration form, or contact Carla.`; render(); const i = $("#pt-q"); if(i) i.focus(); return; }

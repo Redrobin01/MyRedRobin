@@ -10,6 +10,8 @@
 // Families are found by their PERSONAL LINK (a random code in the PortalLinks tab) or by typing the
 // email on their registration form. Too many wrong emails from anywhere = a short pause.
 //
+// v8 (26-Nov-2026): sends the term dates (this term and later ones, from the TermDates tab) for the app's
+//   "Term dates" button: start, end, half term and any days off.
 // v7 (26-Nov-2026): FASTER. The sheets that rarely change (Settings, Classes, TermDates, Sessions, Enrolments and the
 //   two registration forms) are remembered, and only read again when Google Drive says one of the three spreadsheets
 //   has changed since (the Drive advanced service, "see file details" only). The Swaps tab is always read fresh.
@@ -45,7 +47,7 @@ const DB_ID         = '1U6ra-LmwQIFJKGtI0f1nuP6sAnjama4Zq36TQalptYk'; // Red Rob
 const FORM_ID       = '1rasCtoX6Ox8ZBqulykS8HJN6GjzygfbSYYgqSmfvKzA'; // Children's registration form responses
 const ADULT_FORM_ID = '13Wk9b8XW0j5F9cLkwK7_6pi06fcCl2TOfMuYc9AVBec'; // Adults' registration form responses
 const LINKS_TAB     = 'PortalLinks';                                   // Email | Code | Created | Note
-const VERSION       = 'bridge v7 (26-Nov-2026)';
+const VERSION       = 'bridge v8 (26-Nov-2026)';
 const TEST_DOMAIN   = '@redrobin.test';                                // test1@ … test4@ - made-up families for trying things out
 
 // ---------------- web entry points ----------------
@@ -109,7 +111,7 @@ function family_(p) {
     counts[c.ClassID] = row;
   });
   return {
-    ok: true, version: VERSION, code: myCode, term: d.term, termEnd: d.termEnd,
+    ok: true, version: VERSION, code: myCode, term: d.term, termEnd: d.termEnd, termDates: d.termDates,
     family: { label: fam.label, adult: fam.adult, test: !!fam.test, kids: fam.kids },
     classes: classes.map(function (c) { return { ClassID: c.ClassID, Term: c.Term, Type: c.Type, Day: c.Day, Time: c.Time, Group: c.Group, Fee: c.Fee, Weeks: c.Weeks, Capacity: c.Capacity, Sort: c.Sort }; }),
     sessions: sessions, counts: counts, swaps: swaps
@@ -245,6 +247,10 @@ function data_(fresh) {
   const classes = all.filter(function (c) { return c.Term === term; });
   const td = tab('TermDates').filter(function (r) { return r.Term === term; })[0];
   const termEnd = td ? iso_(td.End) : '';
+  const termDates = tab('TermDates').map(function (r) {   // v8: this term and later ones, for the app's "Term dates" button
+    return { term: r.Term, start: iso_(r.Start), end: iso_(r.End), halfStart: iso_(r.HalfTermStart), halfEnd: iso_(r.HalfTermEnd),
+      daysOff: String(r.DaysOff || '').split(/[,;]+/).map(iso_).filter(String) };
+  }).filter(function (t) { return t.term && t.start && t.end && t.end >= today; }).sort(function (a, b) { return a.start < b.start ? -1 : 1; });
   const sessions = {};
   tab('Sessions').forEach(function (s) {
     if (!byId[s.ClassID] || /^cancel/i.test(s.Status)) return; const day = iso_(s.Date); if (!day) return;
@@ -278,7 +284,7 @@ function data_(fresh) {
     swapDelta[w.from + '|' + w.fd] = (swapDelta[w.from + '|' + w.fd] || 0) - 1;
     if (w.cur || (booked && w.td >= today)) swaps.push(w);   // v6: last term's banked swaps are cleared
   });
-  return { term: term, termEnd: termEnd, today: today, classes: classes, all: all, byId: byId, sessions: sessions, base: base, enrolByRef: enrolByRef, termsByRef: termsByRef, swaps: swaps, allSwaps: allSwaps, swapDelta: swapDelta, students: st.students };
+  return { term: term, termEnd: termEnd, termDates: termDates, today: today, classes: classes, all: all, byId: byId, sessions: sessions, base: base, enrolByRef: enrolByRef, termsByRef: termsByRef, swaps: swaps, allSwaps: allSwaps, swapDelta: swapDelta, students: st.students };
 }
 
 // Every student on the two registration forms, with the emails on their row. Columns are found by their heading.
