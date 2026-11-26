@@ -68,3 +68,4 @@ button.ptopt:active{transform:scale(.98)}
 .ptbt b{font-size:1.05rem;font-weight:800}
 .ptbt span{font-size:.88rem;opacity:.92;margin-top:2px}
 .ptbgo{font-weight:800;font-size:1.6rem;line-height:1;opacity:.9}
+.ptbank.zero{background:var(--accent-soft);color:var(--accent);box-shadow:none;cursor:default}

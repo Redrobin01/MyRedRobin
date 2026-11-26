@@ -143,7 +143,8 @@ function ptChildren(){
   /* a big "n banked swaps – book a class" button for each student with banked swaps, first thing on opening the app (Chris, 26-Nov 09:50) */
   const banks = f.kids.map(k=>({k, n:PT.swaps.filter(w=>w.sid===k.ref && w.status==="owed").length})).filter(x=>x.n);
   const by = ptTermEnd() ? ptD(ptTermEnd()) : "the end of term";
-  const bankH = banks.length ? `<div class="ptbanks">${banks.map(({k,n})=>`<button type="button" class="ptbank" data-pt="bankgo|${esc(k.ref)}"><span class="ptbt"><b>${n} banked swap${n>1?"s":""} – book a class</b><span>${f.kids.length>1?esc(ptFirst(k.name))+" · ":""}Book by ${esc(by)}</span></span><span class="ptbgo">›</span></button>`).join("")}</div>` : "";
+  const bankH = banks.length ? `<div class="ptbanks">${banks.map(({k,n})=>`<button type="button" class="ptbank" data-pt="bankgo|${esc(k.ref)}"><span class="ptbt"><b>${n} banked swap${n>1?"s":""} – book a class</b><span>${f.kids.length>1?esc(ptFirst(k.name))+" · ":""}Book by ${esc(by)}</span></span><span class="ptbgo">›</span></button>`).join("")}</div>`
+    : `<div class="ptbanks"><div class="ptbank zero"><span class="ptbt"><b>0 banked swaps</b><span>Nothing to book right now</span></span></div></div>`; /* banner stays with 0 (Chris, 09:52) */
   return ptTop("Class swaps") + `<div class="ptbody">${bankH}<h3 class="pth">${f.adult?"Select student":"Select child"}</h3>
     <div class="ptkids">${f.kids.map(k=>{ const owed = PT.swaps.filter(w=>w.sid===k.ref && w.status==="owed").length;
       return `<button type="button" class="ptkid" data-pt="kid|${esc(k.ref)}"><span class="ptav">${esc(ptFirst(k.name).slice(0,1))}</span>
