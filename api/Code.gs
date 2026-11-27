@@ -13,7 +13,9 @@
 // v10 (27-Nov-2026): "HAVE I PAID?" (Chris, from the adult testers). For each of the family's places this term it sends
 //   the term fee (Classes › Fee), what's been paid (Payments tab, added up by EnrolmentID) and one of:
 //   paid (paid in full, or Carla ticked Fully paid), half (paid at least half the fee and we're still in Block One or half
-//   term – families can pay per half term, so they owe nothing yet), owing (with the amount), or absent (nothing to pay).
+//   term – families can pay per half term, so they owe nothing yet) or owing (with the amount). Absent students are treated
+//   like everyone else (Chris, 21:00). ADULTS get one free skip a term (Chris, 21:00): paying one class less (Fee ÷ Weeks,
+//   e.g. £396 − £33 = £363) counts as paid in full, and half less one class counts for Block One. `skip` = that class price.
 //   Same "fully paid" rules as the Rocker: FullyPaid Yes = settled; No = go by the amounts; blank = automatic.
 // v9 (26-Nov-2026): students marked Absent can log in and swap like everyone else (Carla). They already held their
 //   place in the class numbers, so nothing else changes.
@@ -127,27 +129,27 @@ function family_(p) {
 
 // ---------------- "Have I paid?" (v10) ----------------
 
-// One line per place this term: { ref, cid, fee, paid, status: paid|half|owing|absent, toPay, half }
+// One line per place this term: { ref, cid, fee, paid, status: paid|half|owing, toPay (full fee − paid), half, skip }
 function pay_(d, fam) {
   const td = d.td || {}, halfEnd = iso_(td.HalfTermEnd), inBlockOne = !!halfEnd && d.today <= halfEnd;   // Block One and half term itself
   const test = { 0: 'paid', 1: 'half', 2: 'owing' };
   return fam.kids.reduce(function (out, k, i) {
     (k.enr || []).forEach(function (x) {
       const c = d.byId[x.cid]; if (!c) return;
-      const fee = num_(c.Fee), half = Math.round(fee / 2 * 100) / 100;
+      const fee = num_(c.Fee), half = Math.round(fee / 2 * 100) / 100, wk = num_(c.Weeks);
+      const skip = isAdultClass_(c) && wk > 1 ? Math.round(fee / wk * 100) / 100 : 0;   // adults' one free skip a term
       if (fam.test) {   // made-up figures, so every look can be tried
-        const st = fam.adult ? 'paid' : test[i % 3], paid = st === 'paid' ? fee : st === 'half' ? half : 0;
-        out.push({ ref: k.ref, cid: x.cid, fee: fee, paid: paid, status: st === 'half' && !inBlockOne ? 'owing' : st, toPay: st === 'paid' ? 0 : fee - paid, half: half, blockOne: inBlockOne });
+        const st = fam.adult ? 'paid' : test[i % 3], paid = st === 'paid' ? fee - skip : st === 'half' ? half : 0;
+        out.push({ ref: k.ref, cid: x.cid, fee: fee, paid: paid, status: st === 'half' && !inBlockOne ? 'owing' : st, toPay: st === 'paid' ? 0 : fee - paid, half: half, skip: skip, blockOne: inBlockOne });
         return;
       }
       const e = d.enrolById[x.eid] || {}, paid = Math.round((d.paid[x.eid] || 0) * 100) / 100;
       const tick = String(e.FullyPaid || '').trim().toLowerCase(), old = num_(e.FeeDue);
       let st;
-      if (/^absent/i.test(e.Status)) st = 'absent';                                                   // absent places owe nothing (Rocker)
-      else if (fee <= 0 || paid >= fee - 0.005 || tick === 'yes' || (!tick && old > 0 && old < fee && paid >= old - 0.005)) st = 'paid';
-      else if (inBlockOne && paid >= half - 0.005) st = 'half';                                       // paid for Block One: nothing owed yet
+      if (fee <= 0 || paid >= fee - skip - 0.005 || tick === 'yes' || (!tick && old > 0 && old < fee && paid >= old - 0.005)) st = 'paid';
+      else if (inBlockOne && paid >= half - skip - 0.005) st = 'half';                                       // paid for Block One: nothing owed yet
       else st = 'owing';
-      out.push({ ref: k.ref, cid: x.cid, fee: fee, paid: paid, status: st, toPay: st === 'owing' || st === 'half' ? Math.max(0, Math.round((fee - paid) * 100) / 100) : 0, half: half, blockOne: inBlockOne });
+      out.push({ ref: k.ref, cid: x.cid, fee: fee, paid: paid, status: st, toPay: st === 'owing' || st === 'half' ? Math.max(0, Math.round((fee - paid) * 100) / 100) : 0, half: half, skip: skip, blockOne: inBlockOne });
     });
     return out;
   }, []);

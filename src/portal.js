@@ -216,11 +216,13 @@ function ptPaid(){ /* "Have I paid?" (Chris, 27-Nov – from the adult testers):
   const b2 = t && t.halfEnd ? (()=>{ const x = isoDate(t.halfEnd); x.setDate(x.getDate()+1); return toIso(x); })() : "";
   const termName = (()=>{ const m = String(d.term||"").match(/(Autumn|Spring|Summer)/i); return m && t ? `${m[1]} Term ${isoDate(t.start).getFullYear()}` : String(d.term||"This term"); })();
   const kid = ref=>f && f.kids.find(k=>k.ref===ref);
+  const season = (String(d.term||"").match(/(Autumn|Spring|Summer)/i)||[])[1] || "this"; /* "Fully paid for Autumn Term" (Chris, 21:03) */
   const cards = list.map(x=>{ const k = kid(x.ref), nm = k ? (k.adult ? k.name : ptFirst(k.name)) : "";
-    const line = x.status==="paid" ? `<div class="pyst good">✓ Paid in full</div><div class="pyd">${gbp(x.paid)} paid</div>`
-      : x.status==="half" ? `<div class="pyst good">✓ Block One paid</div><div class="pyd">${gbp(x.paid)} paid. Block Two${b2?` (from ${esc(long(b2))})`:""}: <b>${gbp(x.toPay)}</b> to pay.</div>`
-      : x.status==="absent" ? `<div class="pyst">Nothing to pay this term</div>`
-      : `<div class="pyst bad">${gbp(x.toPay)} still to pay</div><div class="pyd">${x.paid>0?`Paid ${gbp(x.paid)} of ${gbp(x.fee)}`:`Term fee ${gbp(x.fee)} – nothing paid yet`}</div>`;
+    const sk = x.skip>0 && x.toPay-x.skip>0.005 ? `<div class="pyd pysk">Or ${gbp(x.toPay-x.skip)} if you're taking your free skip this term.</div>` : ""; /* adults: one free skip a term (Chris, 27-Nov 21:00) */
+    const usedSkip = x.skip>0 && x.paid<x.fee-0.005 && x.paid>=x.fee-x.skip-0.005; /* adults who paid one class less have used their skip (Chris, 21:03) */
+    const line = x.status==="paid" ? `<div class="pyst good">✓ Fully paid for ${esc(season)} Term${usedSkip?` <span class="pysk2">(${esc(season)} term skip used)</span>`:""}</div><div class="pyd">${gbp(x.paid)} paid</div>`
+      : x.status==="half" ? `<div class="pyst good">✓ Block One paid</div><div class="pyd">${gbp(x.paid)} paid. Block Two${b2?` (from ${esc(long(b2))})`:""}: <b>${gbp(x.toPay)}</b> to pay.</div>${sk}`
+      : `<div class="pyst bad">${gbp(x.toPay)} still to pay</div><div class="pyd">${x.paid>0?`Paid ${gbp(x.paid)} of ${gbp(x.fee)}`:`Term fee ${gbp(x.fee)} – nothing paid yet`}</div>${sk}`;
     return `<div class="pycard"><div class="pyh"><b>${esc(nm)}</b><span>${ptLblH(x.cid)}</span></div>${line}</div>`; }).join("");
   const owe = list.filter(x=>x.status==="owing").reduce((n,x)=>n+x.toPay, 0), later = list.filter(x=>x.status==="half").reduce((n,x)=>n+x.toPay, 0);
   const total = list.length>1 ? `<div class="pytot ${owe?"bad":"good"}"><div>${owe ? `Family total still to pay: <b>${gbp(owe)}</b>` : "✓ All paid up for now"}</div>${later?`<span>Plus ${gbp(later)} for Block Two</span>`:""}</div>` : "";
