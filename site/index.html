@@ -766,13 +766,26 @@ button.ptopt:active{transform:scale(.98)}
 .pttop .pttd{background:#8e1f26;border-color:#8e1f26;color:#fff}
 .pttop .pttd:hover{background:#7a1a20;color:#fff}
 
+/* "Have I paid?" (27-Nov-2026) – same deep red as Term dates, pop-up like the term dates boxes */
+.pttop .ptpaid{background:#8e1f26;border-color:#8e1f26;color:#fff} .pttop .ptpaid:hover{background:#7a1a20;color:#fff}
+.dialog:has(.pycard){background:var(--page)} .ptdlg:has(.pycard), .ptdlg:has(.pycard) h2{font-family:"Nunito", var(--body)} .ptdlg:has(.pycard) h2{font-weight:800;margin-bottom:0}
+.pyterm{margin:2px 0 6px;font-weight:800;color:var(--accent)}
+.pycard{background:#fff;border:2px solid #dcd5ca;border-radius:14px;padding:10px 14px;margin-top:10px}
+.pyh{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-bottom:4px} .pyh b{font-size:1.05rem;font-weight:800} .pyh > span{color:var(--muted);font-size:.9rem}
+.pyst{font-weight:800;font-size:1rem} .pyst.good{color:#2f7d4f} .pyst.bad{color:var(--accent)}
+.pyd{font-size:.92rem;color:#58534c;margin-top:2px}
+.pytot{margin-top:12px;padding:10px 14px;border-radius:14px;border:2px solid #222;background:#fff;font-weight:700;display:flex;flex-direction:column;gap:2px}
+.pytot.good{color:#2f7d4f} .pytot.bad{color:var(--accent)} .pytot span{font-weight:600;color:#58534c;font-size:.9rem}
+.pynote{margin:12px 0 0}
+.pttop .ptacts{gap:6px} .pttop .ptacts .ptout{padding:5px 10px}
+
 </style>
 </head>
 <body class="parentmode">
 <main id="main"></main>
 <div id="modal"></div>
 <script>
-const CONFIG = {"api": "https://script.google.com/macros/s/AKfycbwWruMZQLLSaN1fFWjAN5NN-YXZSFIfdl3qM4ykaevZYo2K5FrfEKEnfYzZbyKBJejx/exec", "version": "0.11.01", "demo": false};
+const CONFIG = {"api": "https://script.google.com/macros/s/AKfycbwWruMZQLLSaN1fFWjAN5NN-YXZSFIfdl3qM4ykaevZYo2K5FrfEKEnfYzZbyKBJejx/exec", "version": "0.12", "demo": false};
 </script>
 <script>
 
@@ -882,7 +895,7 @@ function ptByWhen(){ const e = ptTermEnd(); return e ? ptD(e, true) : "the end o
 /* ----- screens ----- */
 function ptLogo(){ const img = document.querySelector("header .logo"); return img ? `<img src="${img.src}" alt="" width="56" height="56" class="ptlogo">` : ""; }
 function ptTop(sub){ const f = PT.fam && ptFam();
-  return `<div class="pttop">${PT.fam?`<div class="ptbrand" aria-label="Red Robin"></div><div class="ptwho"><span>${esc(f?f.label:"")}</span><span class="ptacts"><button type="button" class="ptout pttd" data-pt="termdates">Term dates</button><button type="button" class="ptout" data-pt="logout">Log out</button></span></div>`:""}</div>${PT.fam?`<button type="button" class="pthow" data-pt="rules"><span class="pthi">i</span>How it works<span class="pthc">›</span></button>`:""}`; } /* logo only in the bar; How it works on its own strip (Chris, 26-Nov 10:07) */
+  return `<div class="pttop">${PT.fam?`<div class="ptbrand" aria-label="Red Robin"></div><div class="ptwho"><span>${esc(f?f.label:"")}</span><span class="ptacts">${typeof APP!=="undefined" && APP.data && APP.data.pay ? `<button type="button" class="ptout ptpaid" data-pt="paid">Have I paid?</button>` : ""}<button type="button" class="ptout pttd" data-pt="termdates">Term dates</button><button type="button" class="ptout" data-pt="logout">Log out</button></span></div>`:""}</div>${PT.fam?`<button type="button" class="pthow" data-pt="rules"><span class="pthi">i</span>How it works<span class="pthc">›</span></button>`:""}`; } /* logo only in the bar; How it works on its own strip (Chris, 26-Nov 10:07) */
 function ptEmailNorm(e){ return String(e||"").trim().toLowerCase(); }
 function ptEmailOk(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(ptEmailNorm(e)); }
 function ptStEmails(ref){ /* the emails on a student's registration form row */
@@ -985,6 +998,26 @@ function ptTermDates(){ /* term dates from the TermDates tab (sent by the bridge
     : `<p class="muted">The term dates aren't available just now – please ask Carla.</p>`;
   ptDialog(`<h2>Term dates</h2>${body}<div class="ptfoot"><button type="button" class="btn" data-close>Close</button></div>`);
 }
+function ptPaid(){ /* "Have I paid?" (Chris, 27-Nov – from the adult testers): this term's fee for each of the family's places, from the bridge (v10) */
+  const d = (typeof APP!=="undefined" && APP.data) || {}, list = d.pay || [], f = ptFam();
+  const gbp = n=>"£"+(Math.round(n*100)%100 ? (+n).toFixed(2) : String(Math.round(n)));
+  const t = (d.termDates||[]).find(x=>x.term===d.term), long = iso=>{ const x = isoDate(iso); if(!x) return ""; const n = x.getDate(), th = (n%10===1&&n!==11)?"st":(n%10===2&&n!==12)?"nd":(n%10===3&&n!==13)?"rd":"th";
+    return `${["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][x.getDay()]} ${n}${th} ${["January","February","March","April","May","June","July","August","September","October","November","December"][x.getMonth()]}`; };
+  const b2 = t && t.halfEnd ? (()=>{ const x = isoDate(t.halfEnd); x.setDate(x.getDate()+1); return toIso(x); })() : "";
+  const termName = (()=>{ const m = String(d.term||"").match(/(Autumn|Spring|Summer)/i); return m && t ? `${m[1]} Term ${isoDate(t.start).getFullYear()}` : String(d.term||"This term"); })();
+  const kid = ref=>f && f.kids.find(k=>k.ref===ref);
+  const cards = list.map(x=>{ const k = kid(x.ref), nm = k ? (k.adult ? k.name : ptFirst(k.name)) : "";
+    const line = x.status==="paid" ? `<div class="pyst good">✓ Paid in full</div><div class="pyd">${gbp(x.paid)} paid</div>`
+      : x.status==="half" ? `<div class="pyst good">✓ Block One paid</div><div class="pyd">${gbp(x.paid)} paid. Block Two${b2?` (from ${esc(long(b2))})`:""}: <b>${gbp(x.toPay)}</b> to pay.</div>`
+      : x.status==="absent" ? `<div class="pyst">Nothing to pay this term</div>`
+      : `<div class="pyst bad">${gbp(x.toPay)} still to pay</div><div class="pyd">${x.paid>0?`Paid ${gbp(x.paid)} of ${gbp(x.fee)}`:`Term fee ${gbp(x.fee)} – nothing paid yet`}</div>`;
+    return `<div class="pycard"><div class="pyh"><b>${esc(nm)}</b><span>${ptLblH(x.cid)}</span></div>${line}</div>`; }).join("");
+  const owe = list.filter(x=>x.status==="owing").reduce((n,x)=>n+x.toPay, 0), later = list.filter(x=>x.status==="half").reduce((n,x)=>n+x.toPay, 0);
+  const total = list.length>1 ? `<div class="pytot ${owe?"bad":"good"}"><div>${owe ? `Family total still to pay: <b>${gbp(owe)}</b>` : "✓ All paid up for now"}</div>${later?`<span>Plus ${gbp(later)} for Block Two</span>`:""}</div>` : "";
+  ptDialog(`<h2>Have I paid?</h2><p class="pyterm">${esc(termName)}</p>${cards || '<p class="muted">Nothing to show for this term.</p>'}${total}
+    <p class="small muted pynote">Paid in the last few days? It can take a little while to show here. Any questions, please contact Carla.</p>
+    <div class="ptfoot"><button type="button" class="btn" data-close>Close</button></div>`);
+}
 function ptRules(){
   ptDialog(`<h2>How it works</h2><ul class="ptrl">
     <li>Can't make a class? Swap to any other class <b>this term</b>, as long as there's space.</li>
@@ -1065,7 +1098,8 @@ function ptClick(el){
   const p = el.dataset.pt.split("|"), k = p[0];
   if(k==="reset"){ PT = null; closeAllDialogs(); render(); toast("Demo reset – back to what's in the sheet."); return; }
   if(k==="rules"){ ptRules(); return; }
-  if(k==="termdates"){ ptTermDates(); return; } /* Chris, 26-Nov 11:27 */
+  if(k==="termdates"){ ptTermDates(); return; }
+  if(k==="paid"){ ptPaid(); return; } /* Chris, 27-Nov */ /* Chris, 26-Nov 11:27 */
   if(k==="parent"||k==="exit"){ ptOuterHash(k==="parent" ? "parent" : "portal"); return; } /* the link's own href changes the hash */
   if(k==="login"){ const inp = $("#pt-q"); if(inp) PT._q = inp.value; const f = ptByEmail(PT._q);
     if(!f){ PT._err = `We can't find <b>${esc(ptEmailNorm(PT._q))}</b>. Please use the email address you gave on the registration form, or contact Carla.`; render(); const i = $("#pt-q"); if(i) i.focus(); return; }

@@ -4,12 +4,17 @@
 // The "Red Robin Swaps" app (on Netlify) asks this script for ONE family's details. It answers with
 // only what the app needs: the children's names, their classes and dates this term, how many places
 // are free in each class on each date, and the family's own swaps. Never addresses, phone numbers,
-// medical notes or payments.
+// medical notes. Payments: only the family's OWN places this term, as "paid £x of £y" (v10) – never anyone else's.
 //
 // It runs as Carla, so parents don't need a Google account and never get access to the sheets.
 // Families are found by their PERSONAL LINK (a random code in the PortalLinks tab) or by typing the
 // email on their registration form. Too many wrong emails from anywhere = a short pause.
 //
+// v10 (27-Nov-2026): "HAVE I PAID?" (Chris, from the adult testers). For each of the family's places this term it sends
+//   the term fee (Classes › Fee), what's been paid (Payments tab, added up by EnrolmentID) and one of:
+//   paid (paid in full, or Carla ticked Fully paid), half (paid at least half the fee and we're still in Block One or half
+//   term – families can pay per half term, so they owe nothing yet), owing (with the amount), or absent (nothing to pay).
+//   Same "fully paid" rules as the Rocker: FullyPaid Yes = settled; No = go by the amounts; blank = automatic.
 // v9 (26-Nov-2026): students marked Absent can log in and swap like everyone else (Carla). They already held their
 //   place in the class numbers, so nothing else changes.
 // v8 (26-Nov-2026): sends the term dates (this term and later ones, from the TermDates tab) for the app's
@@ -49,7 +54,7 @@ const DB_ID         = '1U6ra-LmwQIFJKGtI0f1nuP6sAnjama4Zq36TQalptYk'; // Red Rob
 const FORM_ID       = '1rasCtoX6Ox8ZBqulykS8HJN6GjzygfbSYYgqSmfvKzA'; // Children's registration form responses
 const ADULT_FORM_ID = '13Wk9b8XW0j5F9cLkwK7_6pi06fcCl2TOfMuYc9AVBec'; // Adults' registration form responses
 const LINKS_TAB     = 'PortalLinks';                                   // Email | Code | Created | Note
-const VERSION       = 'bridge v9 (26-Nov-2026)';
+const VERSION       = 'bridge v10 (27-Nov-2026)';
 const TEST_DOMAIN   = '@redrobin.test';                                // test1@ … test4@ - made-up families for trying things out
 
 // ---------------- web entry points ----------------
@@ -116,8 +121,36 @@ function family_(p) {
     ok: true, version: VERSION, code: myCode, term: d.term, termEnd: d.termEnd, termDates: d.termDates,
     family: { label: fam.label, adult: fam.adult, test: !!fam.test, kids: fam.kids },
     classes: classes.map(function (c) { return { ClassID: c.ClassID, Term: c.Term, Type: c.Type, Day: c.Day, Time: c.Time, Group: c.Group, Fee: c.Fee, Weeks: c.Weeks, Capacity: c.Capacity, Sort: c.Sort }; }),
-    sessions: sessions, counts: counts, swaps: swaps
+    sessions: sessions, counts: counts, swaps: swaps, pay: pay_(d, fam)
   };
+}
+
+// ---------------- "Have I paid?" (v10) ----------------
+
+// One line per place this term: { ref, cid, fee, paid, status: paid|half|owing|absent, toPay, half }
+function pay_(d, fam) {
+  const td = d.td || {}, halfEnd = iso_(td.HalfTermEnd), inBlockOne = !!halfEnd && d.today <= halfEnd;   // Block One and half term itself
+  const test = { 0: 'paid', 1: 'half', 2: 'owing' };
+  return fam.kids.reduce(function (out, k, i) {
+    (k.enr || []).forEach(function (x) {
+      const c = d.byId[x.cid]; if (!c) return;
+      const fee = num_(c.Fee), half = Math.round(fee / 2 * 100) / 100;
+      if (fam.test) {   // made-up figures, so every look can be tried
+        const st = fam.adult ? 'paid' : test[i % 3], paid = st === 'paid' ? fee : st === 'half' ? half : 0;
+        out.push({ ref: k.ref, cid: x.cid, fee: fee, paid: paid, status: st === 'half' && !inBlockOne ? 'owing' : st, toPay: st === 'paid' ? 0 : fee - paid, half: half, blockOne: inBlockOne });
+        return;
+      }
+      const e = d.enrolById[x.eid] || {}, paid = Math.round((d.paid[x.eid] || 0) * 100) / 100;
+      const tick = String(e.FullyPaid || '').trim().toLowerCase(), old = num_(e.FeeDue);
+      let st;
+      if (/^absent/i.test(e.Status)) st = 'absent';                                                   // absent places owe nothing (Rocker)
+      else if (fee <= 0 || paid >= fee - 0.005 || tick === 'yes' || (!tick && old > 0 && old < fee && paid >= old - 0.005)) st = 'paid';
+      else if (inBlockOne && paid >= half - 0.005) st = 'half';                                       // paid for Block One: nothing owed yet
+      else st = 'owing';
+      out.push({ ref: k.ref, cid: x.cid, fee: fee, paid: paid, status: st, toPay: st === 'owing' || st === 'half' ? Math.max(0, Math.round((fee - paid) * 100) / 100) : 0, half: half, blockOne: inBlockOne });
+    });
+    return out;
+  }, []);
 }
 
 function realFamily_(d, email) {
@@ -285,7 +318,8 @@ function data_(fresh) {
     swapDelta[w.from + '|' + w.fd] = (swapDelta[w.from + '|' + w.fd] || 0) - 1;
     if (w.cur || (booked && w.td >= today)) swaps.push(w);   // v6: last term's banked swaps are cleared
   });
-  return { term: term, termEnd: termEnd, termDates: termDates, today: today, classes: classes, all: all, byId: byId, sessions: sessions, base: base, enrolByRef: enrolByRef, termsByRef: termsByRef, swaps: swaps, allSwaps: allSwaps, swapDelta: swapDelta, students: st.students };
+  const paid = st.paid || {};   // v10: money paid per EnrolmentID
+  return { td: td, paid: paid, enrolById: enrolById, term: term, termEnd: termEnd, termDates: termDates, today: today, classes: classes, all: all, byId: byId, sessions: sessions, base: base, enrolByRef: enrolByRef, termsByRef: termsByRef, swaps: swaps, allSwaps: allSwaps, swapDelta: swapDelta, students: st.students };
 }
 
 // Every student on the two registration forms, with the emails on their row. Columns are found by their heading.
@@ -328,11 +362,14 @@ function static_(fresh) {
   const cache = CacheService.getScriptCache(), stamp = stamp_();
   if (!fresh) {
     const got = cacheGet_(cache, 'static');
-    if (got && (stamp ? got.stamp === stamp : got.stamp === '')) return (STATIC_ = got);   // unchanged since it was read
+    if (got && got.paid && (stamp ? got.stamp === stamp : got.stamp === '')) return (STATIC_ = got);   // unchanged since it was read
   }
   const st = { stamp: stamp };
   STATIC_TABS.forEach(function (name) { const sh = db_().getSheetByName(name); st[name] = sh ? objects_(sh.getDataRange().getDisplayValues()) : []; });
   st.students = students_();
+  st.paid = {};   // v10: only the totals per place are kept, not the payment rows
+  const psh = db_().getSheetByName('Payments');
+  if (psh) objects_(psh.getDataRange().getDisplayValues()).forEach(function (r) { if (r.EnrolmentID) st.paid[r.EnrolmentID] = (st.paid[r.EnrolmentID] || 0) + num_(r.Amount); });
   cachePut_(cache, 'static', st, stamp ? STATIC_LONG : STATIC_SECS);
   return (STATIC_ = st);
 }

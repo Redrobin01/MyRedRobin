@@ -2,7 +2,7 @@
 const http=require('http'), fs=require('fs'), path=require('path'), vm=require('vm'), crypto=require('crypto');
 const FX=JSON.parse(fs.readFileSync(process.argv[2]||'/home/claude/rk/ref/realfx.json','utf8'));
 const tabs={'1U6ra-LmwQIFJKGtI0f1nuP6sAnjama4Zq36TQalptYk':{}, '1rasCtoX6Ox8ZBqulykS8HJN6GjzygfbSYYgqSmfvKzA':{'Form Responses 1':FX.FORM}, '13Wk9b8XW0j5F9cLkwK7_6pi06fcCl2TOfMuYc9AVBec':{'Form responses 1':FX.AFORM}};
-['Settings','Classes','TermDates','Sessions','Enrolments','Swaps'].forEach(k=>tabs['1U6ra-LmwQIFJKGtI0f1nuP6sAnjama4Zq36TQalptYk'][k]=FX[k]);
+['Settings','Classes','TermDates','Sessions','Enrolments','Payments','Swaps'].forEach(k=>tabs['1U6ra-LmwQIFJKGtI0f1nuP6sAnjama4Zq36TQalptYk'][k]=FX[k]);
 const W=n=>{ const w=Math.max(...n.map(r=>r.length)); return n.map(r=>{ r=r.slice(); while(r.length<w) r.push(''); return r.map(x=>x==null?'':String(x)); }); };
 function sheet(rows){ return { getDataRange:()=>{ globalThis.READS=(globalThis.READS||0)+1; return {getDisplayValues:()=>W(rows)}; }, appendRow:r=>rows.push(r.map(String)), setFrozenRows(){}, getLastRow:()=>rows.length,
   getRange:(r,c,nr,nc)=>({setValues:v=>{ v.forEach((row,i)=>{ const t=rows[r-1+i]||(rows[r-1+i]=[]); while(t.length<c-1) t.push(''); row.forEach((x,j)=>t[c-1+j]=String(x)); }); }}) }; }

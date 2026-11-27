@@ -145,3 +145,16 @@ button.ptopt:active{transform:scale(.98)}
 .tdrow{border-top-color:#e7e1d6}
 .pttop .pttd{background:#8e1f26;border-color:#8e1f26;color:#fff}
 .pttop .pttd:hover{background:#7a1a20;color:#fff}
+
+/* "Have I paid?" (27-Nov-2026) – same deep red as Term dates, pop-up like the term dates boxes */
+.pttop .ptpaid{background:#8e1f26;border-color:#8e1f26;color:#fff} .pttop .ptpaid:hover{background:#7a1a20;color:#fff}
+.dialog:has(.pycard){background:var(--page)} .ptdlg:has(.pycard), .ptdlg:has(.pycard) h2{font-family:"Nunito", var(--body)} .ptdlg:has(.pycard) h2{font-weight:800;margin-bottom:0}
+.pyterm{margin:2px 0 6px;font-weight:800;color:var(--accent)}
+.pycard{background:#fff;border:2px solid #dcd5ca;border-radius:14px;padding:10px 14px;margin-top:10px}
+.pyh{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-bottom:4px} .pyh b{font-size:1.05rem;font-weight:800} .pyh > span{color:var(--muted);font-size:.9rem}
+.pyst{font-weight:800;font-size:1rem} .pyst.good{color:#2f7d4f} .pyst.bad{color:var(--accent)}
+.pyd{font-size:.92rem;color:#58534c;margin-top:2px}
+.pytot{margin-top:12px;padding:10px 14px;border-radius:14px;border:2px solid #222;background:#fff;font-weight:700;display:flex;flex-direction:column;gap:2px}
+.pytot.good{color:#2f7d4f} .pytot.bad{color:var(--accent)} .pytot span{font-weight:600;color:#58534c;font-size:.9rem}
+.pynote{margin:12px 0 0}
+.pttop .ptacts{gap:6px} .pttop .ptacts .ptout{padding:5px 10px}
